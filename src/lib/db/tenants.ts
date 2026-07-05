@@ -41,7 +41,23 @@ export async function update(id: string, patch: TenantUpdate): Promise<Tenant> {
   return data as unknown as Tenant;
 }
 
+const TENANT_SCOPED_TABLES = [
+  'processed_events',
+  'drafts',
+  'message_log',
+  'usage_stats',
+  'labels',
+  'ig_connections',
+] as const satisfies readonly (keyof Database['public']['Tables'])[];
+
 export async function deleteCascade(id: string): Promise<void> {
-  const { error } = await getDb().from('tenants').delete().eq('id', id);
-  if (error) throwDb('tenants.deleteCascade', error);
+  const db = getDb();
+
+  for (const table of TENANT_SCOPED_TABLES) {
+    const { error } = await db.from(table).delete().eq('tenant_id', id);
+    if (error) throwDb(`tenants.deleteCascade.${table}`, error);
+  }
+
+  const { error } = await db.from('tenants').delete().eq('id', id);
+  if (error) throwDb('tenants.deleteCascade.tenants', error);
 }

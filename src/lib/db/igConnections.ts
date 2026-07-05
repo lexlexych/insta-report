@@ -10,8 +10,8 @@ type IgConnectionUpdate = Database['public']['Tables']['ig_connections']['Update
 type IgStatus = IgConnection['status'];
 
 export type IgConnectionPatch = Omit<Partial<IgConnectionInsert>, 'tenant_id' | 'access_token_enc' | 'app_secret_enc'> & {
-  accessToken?: string;
-  appSecret?: string;
+  accessToken?: string | null;
+  appSecret?: string | null;
 };
 
 export type DecryptedIgConnection = Omit<IgConnection, 'access_token_enc' | 'app_secret_enc'> & {
@@ -32,8 +32,8 @@ function toDbPatch(patch: IgConnectionPatch): IgConnectionUpdate {
   const { accessToken, appSecret, ...rest } = patch;
   return {
     ...rest,
-    ...(accessToken === undefined ? {} : { access_token_enc: encrypt(accessToken) }),
-    ...(appSecret === undefined ? {} : { app_secret_enc: encrypt(appSecret) }),
+    ...(accessToken === undefined ? {} : { access_token_enc: accessToken === null ? null : encrypt(accessToken) }),
+    ...(appSecret === undefined ? {} : { app_secret_enc: appSecret === null ? null : encrypt(appSecret) }),
   };
 }
 
@@ -136,4 +136,22 @@ export async function listActiveForRefresh(olderThanDays: number): Promise<Decry
     byTenant.set(row.tenant_id, row);
   }
   return [...byTenant.values()].map(decryptConnection);
+}
+
+export async function disconnectTenant(tenantId: string): Promise<IgConnection> {
+  const { data, error } = await getDb()
+    .from('ig_connections')
+    .update({
+      access_token_enc: null,
+      app_secret_enc: null,
+      status: 'pending',
+      handshake_at: null,
+      token_refreshed_at: null,
+      webhook_last_seen_at: null,
+    })
+    .eq('tenant_id', tenantId)
+    .select()
+    .single();
+  if (error) throwDb('igConnections.disconnectTenant', error);
+  return data as unknown as IgConnection;
 }

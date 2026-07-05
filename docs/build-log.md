@@ -28,3 +28,4 @@
 | T-026 | awaiting_merge | ticket/T-026 | make_pr tool | 0 | 2026-07-05 |
 | T-027 | awaiting_merge | ticket/T-027 | make_pr tool | 0 | 2026-07-05 |
 
+| T-028 | awaiting_merge | ticket/T-028 | make_pr tool | 0 | 2026-07-05 |

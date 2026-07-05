@@ -52,6 +52,7 @@ const tenant: Tenant = {
   knowledge_base: null,
   system_prompt: null,
   reply_language: 'ru',
+  ui_locale: 'ru',
   plan: 'free',
   onboarding_step: null,
   created_at: '2026-07-05T09:00:00Z',

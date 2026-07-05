@@ -4,7 +4,7 @@ import { init, miniApp, retrieveLaunchParams, retrieveRawInitData, themeParams, 
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { I18nProvider, resolveLocale, t } from '@/lib/i18n';
+import { I18nProvider, resolveLocale, t, useT, type Locale } from '@/lib/i18n';
 
 type TelegramTheme = {
   bg_color?: string;
@@ -25,6 +25,7 @@ export type MiniAppTenant = {
   id: string;
   onboardingStep: string | null;
   orgName: string | null;
+  uiLocale?: Locale;
 };
 
 const BOT_USERNAME = 'InstaReplyBot';
@@ -87,6 +88,7 @@ function AuthErrorScreen({ onRetry }: { onRetry: () => void }) {
 }
 
 function TenantProvider({ children }: { children: ReactNode }) {
+  const { setLocale } = useT();
   const [authAttempt, setAuthAttempt] = useState(0);
   const [state, setState] = useState<Omit<TenantContextValue, 'retry'>>({ status: 'loading', tenant: null });
   const retry = useCallback(() => {
@@ -114,6 +116,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error('Mini App auth failed');
         const payload = (await response.json()) as { tenant?: MiniAppTenant };
         if (!payload.tenant) throw new Error('Mini App auth response missing tenant');
+        if (payload.tenant.uiLocale) setLocale(payload.tenant.uiLocale);
         setState({ status: 'ready', tenant: payload.tenant });
       } catch {
         if (!controller.signal.aborted) setState({ status: 'error', tenant: null });
@@ -122,7 +125,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
 
     void authenticate();
     return () => controller.abort();
-  }, [authAttempt]);
+  }, [authAttempt, setLocale]);
 
   const pathname = usePathname();
   const router = useRouter();

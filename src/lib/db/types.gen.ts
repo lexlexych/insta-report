@@ -18,6 +18,7 @@ export type Database = {
           knowledge_base: string | null;
           system_prompt: string | null;
           reply_language: string;
+          ui_locale: 'ru' | 'de';
           plan: string;
           onboarding_step: string | null;
           created_at: string;
@@ -31,6 +32,7 @@ export type Database = {
           knowledge_base?: string | null;
           system_prompt?: string | null;
           reply_language?: string;
+          ui_locale?: 'ru' | 'de';
           plan?: string;
           onboarding_step?: string | null;
           created_at?: string;
@@ -44,6 +46,7 @@ export type Database = {
           knowledge_base?: string | null;
           system_prompt?: string | null;
           reply_language?: string;
+          ui_locale?: 'ru' | 'de';
           plan?: string;
           onboarding_step?: string | null;
           created_at?: string;
