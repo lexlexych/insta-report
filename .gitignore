@@ -32,3 +32,6 @@ pnpm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# temp
+supabase/.temp
