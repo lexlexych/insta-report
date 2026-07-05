@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --text: #111827;
+  --hint: #6b7280;
+  --link: #2563eb;
+  --button: #2563eb;
+  --button-text: #ffffff;
+  --secondary-bg: #f3f4f6;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
