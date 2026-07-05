@@ -62,6 +62,7 @@ export type Database = {
           verify_token: string | null;
           token_refreshed_at: string | null;
           webhook_last_seen_at: string | null;
+          handshake_at: string | null;
           status: 'pending' | 'active' | 'error';
           created_at: string;
         };
@@ -76,6 +77,7 @@ export type Database = {
           verify_token?: string | null;
           token_refreshed_at?: string | null;
           webhook_last_seen_at?: string | null;
+          handshake_at?: string | null;
           status?: 'pending' | 'active' | 'error';
           created_at?: string;
         };
@@ -90,6 +92,7 @@ export type Database = {
           verify_token?: string | null;
           token_refreshed_at?: string | null;
           webhook_last_seen_at?: string | null;
+          handshake_at?: string | null;
           status?: 'pending' | 'active' | 'error';
           created_at?: string;
         };
