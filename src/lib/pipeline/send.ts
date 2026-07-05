@@ -1,7 +1,15 @@
 import { InlineKeyboard } from 'grammy';
 import type { Context } from 'grammy';
 
-import { drafts, igConnections, labels, messageLog, tenants, usageStats } from '@/lib/db';
+import {
+  drafts,
+  igConnections,
+  labels,
+  messageLog,
+  processedEvents,
+  tenants,
+  usageStats,
+} from '@/lib/db';
 import { getConversation, sendMessage } from '@/lib/ig/client';
 import { editMessageHTML, answerCallback } from '@/lib/tg/api';
 import { renderDraftCard } from '@/lib/tg/draftCard';
@@ -24,6 +32,7 @@ type SendDeps = {
   sendMessage: typeof sendMessage;
   addMessageLog: typeof messageLog.add;
   incrementUsage: typeof usageStats.increment;
+  markProcessedEvent: typeof processedEvents.tryInsert;
   editMessageHTML: typeof editMessageHTML;
   now: () => Date;
 };
@@ -41,6 +50,7 @@ const DEFAULT_DEPS: SendDeps = {
   sendMessage,
   addMessageLog: messageLog.add,
   incrementUsage: usageStats.increment,
+  markProcessedEvent: processedEvents.tryInsert,
   editMessageHTML,
   now: () => new Date(),
 };
@@ -148,7 +158,10 @@ export async function attemptSend(
       return;
     }
 
-    await d.sendMessage(accessToken, igAccountId, contactId, draftText);
+    const mids = await d.sendMessage(accessToken, igAccountId, contactId, draftText);
+    await Promise.all(
+      mids.filter((mid) => mid.trim()).map((mid) => d.markProcessedEvent(tenant.id, mid)),
+    );
     await d.setDraftStatus(draft.id, 'sent', { error: null });
     await d.addMessageLog(tenant.id, draft.conversation_key, 'out', draftText);
     await d.incrementUsage(tenant.id, { draftsSent: 1 });
