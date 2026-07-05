@@ -23,6 +23,9 @@ export const dictionary: Dictionary = {
     pageOnboardingTitle: 'Онбординг',
     pageConnectInstagramTitle: 'Подключение Instagram',
     pageUnderConstruction: 'Раздел «{section}» в разработке.',
+    miniAppAuthErrorTitle: 'Не удалось войти',
+    miniAppAuthErrorHint: 'Проверьте, что приложение открыто из Telegram, и попробуйте ещё раз.',
+    retry: 'Повторить',
   },
   de: {
     tgStart: 'Hallo! Ich helfe dir, Kundinnen und Kunden in Instagram Direct zu antworten. Öffne das Panel, um die Einrichtung fortzusetzen.',
@@ -40,6 +43,9 @@ export const dictionary: Dictionary = {
     pageOnboardingTitle: 'Onboarding',
     pageConnectInstagramTitle: 'Instagram verbinden',
     pageUnderConstruction: 'Der Bereich „{section}“ ist in Entwicklung.',
+    miniAppAuthErrorTitle: 'Anmeldung fehlgeschlagen',
+    miniAppAuthErrorHint: 'Bitte öffne die App aus Telegram und versuche es erneut.',
+    retry: 'Wiederholen',
   },
 } satisfies Dictionary;
 

@@ -14,6 +14,8 @@ declare module '@telegram-apps/sdk-react' {
     on(event: 'change', handler: () => void): () => void;
   };
 
+  export function retrieveRawInitData(): string | undefined;
+
   export function useLaunchParams(): {
     initDataUnsafe?: {
       user?: {
