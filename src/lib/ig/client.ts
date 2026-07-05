@@ -14,7 +14,7 @@ type IgErrorPayload = {
 export type IgMessage = {
   text: string;
   fromId: string;
-  createdTime: string;
+  createdTime: number;
 };
 
 export class IgApiError extends Error {
@@ -131,6 +131,12 @@ export async function getUsername(token: string, igsid: string): Promise<string 
   }
 }
 
+function normalizeCreatedTime(createdTime: string | undefined): number {
+  if (!createdTime) return 0;
+  const parsed = Date.parse(createdTime);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
 export async function getConversation(
   token: string,
   _igAccountId: string,
@@ -159,9 +165,9 @@ export async function getConversation(
     .map((message) => ({
       text: message.message,
       fromId: message.from?.id ?? '',
-      createdTime: message.created_time ?? '',
+      createdTime: normalizeCreatedTime(message.created_time),
     }))
-    .sort((a, b) => a.createdTime.localeCompare(b.createdTime));
+    .sort((a, b) => a.createdTime - b.createdTime);
 }
 
 export async function sendMessage(
