@@ -5,6 +5,13 @@ declare module '@telegram-apps/sdk-react' {
     ready(): void;
   };
 
+  export const mainButton: {
+    setText(text: string): void;
+    show(): void;
+    hide(): void;
+    onClick(handler: () => void): () => void;
+  };
+
   export const viewport: {
     expand(): void;
   };
