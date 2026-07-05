@@ -81,3 +81,15 @@ export async function cancelPendingByConversation(
   if (error) throwDb('drafts.cancelPendingByConversation', error);
   return data as Draft | null;
 }
+
+export async function setErrorToPending(id: string): Promise<Draft | null> {
+  const { data, error } = await getDb()
+    .from('drafts')
+    .update({ status: 'pending', error: null })
+    .eq('id', id)
+    .eq('status', 'error')
+    .select()
+    .maybeSingle();
+  if (error) throwDb('drafts.setErrorToPending', error);
+  return data as Draft | null;
+}
