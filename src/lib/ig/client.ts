@@ -73,6 +73,10 @@ async function igFetch<T>(token: string, path: string, init?: RequestInit): Prom
 
   if (response.ok) return parseJson<T>(response);
 
+  return await throwIgError(response, path);
+}
+
+async function throwIgError(response: Response, path: string): Promise<never> {
   let payload: IgErrorPayload = {};
   try {
     payload = await parseJson<IgErrorPayload>(response);
@@ -91,6 +95,18 @@ async function igFetch<T>(token: string, path: string, init?: RequestInit): Prom
     throw new IgRateLimitError(code, message, path);
   }
   throw new IgApiError(code, message, path);
+}
+
+export async function refreshToken(
+  token: string,
+): Promise<{ accessToken: string; expiresIn: number }> {
+  const path = `/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(token)}`;
+  const response = await fetch(`${GRAPH}${path}`, { signal: AbortSignal.timeout(15_000) });
+
+  if (!response.ok) await throwIgError(response, path);
+
+  const data = await parseJson<{ access_token: string; expires_in: number }>(response);
+  return { accessToken: data.access_token, expiresIn: data.expires_in };
 }
 
 export async function getAccount(
