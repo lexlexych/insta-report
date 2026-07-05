@@ -70,15 +70,15 @@
     "notes": ""
   },
   "T-008": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-008",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-001",
       "T-004"
     ],
-    "notes": ""
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. pnpm add openai недоступен из-за registry 403; dependency добавлена в package.json, локальная декларация обеспечивает typecheck до установки пакета в нормальной сети. manual-test: docs/manual-tests/T-008.md (+ scripts/manual/T-008-demo.ts)."
   },
   "T-009": {
     "status": "pending",
