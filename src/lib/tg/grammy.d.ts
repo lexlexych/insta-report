@@ -8,6 +8,9 @@ declare module 'grammy' {
 
   export class InlineKeyboard {
     webApp(text: string, url: string): this;
+    url(text: string, url: string): this;
+    row(): this;
+    text(text: string, callbackData: string): this;
   }
 
   export class Bot<C extends Context = Context> {
@@ -40,5 +43,8 @@ declare module 'grammy' {
     on(filter: string, handler: (ctx: C) => unknown): void;
   }
 
-  export function webhookCallback(bot: Bot, adapter: 'std/http'): (req: Request) => Promise<Response>;
+  export function webhookCallback(
+    bot: Bot,
+    adapter: 'std/http',
+  ): (req: Request) => Promise<Response>;
 }

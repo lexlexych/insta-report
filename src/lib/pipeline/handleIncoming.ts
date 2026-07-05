@@ -1,7 +1,7 @@
 import { igConnections, labels, messageLog, tenants, usageStats } from '@/lib/db';
 import { classify } from '@/lib/pipeline/classify';
 import { buildContext } from '@/lib/pipeline/context';
-import { deliverDraft } from '@/lib/pipeline/deliverDraft';
+import { deliverDraft } from '@/lib/pipeline/deliver';
 import { generateDraft } from '@/lib/pipeline/draft';
 import { conversationKey } from '@/lib/pipeline/key';
 

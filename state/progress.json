@@ -188,7 +188,7 @@
     "notes": "Влит в текущую базовую ветку (merge commit 8b30947 / PR #21) при старте T-019; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. manual-test: docs/manual-tests/T-018.md."
   },
   "T-019": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-019",
     "pr": "created via make_pr tool",
@@ -196,18 +196,18 @@
       "T-008",
       "T-018"
     ],
-    "notes": "Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. draftPrompt содержит system_prompt, knowledge_base, history, pendingText и instruction; generateDraft обрабатывает attachment-only без LLM, trim/кавычки/empty_draft; handleIncoming инкрементит drafts_created и пишет входящий message_log. manual-test: docs/manual-tests/T-019.md (+ scripts/manual/T-019-demo.ts)."
+    "notes": "Влит в текущую базовую ветку (merge commit 4b5673b / PR #22) при старте T-020; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. manual-test: docs/manual-tests/T-019.md (+ scripts/manual/T-019-demo.ts)."
   },
   "T-020": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-020",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-005",
       "T-019"
     ],
-    "notes": ""
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. Добавлены escapeHTML/renderDraftCard/draftKeyboard; deliverDraft замещает старый pending, пишет drafts с app-generated UUID и чистит отправленное сообщение при PendingExistsError. manual-test: docs/manual-tests/T-020.md (+ scripts/manual/T-020-demo.ts)."
   },
   "T-021": {
     "status": "pending",

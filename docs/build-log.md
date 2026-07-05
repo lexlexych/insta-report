@@ -21,3 +21,4 @@
 | T-017 | done | ticket/T-017 | make_pr tool | 0 | 2026-07-05 |
 | T-018 | done | ticket/T-018 | make_pr tool | 0 | 2026-07-05 |
 | T-019 | awaiting_merge | ticket/T-019 | make_pr tool | 0 | 2026-07-05 |
+| T-020 | awaiting_merge | ticket/T-020 | make_pr tool | 0 | 2026-07-05 |
