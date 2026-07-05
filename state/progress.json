@@ -1,0 +1,341 @@
+{
+  "T-001": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [],
+    "notes": ""
+  },
+  "T-002": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-001"
+    ],
+    "notes": ""
+  },
+  "T-003": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-001"
+    ],
+    "notes": ""
+  },
+  "T-004": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-002",
+      "T-003"
+    ],
+    "notes": ""
+  },
+  "T-005": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-004"
+    ],
+    "notes": ""
+  },
+  "T-006": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-001"
+    ],
+    "notes": ""
+  },
+  "T-007": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-005",
+      "T-006"
+    ],
+    "notes": ""
+  },
+  "T-008": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-001",
+      "T-004"
+    ],
+    "notes": ""
+  },
+  "T-009": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-006",
+      "T-007"
+    ],
+    "notes": ""
+  },
+  "T-010": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-004",
+      "T-008"
+    ],
+    "notes": ""
+  },
+  "T-011": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-004"
+    ],
+    "notes": ""
+  },
+  "T-012": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-007",
+      "T-011"
+    ],
+    "notes": ""
+  },
+  "T-013": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-003",
+      "T-004"
+    ],
+    "notes": ""
+  },
+  "T-014": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-012",
+      "T-013"
+    ],
+    "notes": ""
+  },
+  "T-015": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-013"
+    ],
+    "notes": ""
+  },
+  "T-016": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-011"
+    ],
+    "notes": ""
+  },
+  "T-017": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-013",
+      "T-016"
+    ],
+    "notes": ""
+  },
+  "T-018": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-008",
+      "T-017"
+    ],
+    "notes": ""
+  },
+  "T-019": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-008",
+      "T-018"
+    ],
+    "notes": ""
+  },
+  "T-020": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-005",
+      "T-019"
+    ],
+    "notes": ""
+  },
+  "T-021": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-013",
+      "T-020"
+    ],
+    "notes": ""
+  },
+  "T-022": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-016",
+      "T-020",
+      "T-021"
+    ],
+    "notes": ""
+  },
+  "T-023": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-007",
+      "T-010"
+    ],
+    "notes": ""
+  },
+  "T-024": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-021",
+      "T-023"
+    ],
+    "notes": "optional, post-MVP"
+  },
+  "T-025": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-018",
+      "T-019"
+    ],
+    "notes": ""
+  },
+  "T-026": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-006",
+      "T-025"
+    ],
+    "notes": ""
+  },
+  "T-027": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-014",
+      "T-021"
+    ],
+    "notes": ""
+  },
+  "T-028": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-010"
+    ],
+    "notes": ""
+  },
+  "T-029": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-021"
+    ],
+    "notes": ""
+  },
+  "T-030": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-011",
+      "T-025"
+    ],
+    "notes": ""
+  },
+  "T-031": {
+    "status": "skipped",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-022"
+    ],
+    "notes": "OVERRIDES v1.1: e2e-автотесты исключены; сценарии перенесены в docs/manual-tests/T-022.md"
+  },
+  "T-032": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-030"
+    ],
+    "notes": ""
+  }
+}

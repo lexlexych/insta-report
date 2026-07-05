@@ -1,0 +1,19 @@
+{
+  "model": "opus",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)", "Bash(npx *)",
+      "Bash(git fetch *)", "Bash(git pull *)", "Bash(git checkout *)",
+      "Bash(git branch *)", "Bash(git status)", "Bash(git diff *)", "Bash(git log *)",
+      "Bash(git add *)", "Bash(git commit *)", "Bash(git push origin ticket/*)",
+      "Bash(git push origin main)",
+      "Bash(gh pr *)",
+      "Read(**)", "Edit(state/**)", "Edit(docs/build-log.md)", "Edit(docs/manual-tests/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)", "Bash(git push --force*)", "Bash(git reset --hard*)",
+      "Read(.env*)",
+      "Edit(docs/plan.md)", "Edit(docs/tickets/**)", "Edit(docs/orchestration/**)"
+    ]
+  }
+}
