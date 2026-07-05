@@ -131,7 +131,7 @@ usage_stats        id, tenant_id, day date, llm_calls int, tokens_in int,
                    -- unique (tenant_id, day), инкременты upsert'ом
 ```
 
-Доступ к БД — только с сервера через `SUPABASE_SERVICE_ROLE_KEY` (RLS включён, политики запрещают anon; клиентский supabase-js не используется).
+Доступ к БД — только с сервера через `SUPABASE_SECRET_KEY` (RLS включён, политики запрещают anon; клиентский supabase-js не используется).
 
 ### 2.5 Переменные окружения
 
@@ -140,7 +140,7 @@ TELEGRAM_BOT_TOKEN            токен центрального бота
 TELEGRAM_WEBHOOK_SECRET       secret_token для setWebhook
 MINIAPP_JWT_SECRET            подпись сессий Mini App
 ENCRYPTION_KEY                32 байта base64 для AES-256-GCM
-SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_URL / SUPABASE_SECRET_KEY
 LLM_BASE_URL                  напр. https://openrouter.ai/api/v1
 LLM_API_KEY
 LLM_MODEL_CLASSIFY            напр. openai/gpt-4o-mini
