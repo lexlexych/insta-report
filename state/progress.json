@@ -1,11 +1,11 @@
 {
   "T-001": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "claude/status-command-5tw1if",
     "pr": null,
     "deps": [],
-    "notes": ""
+    "notes": "Ветка ticket/T-001 заменена на harness-designated claude/status-command-5tw1if (ограничение окружения). Старт конвейера: implementer."
   },
   "T-002": {
     "status": "pending",
