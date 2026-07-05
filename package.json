@@ -13,7 +13,9 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked > src/lib/db/types.gen.ts"
   },
   "dependencies": {
     "next": "^15.5.20",
@@ -32,6 +34,7 @@
     "eslint-config-prettier": "^10.1.8",
     "postcss": "^8.5.16",
     "prettier": "^3.9.4",
+    "supabase": "^2.109.0",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
   }

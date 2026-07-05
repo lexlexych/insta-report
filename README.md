@@ -30,6 +30,8 @@ pnpm start       # запуск production-сборки
 pnpm lint        # eslint
 pnpm typecheck   # tsc --noEmit
 pnpm format      # prettier --write .
+pnpm db:push     # supabase db push — применить SQL-миграции к связанному Supabase-проекту
+pnpm db:types    # supabase gen types typescript --linked > src/lib/db/types.gen.ts
 ```
 
 ## Переменные окружения
@@ -37,6 +39,39 @@ pnpm format      # prettier --write .
 Единственная точка чтения `process.env` в коде — `src/lib/env.ts` (Zod-схема, ленивая
 типобезопасная инициализация: см. `getEnv()`/`env`). Полный список переменных — в
 `.env.example`, назначение каждой — в `docs/plan.md` §2.5.
+
+## База данных
+
+Схема Postgres живёт в `/supabase/migrations` (SQL-миграции Supabase CLI, добавлен как
+devDependency): `0001_init.sql` — все таблицы модели данных (`tenants`, `ig_connections`,
+`labels`, `drafts`, `processed_events`, `message_log`, `usage_stats`) + необходимые индексы
+(включая partial unique `drafts(tenant_id, conversation_key) WHERE status='pending'`) + RLS,
+включённый на всех таблицах без единой политики (это даёт **deny-all** для anon-ключа: доступ
+к БД возможен только через `SUPABASE_SERVICE_ROLE_KEY`, который обходит RLS; клиентский
+`supabase-js` в проекте не используется) + функция сида метки `seed_default_labels(tenant_id)`.
+`0002_increment_usage.sql` — атомарный upsert-инкремент `increment_usage(...)` для
+`usage_stats`.
+
+Применить миграции к своему dev-проекту Supabase:
+
+```bash
+supabase link --project-ref <ref>   # один раз, нужен доступ к проекту в дашборде Supabase
+pnpm db:push                        # supabase db push — применяет supabase/migrations/*.sql
+```
+
+Перед этим убедитесь, что в `.env.local` заполнены `SUPABASE_URL` и
+`SUPABASE_SERVICE_ROLE_KEY` (см. `.env.example`), а сам проект Supabase создан в регионе ЕС
+(Frankfurt) — см. `docs/plan.md` §4.
+
+Регенерировать TypeScript-типы после изменения схемы:
+
+```bash
+pnpm db:types   # supabase gen types typescript --linked > src/lib/db/types.gen.ts
+```
+
+`src/lib/db/types.gen.ts` уже закоммичен (написан вручную по формату реального вывода
+`supabase gen types typescript`, т.к. в среде разработки нет привязанного живого проекта) —
+после первого `supabase link` его нужно перегенерировать командой выше.
 
 ## Структура каталогов
 
