@@ -236,7 +236,7 @@
     "status": "awaiting_merge",
     "attempts": 2,
     "branch": "claude/categories-section-status-02a1r8",
-    "pr": null,
+    "pr": "https://github.com/lexlexych/insta-report/pull/34",
     "deps": [
       "T-007",
       "T-010"
