@@ -103,14 +103,14 @@
     "notes": "Влит в main (fast-forward подтверждён git branch -r --merged, PR #11). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-010.md."
   },
   "T-011": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "ticket/T-011",
-    "pr": null,
+    "pr": "TBD",
     "deps": [
       "T-004"
     ],
-    "notes": "Реализация в процессе."
+    "notes": "Review: approved (0 циклов доработки, есть 2 nit без блокеров: touchWebhookSeen await и JSON.parse вне try/catch — соответствуют тексту тикета дословно). lint+typecheck зелёные. manual-test: docs/manual-tests/T-011.md (+ scripts/manual/T-011-demo.ts)."
   },
   "T-012": {
     "status": "pending",

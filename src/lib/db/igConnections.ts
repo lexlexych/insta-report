@@ -90,6 +90,17 @@ export async function touchWebhookSeen(tenantId: string): Promise<IgConnection> 
   return data as unknown as IgConnection;
 }
 
+export async function markHandshake(tenantId: string): Promise<IgConnection> {
+  const { data, error } = await getDb()
+    .from('ig_connections')
+    .update({ handshake_at: new Date().toISOString() })
+    .eq('tenant_id', tenantId)
+    .select()
+    .single();
+  if (error) throwDb('igConnections.markHandshake', error);
+  return data as unknown as IgConnection;
+}
+
 export async function markTokenRefreshed(tenantId: string, newTokenEnc: string): Promise<IgConnection> {
   const { data, error } = await getDb()
     .from('ig_connections')
