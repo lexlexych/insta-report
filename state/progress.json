@@ -156,14 +156,14 @@
     "notes": "Влит в main (RESUME-синхронизация при старте T-016: origin/main=ef7b8ba содержит merge PR #16 codex/-t-015 и файл app/api/cron/refresh-tokens/route.ts). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-015.md."
   },
   "T-016": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "claude/ticket-t-016-3xnedj",
     "pr": null,
     "deps": [
       "T-011"
     ],
-    "notes": "Реализация в ветке claude/ticket-t-016-3xnedj (предыдущий codex-маркер in_progress без кода влит в main через PR #17; реального кода парсера не было). Конвейер: implementer → ревью → manual-test → PR."
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные, demo scripts/manual/T-016-demo.ts проходит все проверки. parseIgEvent (Zod passthrough, правило сторон echo/incoming) + dedup по mid в handleIgEvent (динамический import @/lib/db, чтобы demo под tsx не тянул server-only). Заглушки handleEcho (T-022) / handleIncoming (T-017+). Фикстуры tests/fixtures/ig/*.json. manual-test: docs/manual-tests/T-016.md."
   },
   "T-017": {
     "status": "pending",
