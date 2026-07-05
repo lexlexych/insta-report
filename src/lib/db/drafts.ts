@@ -120,3 +120,24 @@ export async function countByStatusSince(tenantId: string, sinceIso: string): Pr
   }
   return counts;
 }
+
+/**
+ * Счётчик черновиков по label_id за период (см. T-023 UI: "N черновиков за 30 дней" на
+ * карточке категории). Черновики без метки (label_id = null, например после удаления
+ * метки — см. drafts.label_id `on delete set null`) в результат не попадают.
+ */
+export async function countByLabelSince(tenantId: string, sinceIso: string): Promise<Record<string, number>> {
+  const { data, error } = await getDb()
+    .from('drafts')
+    .select('label_id')
+    .eq('tenant_id', tenantId)
+    .gte('created_at', sinceIso);
+  if (error) throwDb('drafts.countByLabelSince', error);
+
+  const counts: Record<string, number> = {};
+  for (const row of (data ?? []) as Pick<Draft, 'label_id'>[]) {
+    if (!row.label_id) continue;
+    counts[row.label_id] = (counts[row.label_id] ?? 0) + 1;
+  }
+  return counts;
+}
