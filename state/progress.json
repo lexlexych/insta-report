@@ -166,7 +166,7 @@
     "notes": "Влит в текущую базовую ветку (merge commit fa608e8 / PR #19) при старте T-017; RESUME fetch origin недоступен в среде без remote origin."
   },
   "T-017": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-017",
     "pr": "created via make_pr tool",
@@ -174,18 +174,18 @@
       "T-013",
       "T-016"
     ],
-    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные, demo scripts/manual/T-017-demo.ts проходит проверки deriveContext/buildContext fallback. createdTime в ig client нормализуется в epoch ms. manual-test: docs/manual-tests/T-017.md."
+    "notes": "Влит в текущую базовую ветку (merge commit dd4a5ec / PR #20) при старте T-018; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck зелёные, manual-test: docs/manual-tests/T-017.md."
   },
   "T-018": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-018",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-008",
       "T-017"
     ],
-    "notes": ""
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. classifyPrompt заполнен; classify выбирает метку case-insensitive, fallback Без категории при пустом/неизвестном ответе и LlmError, экономит LLM-вызов при единственной Без категории. manual-test: docs/manual-tests/T-018.md (+ scripts/manual/T-018-demo.ts)."
   },
   "T-019": {
     "status": "pending",

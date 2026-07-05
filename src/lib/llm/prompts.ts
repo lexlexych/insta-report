@@ -47,9 +47,40 @@ JSON-схема ответа:
   };
 }
 
-export function classifyPrompt(...args: unknown[]): never {
-  void args;
-  throw new Error('TODO T-018: implement classifyPrompt');
+export type ClassifyLabelPromptInput = {
+  name: string;
+  description: string | null;
+};
+
+export type ClassifyPrompt = {
+  system: string;
+  user: string;
+};
+
+export function classifyPrompt(
+  labels: ClassifyLabelPromptInput[],
+  history: string,
+  pendingText: string,
+): ClassifyPrompt {
+  const categories = labels
+    .map(
+      (label) =>
+        `- ${normalizePromptValue(label.name)}: ${normalizePromptValue(label.description ?? '')}`,
+    )
+    .join('\n');
+
+  return {
+    system:
+      'Ты — классификатор обращений клиентов. Выбери РОВНО ОДНУ категорию из списка или верни пустую строку, если ни одна не подходит. Отвечай JSON {"label": "..."}',
+    user: `Категории:
+${categories}
+
+История диалога:
+${history}
+
+Новое обращение:
+${pendingText}`,
+  };
 }
 
 export function draftPrompt(...args: unknown[]): never {
