@@ -106,7 +106,7 @@
     "status": "awaiting_merge",
     "attempts": 1,
     "branch": "ticket/T-011",
-    "pr": "TBD",
+    "pr": "https://github.com/lexlexych/insta-report/pull/12",
     "deps": [
       "T-004"
     ],
