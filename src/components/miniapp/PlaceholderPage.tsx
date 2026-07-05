@@ -1,8 +1,10 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { useT } from '@/lib/i18n';
 
-export function PlaceholderPage({ titleKey }: { titleKey: string }) {
+export function PlaceholderPage({ titleKey, children }: { titleKey: string; children?: ReactNode }) {
   const { t } = useT();
   const title = t(titleKey);
 
@@ -11,6 +13,7 @@ export function PlaceholderPage({ titleKey }: { titleKey: string }) {
       <p className="text-sm font-medium uppercase tracking-wide text-tg-link">InstaReply</p>
       <h1 className="text-3xl font-semibold">{title}</h1>
       <p className="text-base text-tg-hint">{t('pageUnderConstruction', { section: title })}</p>
+      {children}
     </main>
   );
 }
