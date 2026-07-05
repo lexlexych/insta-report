@@ -146,24 +146,24 @@
     "notes": "Влит в main/work (локальная история содержит merge commit PR #15). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-014.md."
   },
   "T-015": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-015",
-    "pr": "created via make_pr tool",
+    "pr": "https://github.com/lexlexych/insta-report/pull/16",
     "deps": [
       "T-013"
     ],
-    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-015.md."
+    "notes": "Влит в main (RESUME-синхронизация при старте T-016: origin/main=ef7b8ba содержит merge PR #16 codex/-t-015 и файл app/api/cron/refresh-tokens/route.ts). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-015.md."
   },
   "T-016": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
-    "branch": "ticket/T-016",
-    "pr": null,
+    "branch": "claude/ticket-t-016-3xnedj",
+    "pr": "https://github.com/lexlexych/insta-report/pull/19",
     "deps": [
       "T-011"
     ],
-    "notes": "Codex начал реализацию T-016; origin remote недоступен, RESUME fetch/pull пропущен."
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные, demo scripts/manual/T-016-demo.ts проходит все проверки. parseIgEvent (Zod passthrough, правило сторон echo/incoming) + dedup по mid в handleIgEvent (динамический import @/lib/db, чтобы demo под tsx не тянул server-only). Заглушки handleEcho (T-022) / handleIncoming (T-017+). Фикстуры tests/fixtures/ig/*.json. manual-test: docs/manual-tests/T-016.md."
   },
   "T-017": {
     "status": "pending",

@@ -1,0 +1,21 @@
+{
+  "object": "instagram",
+  "entry": [
+    {
+      "id": "17841400000000001",
+      "time": 1719950100000,
+      "messaging": [
+        {
+          "sender": { "id": "17841400000000001" },
+          "recipient": { "id": "9988776655" },
+          "timestamp": 1719950100000,
+          "message": {
+            "mid": "aWdfZG1fZWNob18wMDE",
+            "text": "Ja, um 14 Uhr ist frei.",
+            "is_echo": true
+          }
+        }
+      ]
+    }
+  ]
+}
