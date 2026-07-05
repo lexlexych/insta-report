@@ -60,7 +60,14 @@ export class LlmError extends Error {
 }
 
 function getClient(): OpenAI {
-  client ??= new OpenAI({ baseURL: env.LLM_BASE_URL, apiKey: env.LLM_API_KEY });
+  // Передаём нативный (WHATWG) fetch: без него openai SDK на Node использует свой
+  // шим на базе node-fetch, а тот дергает устаревший `url.parse()` (DEP0169) на
+  // каждый запрос. Node >= 20 (см. package.json engines) гарантирует global fetch.
+  client ??= new OpenAI({
+    baseURL: env.LLM_BASE_URL,
+    apiKey: env.LLM_API_KEY,
+    fetch,
+  });
   return client;
 }
 
