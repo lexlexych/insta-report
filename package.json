@@ -19,6 +19,7 @@
     "gen:key": "tsx scripts/gen-key.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
     "next": "^15.5.20",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
