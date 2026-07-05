@@ -11,6 +11,7 @@ export type UsageIncrementPatch = Partial<{
   tokensOut: number;
   draftsCreated: number;
   draftsSent: number;
+  simulatorCalls: number;
 }>;
 
 function today(): string {
@@ -26,11 +27,16 @@ export async function increment(tenantId: string, patch: UsageIncrementPatch): P
     p_tokens_out: patch.tokensOut ?? 0,
     p_drafts_created: patch.draftsCreated ?? 0,
     p_drafts_sent: patch.draftsSent ?? 0,
+    p_simulator_calls: patch.simulatorCalls ?? 0,
   });
   if (error) throwDb('usageStats.increment', error);
 }
 
-export async function getRange(tenantId: string, fromDay: string, toDay: string): Promise<UsageStat[]> {
+export async function getRange(
+  tenantId: string,
+  fromDay: string,
+  toDay: string,
+): Promise<UsageStat[]> {
   const { data, error } = await getDb()
     .from('usage_stats')
     .select()
