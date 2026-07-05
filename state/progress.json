@@ -116,7 +116,7 @@
     "status": "awaiting_merge",
     "attempts": 1,
     "branch": "claude/t-013-build-uxnkct",
-    "pr": null,
+    "pr": "https://github.com/lexlexych/insta-report/pull/13",
     "deps": [
       "T-007",
       "T-011"

@@ -13,4 +13,4 @@
 | T-009 | awaiting_merge | ticket/T-009 | make_pr tool | 0 | 2026-07-05 |
 | T-010 | awaiting_merge | work | make_pr tool | 0 | 2026-07-05 |
 | T-011 | done | ticket/T-011 | [#12](https://github.com/lexlexych/insta-report/pull/12) | 0 | 2026-07-05 |
-| T-012 | awaiting_merge | claude/t-013-build-uxnkct | pending | 0 | 2026-07-05 |
+| T-012 | awaiting_merge | claude/t-013-build-uxnkct | [#13](https://github.com/lexlexych/insta-report/pull/13) | 0 | 2026-07-05 |
