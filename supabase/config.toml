@@ -1,0 +1,26 @@
+# Минимальная конфигурация Supabase CLI для этого проекта.
+# Реальный `supabase init` в контейнере разработки недоступен (нет доступа к сети/CLI),
+# поэтому файл создан вручную в формате, ожидаемом CLI >= 1.x. При необходимости
+# синхронизируйте флаги с `supabase init --force` после установки CLI локально.
+project_id = "insta-report"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = false
+
+[storage]
+enabled = false
