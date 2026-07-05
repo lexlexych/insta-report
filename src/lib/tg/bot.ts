@@ -4,6 +4,7 @@ import type { Context } from 'grammy';
 import { tenants } from '@/lib/db';
 import { env } from '@/lib/env';
 import { resolveLocale, t } from '@/lib/i18n';
+import { handleRetryCallback, handleSendCallback } from '@/lib/pipeline/send';
 
 let bot: Bot | undefined;
 
@@ -25,7 +26,22 @@ export async function onStart(ctx: Context): Promise<void> {
 }
 
 export async function onCallback(ctx: Context): Promise<void> {
-  // TODO(T-021): route callback query actions for draft approval/cancellation.
+  const data = (ctx as { callbackQuery?: { data?: unknown } }).callbackQuery?.data;
+  if (typeof data !== 'string') {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
+  const [action, id] = data.split(':', 2);
+  if (action === 'send' && id) {
+    await handleSendCallback(ctx, id);
+    return;
+  }
+  if (action === 'retry' && id) {
+    await handleRetryCallback(ctx, id);
+    return;
+  }
+
   await ctx.answerCallbackQuery();
 }
 

@@ -14,6 +14,12 @@ function assertNotDefaultLabelName(name: string | null | undefined): void {
   }
 }
 
+export async function getById(id: string): Promise<Label | null> {
+  const { data, error } = await getDb().from('labels').select().eq('id', id).maybeSingle();
+  if (error) throwDb('labels.getById', error);
+  return data as Label | null;
+}
+
 export async function listByTenant(tenantId: string): Promise<Label[]> {
   const { data, error } = await getDb()
     .from('labels')
