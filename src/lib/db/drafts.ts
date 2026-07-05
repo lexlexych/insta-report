@@ -93,3 +93,30 @@ export async function setErrorToPending(id: string): Promise<Draft | null> {
   if (error) throwDb('drafts.setErrorToPending', error);
   return data as Draft | null;
 }
+
+
+export type DraftStatusCounts = Record<DraftStatus, number> & { total: number };
+
+export async function countByStatusSince(tenantId: string, sinceIso: string): Promise<DraftStatusCounts> {
+  const { data, error } = await getDb()
+    .from('drafts')
+    .select('status')
+    .eq('tenant_id', tenantId)
+    .gte('created_at', sinceIso);
+  if (error) throwDb('drafts.countByStatusSince', error);
+
+  const counts: DraftStatusCounts = {
+    pending: 0,
+    sending: 0,
+    sent: 0,
+    cancelled: 0,
+    skipped_manual: 0,
+    error: 0,
+    total: 0,
+  };
+  for (const row of (data ?? []) as Pick<Draft, 'status'>[]) {
+    counts[row.status] += 1;
+    counts.total += 1;
+  }
+  return counts;
+}
