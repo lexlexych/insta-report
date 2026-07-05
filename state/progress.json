@@ -156,14 +156,14 @@
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-015.md."
   },
   "T-016": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "ticket/T-016",
     "pr": null,
     "deps": [
       "T-011"
     ],
-    "notes": ""
+    "notes": "Codex начал реализацию T-016; origin remote недоступен, RESUME fetch/pull пропущен."
   },
   "T-017": {
     "status": "pending",
