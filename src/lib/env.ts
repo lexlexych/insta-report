@@ -48,6 +48,8 @@ export const envSchema = z.object({
   CRON_SECRET: z.string().min(1),
   /** CSV telegram_user_id администраторов для алертов; может быть пустым */
   ADMIN_TELEGRAM_IDS: z.string().default(''),
+  /** Суточный лимит запросов к симулятору тест-чата на tenant */
+  SIMULATOR_DAILY_LIMIT: z.coerce.number().int().positive().default(30),
 });
 
 export type Env = z.infer<typeof envSchema>;

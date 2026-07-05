@@ -287,6 +287,7 @@ export type Database = {
           tokens_out: number;
           drafts_created: number;
           drafts_sent: number;
+          simulator_calls: number;
           created_at: string;
         };
         Insert: {
@@ -298,6 +299,7 @@ export type Database = {
           tokens_out?: number;
           drafts_created?: number;
           drafts_sent?: number;
+          simulator_calls?: number;
           created_at?: string;
         };
         Update: {
@@ -309,6 +311,7 @@ export type Database = {
           tokens_out?: number;
           drafts_created?: number;
           drafts_sent?: number;
+          simulator_calls?: number;
           created_at?: string;
         };
         Relationships: [
@@ -337,6 +340,7 @@ export type Database = {
           p_tokens_out: number;
           p_drafts_created: number;
           p_drafts_sent: number;
+          p_simulator_calls: number;
         };
         Returns: undefined;
       };
