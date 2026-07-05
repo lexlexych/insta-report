@@ -25,6 +25,7 @@ export const POST = apiHandler(async (req: Request) => {
           id: tenant.id,
           onboardingStep: tenant.onboarding_step,
           orgName: tenant.org_name,
+          uiLocale: tenant.ui_locale,
         },
       },
       {
