@@ -32,6 +32,7 @@ pnpm typecheck   # tsc --noEmit
 pnpm format      # prettier --write .
 pnpm db:push     # supabase db push — применить SQL-миграции к связанному Supabase-проекту
 pnpm db:types    # supabase gen types typescript --linked > src/lib/db/types.gen.ts
+pnpm gen:key     # сгенерировать случайный ключ для ENCRYPTION_KEY (AES-256-GCM, base64/32 байта)
 ```
 
 ## Переменные окружения
@@ -39,6 +40,16 @@ pnpm db:types    # supabase gen types typescript --linked > src/lib/db/types.gen
 Единственная точка чтения `process.env` в коде — `src/lib/env.ts` (Zod-схема, ленивая
 типобезопасная инициализация: см. `getEnv()`/`env`). Полный список переменных — в
 `.env.example`, назначение каждой — в `docs/plan.md` §2.5.
+
+Значение для `ENCRYPTION_KEY` (base64 от 32 случайных байт — ключ AES-256-GCM, используемый
+`src/lib/crypto.ts` для шифрования секретов тенантов) можно сгенерировать командой:
+
+```bash
+pnpm gen:key
+```
+
+Скрипт печатает случайную base64-строку в stdout — скопируйте её в `ENCRYPTION_KEY` в
+`.env.local` (в вывод не попадает ничего, кроме сгенерированного ключа).
 
 ## База данных
 
@@ -83,6 +94,7 @@ pnpm db:types   # supabase gen types typescript --linked > src/lib/db/types.gen.
 /src/lib/tg              — grammY-бот, клавиатуры, рендер карточек
 /src/lib/llm             — LLM-клиент, промпты
 /src/lib/pipeline        — обработчики потоков A/B (чистые функции + side-effect слой)
+/src/lib/crypto.ts       — шифрование секретов (AES-256-GCM)
 /src/lib/env.ts          — Zod-валидация env, единственный источник process.env
 /supabase/migrations     — SQL-миграции
 /scripts                 — служебные скрипты (setup:telegram и пр.)
