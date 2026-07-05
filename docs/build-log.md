@@ -29,3 +29,4 @@
 | T-027 | awaiting_merge | ticket/T-027 | make_pr tool | 0 | 2026-07-05 |
 
 | T-028 | awaiting_merge | ticket/T-028 | make_pr tool | 0 | 2026-07-05 |
+| T-023 | awaiting_merge | claude/categories-section-status-02a1r8 | [#34](https://github.com/lexlexych/insta-report/pull/34) | 0 | 2026-07-05 |

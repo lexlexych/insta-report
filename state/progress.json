@@ -233,15 +233,15 @@
     "notes": "Влит в текущую базовую ветку (merge commit e31311a / PR #25) при старте T-023; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. Echo владельца отменяет pending-карточку и пишет manual log; send регистрирует Meta mid для дедупликации собственного echo. manual-test: docs/manual-tests/T-022.md (+ scripts/manual/T-022-demo.ts; включает расширенные сценарии T-031)."
   },
   "T-023": {
-    "status": "done",
-    "attempts": 1,
-    "branch": "ticket/T-023",
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 2,
+    "branch": "claude/categories-section-status-02a1r8",
+    "pr": "https://github.com/lexlexych/insta-report/pull/34",
     "deps": [
       "T-007",
       "T-010"
     ],
-    "notes": "Влит в текущую базовую ветку (merge commit b040900 / PR #26) при старте T-025; RESUME fetch origin недоступен в среде без remote origin."
+    "notes": "ПЕРЕОТКРЫТ и реализован заново (PR #26 влил только правку progress.json — код никогда не коммитился, /app/labels оставался заглушкой T-006). Реализовано: labels API (GET/POST, [id] PUT/DELETE, reorder), реальный UI /app/labels вместо заглушки, i18n ru/de. DB drafts.label_id уже имел on delete set null (0001_init.sql) — миграция не нужна. Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-023.md."
   },
   "T-024": {
     "status": "pending",

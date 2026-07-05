@@ -24,6 +24,13 @@ export class ForbiddenLabelError extends Error {
   }
 }
 
+export class LabelNameConflictError extends Error {
+  constructor() {
+    super('Label with this name already exists for this tenant');
+    this.name = 'LabelNameConflictError';
+  }
+}
+
 export class PendingExistsError extends Error {
   constructor() {
     super('Pending draft already exists for this conversation');
