@@ -2,7 +2,7 @@
 
 import { init, miniApp, retrieveLaunchParams, retrieveRawInitData, themeParams, useLaunchParams, viewport } from '@telegram-apps/sdk-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { I18nProvider, resolveLocale, t, useT, type Locale } from '@/lib/i18n';
 
@@ -129,18 +129,26 @@ function TenantProvider({ children }: { children: ReactNode }) {
 
   const pathname = usePathname();
   const router = useRouter();
+  const didInitialRouteRef = useRef(false);
 
+  // Одноразовая маршрутизация сразу после аутентификации: новичка (онбординг
+  // ещё не завершён) один раз отправляем на онбординг, а уже завершившего —
+  // уводим с него на дашборд. Дальше НЕ вмешиваемся: иначе любая навигация по
+  // нижнему меню во время онбординга мгновенно откатывается назад на онбординг
+  // (пункты меню «мигают» и возвращают на приветствие).
   useEffect(() => {
     if (state.status !== 'ready') return;
     const tenant = state.tenant;
     if (!tenant) return;
+    if (didInitialRouteRef.current) return;
+    didInitialRouteRef.current = true;
+
     const isOnboarding = pathname === '/app/onboarding';
     const isDone = tenant.onboardingStep === 'done';
 
     if (!isDone && !isOnboarding) {
       router.replace('/app/onboarding');
-    }
-    if (isDone && isOnboarding) {
+    } else if (isDone && isOnboarding) {
       router.replace('/app');
     }
   }, [pathname, router, state]);
