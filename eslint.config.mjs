@@ -16,6 +16,29 @@ const eslintConfig = [
     ignores: ['.next/**', 'node_modules/**', 'supabase/**', 'next-env.d.ts'],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  {
+    files: ['**/*.{ts,tsx,js,jsx,mjs,cjs}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@supabase/supabase-js',
+              message: 'Import Supabase only inside src/lib/db/client.ts; use src/lib/db repositories elsewhere.',
+            },
+          ],
+          patterns: [],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/lib/db/client.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
   eslintConfigPrettier,
 ];
 
