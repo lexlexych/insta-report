@@ -11,3 +11,4 @@
 | T-008 | done | ticket/T-008 | make_pr tool | 0 | 2026-07-05 |
 | T-007 | awaiting_merge | ticket/T-007 | make_pr tool | 0 | 2026-07-05 |
 | T-009 | awaiting_merge | ticket/T-009 | make_pr tool | 0 | 2026-07-05 |
+| T-010 | awaiting_merge | work | make_pr tool | 0 | 2026-07-05 |

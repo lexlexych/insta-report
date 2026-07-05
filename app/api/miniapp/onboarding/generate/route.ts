@@ -2,24 +2,55 @@ import { z } from 'zod';
 
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
-import { tenants } from '@/lib/db';
+import { labels, tenants } from '@/lib/db';
+import { completeJSON, MODEL_DRAFT } from '@/lib/llm/client';
+import { kbGenerationPrompt } from '@/lib/llm/prompts';
 
-const schema = z.object({ orgName: z.string().trim().min(2), orgDescription: z.string().trim().min(80) });
+const requestSchema = z.object({
+  orgName: z.string().trim().min(2),
+  orgDescription: z.string().trim().min(80),
+  overwrite: z.boolean().optional(),
+});
 
-function buildKnowledgeBase(orgName: string, orgDescription: string): string {
-  return `# ${orgName}\n\n## О бизнесе\n${orgDescription}\n\n## Как отвечать клиентам\n- Отвечай дружелюбно и по делу.\n- Уточняй детали заказа или записи, если информации не хватает.\n- Предлагай следующий шаг: бронь, консультацию или переход в Instagram Direct.\n\n## Важные правила\n- Не обещай недоступные услуги, цены или сроки.\n- Если вопрос требует решения владельца, предложи передать обращение человеку.`;
-}
+const llmResponseSchema = z.object({
+  knowledge_base: z.string().trim().min(1).max(20000),
+  system_prompt: z.string().trim().min(1).max(20000),
+});
+
 
 export const POST = apiHandler(async (req: Request) => {
   const tenant = await requireTenant(req);
-  const parsed = schema.safeParse(await req.json().catch(() => null));
+  const parsed = requestSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return jsonResponse({ ok: false, error: 'malformed' }, 400);
-  const knowledgeBase = buildKnowledgeBase(parsed.data.orgName, parsed.data.orgDescription);
+
+  if (tenant.knowledge_base && parsed.data.overwrite !== true) {
+    return jsonResponse({ code: 'exists' }, 409);
+  }
+
+  const prompt = kbGenerationPrompt(parsed.data.orgName, parsed.data.orgDescription);
+  const generated = await completeJSON(
+    {
+      model: MODEL_DRAFT,
+      system: prompt.system,
+      user: prompt.user,
+      temperature: 0.2,
+      maxTokens: 3_000,
+      tenantId: tenant.id,
+    },
+    llmResponseSchema,
+  );
+
   await tenants.update(tenant.id, {
     org_name: parsed.data.orgName,
     org_description: parsed.data.orgDescription,
-    knowledge_base: knowledgeBase,
+    knowledge_base: generated.data.knowledge_base,
+    system_prompt: generated.data.system_prompt,
     onboarding_step: 'review_kb',
   });
-  return jsonResponse({ ok: true, knowledgeBase });
+  await labels.seedDefaultLabels(tenant.id);
+
+  return jsonResponse({
+    knowledgeBase: generated.data.knowledge_base,
+    systemPrompt: generated.data.system_prompt,
+  });
 });

@@ -57,3 +57,8 @@ export async function findByNameCI(tenantId: string, name: string): Promise<Labe
   if (error) throwDb('labels.findByNameCI', error);
   return data as Label | null;
 }
+
+export async function seedDefaultLabels(tenantId: string): Promise<void> {
+  const { error } = await getDb().rpc('seed_default_labels', { p_tenant: tenantId });
+  if (error) throwDb('labels.seedDefaultLabels', error);
+}
