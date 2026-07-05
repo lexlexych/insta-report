@@ -16,14 +16,16 @@
     "format": "prettier --write .",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/lib/db/types.gen.ts",
-    "gen:key": "tsx scripts/gen-key.ts"
+    "gen:key": "tsx scripts/gen-key.ts",
+    "setup:telegram": "tsx scripts/setup-telegram.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
     "next": "^15.5.20",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "grammy": "^1.38.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
