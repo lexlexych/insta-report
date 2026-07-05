@@ -263,18 +263,18 @@
       "T-018",
       "T-019"
     ],
-    "notes": "Влит в текущую базовую ветку (merge commit f1971fd / PR #27) при старте T-027; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-025.md. Суточный лимит вынесен в SIMULATOR_DAILY_LIMIT с дефолтом 30."
+    "notes": "Влит в текущую базовую ветку (merge commit f1971fd / PR #27) при старте T-026; RESUME fetch origin недоступен в среде без remote origin. Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-025.md. Суточный лимит вынесен в SIMULATOR_DAILY_LIMIT с дефолтом 30."
   },
   "T-026": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-026",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-006",
       "T-025"
     ],
-    "notes": ""
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-026.md."
   },
   "T-027": {
     "status": "awaiting_merge",
