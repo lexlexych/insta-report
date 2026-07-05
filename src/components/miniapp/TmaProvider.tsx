@@ -1,6 +1,7 @@
 'use client';
 
 import { init, miniApp, retrieveRawInitData, themeParams, useLaunchParams, viewport } from '@telegram-apps/sdk-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { I18nProvider, resolveLocale, t } from '@/lib/i18n';
@@ -122,6 +123,24 @@ function TenantProvider({ children }: { children: ReactNode }) {
     void authenticate();
     return () => controller.abort();
   }, [authAttempt]);
+
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.status !== 'ready') return;
+    const tenant = state.tenant;
+    if (!tenant) return;
+    const isOnboarding = pathname === '/app/onboarding';
+    const isDone = tenant.onboardingStep === 'done';
+
+    if (!isDone && !isOnboarding) {
+      router.replace('/app/onboarding');
+    }
+    if (isDone && isOnboarding) {
+      router.replace('/app');
+    }
+  }, [pathname, router, state]);
 
   const value = useMemo<TenantContextValue>(() => ({ ...state, retry }) as TenantContextValue, [retry, state]);
 
