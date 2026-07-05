@@ -106,16 +106,20 @@ export default function Page() {
   }, [error, generate, goStep, knowledgeBase, step, t, validation.orgDescription, validation.orgName]);
 
   useEffect(() => {
+    if (mainButton.mount.isAvailable()) mainButton.mount();
+  }, []);
+
+  useEffect(() => {
+    if (!mainButton.setParams.isAvailable()) return;
     if (!primary) {
-      mainButton.hide();
+      mainButton.setParams({ isVisible: false });
       return;
     }
-    mainButton.setText(primary.text);
-    mainButton.show();
+    mainButton.setParams({ text: primary.text, isVisible: true, isEnabled: true });
     const off = mainButton.onClick(primary.action);
     return () => {
       off();
-      mainButton.hide();
+      mainButton.setParams({ isVisible: false });
     };
   }, [primary]);
 
