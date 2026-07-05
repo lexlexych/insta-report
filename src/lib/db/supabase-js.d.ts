@@ -7,6 +7,7 @@ declare module '@supabase/supabase-js' {
     maybeSingle(): QueryResult<T | null>;
     eq(column: string, value: unknown): QueryBuilder<T>;
     ilike(column: string, value: string): QueryBuilder<T>;
+    is(column: string, value: null): QueryBuilder<T>;
     lt(column: string, value: unknown): QueryBuilder<T>;
     gte(column: string, value: unknown): QueryBuilder<T>;
     lte(column: string, value: unknown): QueryBuilder<T>;

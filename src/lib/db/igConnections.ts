@@ -112,13 +112,28 @@ export async function markTokenRefreshed(tenantId: string, newTokenEnc: string):
   return data as unknown as IgConnection;
 }
 
-export async function listActiveForRefresh(olderThanDays: number): Promise<IgConnection[]> {
+export async function listActiveForRefresh(olderThanDays: number): Promise<DecryptedIgConnection[]> {
   const cutoff = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await getDb()
+  const db = getDb();
+  const { data: staleData, error: staleError } = await db
     .from('ig_connections')
     .select()
     .eq('status', 'active')
     .lt('token_refreshed_at', cutoff);
-  if (error) throwDb('igConnections.listActiveForRefresh', error);
-  return data as unknown as IgConnection[];
+  if (staleError) throwDb('igConnections.listActiveForRefresh.stale', staleError);
+
+  const { data: neverRefreshedData, error: neverRefreshedError } = await db
+    .from('ig_connections')
+    .select()
+    .eq('status', 'active')
+    .is('token_refreshed_at', null);
+  if (neverRefreshedError) {
+    throwDb('igConnections.listActiveForRefresh.neverRefreshed', neverRefreshedError);
+  }
+
+  const byTenant = new Map<string, IgConnection>();
+  for (const row of [...(staleData ?? []), ...(neverRefreshedData ?? [])] as unknown as IgConnection[]) {
+    byTenant.set(row.tenant_id, row);
+  }
+  return [...byTenant.values()].map(decryptConnection);
 }
