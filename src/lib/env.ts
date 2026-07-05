@@ -32,8 +32,8 @@ export const envSchema = z.object({
     ),
   /** URL проекта Supabase */
   SUPABASE_URL: z.string().min(1),
-  /** Service role key Supabase (доступ к БД только с сервера) */
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  /** Secret key Supabase (доступ к БД только с сервера, обходит RLS) */
+  SUPABASE_SECRET_KEY: z.string().min(1),
   /** Базовый URL LLM-провайдера, например https://openrouter.ai/api/v1 */
   LLM_BASE_URL: z.string().min(1),
   /** API-ключ LLM-провайдера */

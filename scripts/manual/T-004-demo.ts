@@ -27,7 +27,7 @@ const labels = read('src/lib/db/labels.ts');
 const eslint = read('eslint.config.mjs');
 
 const checks: Array<[string, boolean]> = [
-  ['Supabase client is server-only and uses service role env', read('src/lib/db/client.ts').includes("import 'server-only'") && read('src/lib/db/client.ts').includes('SUPABASE_SERVICE_ROLE_KEY')],
+  ['Supabase client is server-only and uses secret key env', read('src/lib/db/client.ts').includes("import 'server-only'") && read('src/lib/db/client.ts').includes('SUPABASE_SECRET_KEY')],
   ['IG access token/app secret are encrypted before upsert', igConnections.includes('access_token_enc: encrypt(accessToken)') && igConnections.includes('app_secret_enc: encrypt(appSecret)')],
   ['IG secrets are decrypted on getForTenant', igConnections.includes('decrypt(accessTokenEnc)') && igConnections.includes('decrypt(appSecretEnc)')],
   ['claimPendingToSending updates only pending drafts and may return null', drafts.includes(".eq('status', 'pending')") && drafts.includes('.maybeSingle()')],

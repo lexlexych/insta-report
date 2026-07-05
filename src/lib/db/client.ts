@@ -10,7 +10,7 @@ let db: SupabaseClient<Database> | undefined;
 
 export function getDb(): SupabaseClient<Database> {
   if (!db) {
-    db = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    db = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_SECRET_KEY, {
       auth: { persistSession: false },
     });
   }
