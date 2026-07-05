@@ -159,7 +159,7 @@
     "status": "awaiting_merge",
     "attempts": 1,
     "branch": "claude/ticket-t-016-3xnedj",
-    "pr": null,
+    "pr": "https://github.com/lexlexych/insta-report/pull/19",
     "deps": [
       "T-011"
     ],
