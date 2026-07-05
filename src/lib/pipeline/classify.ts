@@ -77,7 +77,7 @@ async function resolveLlmDeps(
   const llm = await import('@/lib/llm/client');
   return {
     completeJSON: deps.completeJSON ?? llm.completeJSON,
-    modelClassify: deps.modelClassify ?? llm.MODEL_CLASSIFY,
+    modelClassify: deps.modelClassify ?? llm.getModelClassify(),
   };
 }
 

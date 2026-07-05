@@ -67,12 +67,13 @@ export async function generateDraft(
   }
 
   const prompt = draftPrompt(tenant, label, ctx.history, ctx.pendingText);
-  const llm = deps.complete && deps.modelDraft
-    ? { complete: deps.complete, MODEL_DRAFT: deps.modelDraft, LlmError: DraftLlmError }
+  const injectedModel = deps.modelDraft;
+  const llm = deps.complete && injectedModel
+    ? { complete: deps.complete, getModelDraft: () => injectedModel, LlmError: DraftLlmError }
     : await import('@/lib/llm/client');
   const llmComplete = deps.complete ?? llm.complete;
   const result = await llmComplete({
-    model: deps.modelDraft ?? llm.MODEL_DRAFT,
+    model: deps.modelDraft ?? llm.getModelDraft(),
     system: prompt.system,
     user: prompt.user,
     temperature: 0.7,
