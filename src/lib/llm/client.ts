@@ -29,8 +29,19 @@ type ChatCompletionResponse = {
   usage?: { prompt_tokens?: number | null; completion_tokens?: number | null } | null;
 };
 
-export const MODEL_CLASSIFY = env.LLM_MODEL_CLASSIFY;
-export const MODEL_DRAFT = env.LLM_MODEL_DRAFT;
+/**
+ * Имена моделей читаются лениво: функции обращаются к `env.*` только при вызове,
+ * а не на этапе импорта модуля. Иначе `next build` на шаге «Collecting page data»
+ * загружает модуль роута, тот через импорт этого модуля трогает env и падает с
+ * ZodError, когда секретов ещё нет (например, на Vercel во время сборки).
+ */
+export function getModelClassify(): string {
+  return env.LLM_MODEL_CLASSIFY;
+}
+
+export function getModelDraft(): string {
+  return env.LLM_MODEL_DRAFT;
+}
 
 const JSON_SYSTEM_SUFFIX = 'Отвечай строго одним JSON-объектом без пояснений и markdown';
 const JSON_RETRY_USER_SUFFIX = 'Предыдущий ответ не был валидным JSON по схеме. Верни только JSON.';

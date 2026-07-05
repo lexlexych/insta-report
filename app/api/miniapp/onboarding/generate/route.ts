@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
 import { labels, tenants } from '@/lib/db';
-import { completeJSON, MODEL_DRAFT } from '@/lib/llm/client';
+import { completeJSON, getModelDraft } from '@/lib/llm/client';
 import { kbGenerationPrompt } from '@/lib/llm/prompts';
 
 const requestSchema = z.object({
@@ -30,7 +30,7 @@ export const POST = apiHandler(async (req: Request) => {
   const prompt = kbGenerationPrompt(parsed.data.orgName, parsed.data.orgDescription);
   const generated = await completeJSON(
     {
-      model: MODEL_DRAFT,
+      model: getModelDraft(),
       system: prompt.system,
       user: prompt.user,
       temperature: 0.2,

@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-import { completeJSON, MODEL_CLASSIFY } from '@/lib/llm/client';
+import { completeJSON, getModelClassify } from '@/lib/llm/client';
 
 async function main(): Promise<void> {
   const result = await completeJSON(
     {
-      model: MODEL_CLASSIFY,
+      model: getModelClassify(),
       system: 'Ты тестовый ассистент. Верни JSON с полем ok=true и коротким полем message.',
       user: 'Проверь JSON-режим LLM-клиента.',
       temperature: 0,
