@@ -3,9 +3,9 @@
     "status": "awaiting_merge",
     "attempts": 1,
     "branch": "claude/status-command-5tw1if",
-    "pr": null,
+    "pr": "https://github.com/lexlexych/insta-report/pull/1",
     "deps": [],
-    "notes": "Ветка ticket/T-001 заменена на harness-designated claude/status-command-5tw1if (ограничение окружения). Review: approved (0 циклов доработки). lint+typecheck+build зелёные. manual-test: docs/manual-tests/T-001.md. PR-номер проставить после открытия PR."
+    "notes": "Ветка ticket/T-001 заменена на harness-designated claude/status-command-5tw1if (ограничение окружения). Review: approved (0 циклов доработки). lint+typecheck+build зелёные. manual-test: docs/manual-tests/T-001.md."
   },
   "T-002": {
     "status": "pending",
