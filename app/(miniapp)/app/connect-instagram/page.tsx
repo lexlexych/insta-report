@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { ConnectionDiagnostics } from '@/components/miniapp/ConnectionDiagnostics';
 import { CopyField } from '@/components/miniapp/CopyField';
 import { GuideScreenshot } from '@/components/miniapp/GuideScreenshot';
 import { GuideStep } from '@/components/miniapp/GuideStep';
@@ -237,9 +238,8 @@ export default function Page() {
       </GuideStep>
 
       {saveDone || formDone ? (
-        <div ref={diagnosticsRef} className="rounded-2xl border border-dashed border-tg-hint/40 p-4 text-center text-tg-hint">
-          {/* TODO(T-014): здесь появится блок диагностики подключения (токен/handshake/событие) */}
-          {t('igDiagnosticsPlaceholder')}
+        <div ref={diagnosticsRef}>
+          <ConnectionDiagnostics />
         </div>
       ) : null}
     </main>

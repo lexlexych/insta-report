@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 
+import { ConnectionDiagnostics } from '@/components/miniapp/ConnectionDiagnostics';
 import { PlaceholderPage } from '@/components/miniapp/PlaceholderPage';
 import { useT } from '@/lib/i18n';
 
@@ -10,6 +11,7 @@ export default function MiniAppPage() {
 
   return (
     <PlaceholderPage titleKey="pageDashboardTitle">
+      <ConnectionDiagnostics compact />
       <Link className="mt-4 block rounded-xl bg-tg-button px-4 py-3 text-center font-medium text-tg-button-text" href="/app/connect-instagram">
         {t('onboardingConnectInstagram')}
       </Link>
