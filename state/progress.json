@@ -113,7 +113,7 @@
     "notes": "Влит в main (merge commit 4e9ae79, PR #12; подтверждено git branch -r --merged origin/main). Синхронизировано в рамках RESUME при старте T-012 (прямой commit в main запрещён средой — правка внесена в ветке T-012). Review: approved. lint+typecheck зелёные. manual-test: docs/manual-tests/T-011.md (+ scripts/manual/T-011-demo.ts)."
   },
   "T-012": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "claude/t-013-build-uxnkct",
     "pr": null,
@@ -121,7 +121,7 @@
       "T-007",
       "T-011"
     ],
-    "notes": "Старт по конвейеру. Ветка среды claude/t-013-build-uxnkct (от свежего main 4e9ae79). Deps T-007, T-011 — done."
+    "notes": "Review: approved (0 циклов доработки; 3 nit-замечания без блокеров: GET расшифровывает секреты ради булевых флагов; теоретическая гонка двух первых GET на verify_token; оба — вне требований тикета). lint+typecheck зелёные. manual-test: docs/manual-tests/T-012.md. Ветка среды claude/t-013-build-uxnkct (имя намекает на T-013, но выполнен T-012 по команде /ticket T-012; push в иную ветку запрещён средой)."
   },
   "T-013": {
     "status": "pending",
