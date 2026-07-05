@@ -1,0 +1,13 @@
+.next
+node_modules
+pnpm-lock.yaml
+.env*
+!.env.example
+
+# Управляются оркестратором/человеком, не форматируются кодовым style-скриптом
+docs
+state
+.claude
+AGENTS.md
+CLAUDE.md
+SETUP.md
