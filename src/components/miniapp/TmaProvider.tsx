@@ -1,6 +1,6 @@
 'use client';
 
-import { init, miniApp, retrieveRawInitData, themeParams, useLaunchParams, viewport } from '@telegram-apps/sdk-react';
+import { init, miniApp, retrieveLaunchParams, retrieveRawInitData, themeParams, useLaunchParams, viewport } from '@telegram-apps/sdk-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
@@ -153,25 +153,58 @@ function TenantProvider({ children }: { children: ReactNode }) {
 
 export function TmaProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
-  const [isTelegram, setIsTelegram] = useState(true);
+  const [isTelegram, setIsTelegram] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // 1) Детекция Telegram-окружения НЕЗАВИСИМО от побочных эффектов init().
+    //    retrieveLaunchParams() читает launch params из hash/sessionStorage и
+    //    бросает, только если мы реально не внутри Telegram.
+    let inTelegram = false;
     try {
-      init();
-      miniApp.ready();
-      viewport.expand();
-      applyTheme(themeParams.state as TelegramTheme | undefined);
-      const unsubscribe = themeParams.on('change', () => applyTheme(themeParams.state as TelegramTheme | undefined));
-      setIsReady(true);
-
-      return unsubscribe;
+      retrieveLaunchParams();
+      inTelegram = true;
     } catch {
-      setIsTelegram(false);
-      return undefined;
+      inTelegram = false;
     }
+
+    if (!inTelegram) {
+      setIsTelegram(false);
+      return;
+    }
+    setIsTelegram(true);
+
+    // 2) Инициализация и монтирование компонентов. Любой сбой ЗДЕСЬ не должен
+    //    переводить приложение в fallback — мы уже знаем, что мы в Telegram.
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        init();
+
+        if (miniApp.mount.isAvailable()) miniApp.mount();
+        if (themeParams.mount.isAvailable()) themeParams.mount();
+        if (viewport.mount.isAvailable()) await viewport.mount();
+
+        if (miniApp.ready.isAvailable()) miniApp.ready();
+        if (viewport.expand.isAvailable()) viewport.expand();
+
+        applyTheme(themeParams.state() as TelegramTheme);
+        unsubscribe = themeParams.state.sub(() => applyTheme(themeParams.state() as TelegramTheme));
+      } catch (error) {
+        console.error('[TmaProvider] Telegram SDK init failed', error);
+      } finally {
+        if (!cancelled) setIsReady(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
-  if (!isTelegram) {
+  if (isTelegram === false) {
     return <TelegramOnlyFallback />;
   }
 

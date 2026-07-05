@@ -1,27 +1,38 @@
 declare module '@telegram-apps/sdk-react' {
+  type Callable<R = void> = {
+    (): R;
+    isAvailable(): boolean;
+  };
+
+  type Signal<T> = {
+    (): T;
+    sub(listener: () => void): () => void;
+  };
+
   export function init(): void;
+  export function retrieveLaunchParams(): unknown;
+  export function retrieveRawInitData(): string | undefined;
 
   export const miniApp: {
-    ready(): void;
+    mount: Callable;
+    ready: Callable;
   };
 
   export const mainButton: {
-    setText(text: string): void;
-    show(): void;
-    hide(): void;
+    mount: Callable;
+    setParams: Callable<void> & ((params: { text?: string; isVisible?: boolean; isEnabled?: boolean }) => void);
     onClick(handler: () => void): () => void;
   };
 
   export const viewport: {
-    expand(): void;
+    mount: Callable<Promise<void>>;
+    expand: Callable;
   };
 
   export const themeParams: {
-    state?: Record<string, string | undefined>;
-    on(event: 'change', handler: () => void): () => void;
+    mount: Callable;
+    state: Signal<Record<string, string | undefined>>;
   };
-
-  export function retrieveRawInitData(): string | undefined;
 
   export function useLaunchParams(): {
     initDataUnsafe?: {
