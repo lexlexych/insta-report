@@ -113,7 +113,7 @@
     "notes": "Влит в main (merge commit 4e9ae79, PR #12; подтверждено git branch -r --merged origin/main). Синхронизировано в рамках RESUME при старте T-012 (прямой commit в main запрещён средой — правка внесена в ветке T-012). Review: approved. lint+typecheck зелёные. manual-test: docs/manual-tests/T-011.md (+ scripts/manual/T-011-demo.ts)."
   },
   "T-012": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "claude/t-013-build-uxnkct",
     "pr": "https://github.com/lexlexych/insta-report/pull/13",
@@ -121,18 +121,18 @@
       "T-007",
       "T-011"
     ],
-    "notes": "Review: approved (0 циклов доработки; 3 nit-замечания без блокеров: GET расшифровывает секреты ради булевых флагов; теоретическая гонка двух первых GET на verify_token; оба — вне требований тикета). lint+typecheck зелёные. manual-test: docs/manual-tests/T-012.md. Ветка среды claude/t-013-build-uxnkct (имя намекает на T-013, но выполнен T-012 по команде /ticket T-012; push в иную ветку запрещён средой)."
+    "notes": "Влит в main (локальная история содержит merge commit PR #13). Review: approved. lint+typecheck зелёные. manual-test: docs/manual-tests/T-012.md."
   },
   "T-013": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-013",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-003",
       "T-004"
     ],
-    "notes": ""
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck+manual demo зелёные. manual-test: docs/manual-tests/T-013.md (+ scripts/manual/T-013-demo.ts). RESUME: origin remote отсутствует в контейнере; локальная main содержит merge commit PR #13, T-012 отмечен done."
   },
   "T-014": {
     "status": "pending",
