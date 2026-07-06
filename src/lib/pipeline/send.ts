@@ -11,9 +11,8 @@ import {
   usageStats,
 } from '@/lib/db';
 import { getConversation, sendMessage } from '@/lib/ig/client';
-import { answerCallback, editMessageHTML, sendMessageHTML } from '@/lib/tg/api';
+import { answerCallback, deleteMessageSafe, editMessageHTML, sendMessageHTML } from '@/lib/tg/api';
 import { renderDraftCard } from '@/lib/tg/draftCard';
-import { escapeHTML } from '@/lib/tg/html';
 import { ensureHistoryTopic } from '@/lib/tg/topics';
 
 import type { Database } from '@/lib/db/types.gen';
@@ -37,6 +36,7 @@ type SendDeps = {
   markProcessedEvent: typeof processedEvents.tryInsert;
   editMessageHTML: typeof editMessageHTML;
   sendMessageHTML: typeof sendMessageHTML;
+  deleteMessageSafe: typeof deleteMessageSafe;
   ensureHistoryTopic: typeof ensureHistoryTopic;
   now: () => Date;
 };
@@ -57,6 +57,7 @@ const DEFAULT_DEPS: SendDeps = {
   markProcessedEvent: processedEvents.tryInsert,
   editMessageHTML,
   sendMessageHTML,
+  deleteMessageSafe,
   ensureHistoryTopic,
   now: () => new Date(),
 };
@@ -80,22 +81,51 @@ function retryKeyboard(draftId: string): InlineKeyboard {
 }
 
 
-function truncate(value: string, maxLength: number): string {
-  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1)}…`;
+function sentMessageId(message: unknown): number {
+  const messageId = (message as { message_id?: unknown } | undefined)?.message_id;
+  if (typeof messageId !== 'number') throw new Error('Telegram sendMessage returned no message_id');
+  return messageId;
 }
 
-async function sendHistoryEntry(tenant: NonNullable<Awaited<ReturnType<typeof tenants.getById>>>, draft: Draft, label: Label | null, deps: SendDeps): Promise<void> {
-  if (tenant.tg_chat_id === null) return;
+/**
+ * Переносит отправленную карточку из топика категории в топик «Архив»: публикует итоговую
+ * карточку (со статусом «Отправлено») в архивном топике и удаляет оригинал из текущего
+ * топика. Указатель черновика переводится на архивное сообщение, чтобы поздние правки не
+ * били по удалённой карточке. Если темы выключены (плоский режим) или переносить некуда —
+ * карточка просто помечается на месте. Ошибки архивации не срывают факт отправки в Instagram.
+ */
+async function archiveSentDraft(
+  tenant: NonNullable<Awaited<ReturnType<typeof tenants.getById>>>,
+  draft: Draft,
+  deps: SendDeps,
+): Promise<void> {
+  const statusLine = `✅ Отправлено ${formatBerlinTime(deps.now())}`;
   try {
-    const threadId = await deps.ensureHistoryTopic(tenant);
-    const username = draft.contact_username ? `@${draft.contact_username}` : '@client';
-    const labelName = label?.name ?? 'Без категории';
-    const html = `${escapeHTML(username)} · ${escapeHTML(labelName)}
-<b>Вопрос:</b> ${escapeHTML(truncate(draft.pending_text ?? '', 900))}
-<b>Ответ:</b> ${escapeHTML(truncate(draft.draft_text ?? '', 2500))}`;
-    await deps.sendMessageHTML(tenant.tg_chat_id, html, undefined, threadId ?? undefined);
+    const chatId = tenant.tg_chat_id;
+    const cardChatId = draft.tg_chat_id;
+    const cardMessageId = draft.tg_message_id;
+    const historyThreadId = chatId === null ? null : await deps.ensureHistoryTopic(tenant);
+
+    if (historyThreadId === null || chatId === null || cardChatId === null || cardMessageId === null) {
+      await editDraftCard(draft, deps, statusLine);
+      return;
+    }
+
+    const html = await renderCard(draft, deps, statusLine);
+    const archived = await deps.sendMessageHTML(chatId, html, undefined, historyThreadId);
+    const archivedMessageId = sentMessageId(archived);
+    await deps.deleteMessageSafe(cardChatId, cardMessageId);
+    await deps.setDraftStatus(draft.id, 'sent', {
+      tg_chat_id: chatId,
+      tg_message_id: archivedMessageId,
+    });
   } catch (error) {
-    console.error(`[pipeline] history topic log failed tenant=${tenant.id} draft=${draft.id}`, error);
+    console.error(`[pipeline] archive move failed tenant=${tenant.id} draft=${draft.id}`, error);
+    try {
+      await editDraftCard(draft, deps, statusLine);
+    } catch (editError) {
+      console.error(`[pipeline] archive fallback edit failed draft=${draft.id}`, editError);
+    }
   }
 }
 
@@ -195,9 +225,8 @@ export async function attemptSend(
     );
     await d.setDraftStatus(draft.id, 'sent', { error: null });
     await d.addMessageLog(tenant.id, draft.conversation_key, 'out', draftText);
-    await sendHistoryEntry(tenant, draft, draft.label_id ? await d.getLabel(draft.label_id) : null, d);
     await d.incrementUsage(tenant.id, { draftsSent: 1 });
-    await editDraftCard(draft, d, `✅ Отправлено ${formatBerlinTime(d.now())}`);
+    await archiveSentDraft(tenant, draft, d);
   } catch (error) {
     await markError(draft, d, shortError(error));
   }
