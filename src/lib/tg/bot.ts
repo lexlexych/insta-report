@@ -3,7 +3,7 @@ import type { Context } from 'grammy';
 
 import { tenants } from '@/lib/db';
 import { env } from '@/lib/env';
-import { resolveLocale, t } from '@/lib/i18n';
+import { resolveLocale, t } from '@/lib/i18n/shared';
 import { handleRetryCallback, handleSendCallback } from '@/lib/pipeline/send';
 
 let bot: Bot | undefined;
