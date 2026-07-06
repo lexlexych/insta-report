@@ -118,7 +118,12 @@ export async function attemptSend(
   const draft = await d.claimPendingToSending(draftId);
   if (!draft) {
     const staleDraft = await d.getDraftById(draftId);
-    if (staleDraft) await editDraftCard(staleDraft, d, '⌛️ Карточка устарела');
+    if (staleDraft) {
+      console.warn(`[pipeline] draft not pending draft=${draftId} status=${staleDraft.status}`);
+      await editDraftCard(staleDraft, d, '⌛️ Карточка устарела');
+    } else {
+      console.warn(`[pipeline] draft not found for send draft=${draftId}`);
+    }
     return;
   }
 

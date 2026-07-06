@@ -27,12 +27,15 @@ export async function onStart(ctx: Context): Promise<void> {
 
 export async function onCallback(ctx: Context): Promise<void> {
   const data = (ctx as { callbackQuery?: { data?: unknown } }).callbackQuery?.data;
+  const fromId = ctx.from?.id ?? 'unknown';
   if (typeof data !== 'string') {
+    console.warn(`[tg] callback without data from=${fromId}`);
     await ctx.answerCallbackQuery();
     return;
   }
 
   const [action, id] = data.split(':', 2);
+  console.info(`[tg] callback received action=${action} from=${fromId}`);
   if (action === 'send' && id) {
     await handleSendCallback(ctx, id);
     return;
@@ -42,6 +45,7 @@ export async function onCallback(ctx: Context): Promise<void> {
     return;
   }
 
+  console.warn(`[tg] unhandled callback data="${data}" from=${fromId}`);
   await ctx.answerCallbackQuery();
 }
 
