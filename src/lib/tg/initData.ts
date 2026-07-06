@@ -16,6 +16,7 @@ export type TelegramInitDataUser = {
   username?: string;
   language_code?: string;
   allows_write_to_pm?: boolean;
+  has_topics_enabled?: boolean;
   photo_url?: string;
   [key: string]: unknown;
 };

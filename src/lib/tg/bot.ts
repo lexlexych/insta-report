@@ -17,7 +17,10 @@ export async function onStart(ctx: Context): Promise<void> {
     return;
   }
 
-  await tenants.upsertByTelegramUserId(ctx.from.id, { tg_chat_id: ctx.chat.id });
+  await tenants.upsertByTelegramUserId(ctx.from.id, {
+    tg_chat_id: ctx.chat.id,
+    ...(ctx.from.has_topics_enabled === undefined ? {} : { tg_topics_enabled: ctx.from.has_topics_enabled }),
+  });
 
   const locale = resolveLocale(ctx.from.language_code);
   const keyboard = new InlineKeyboard().webApp(t(locale, 'openPanel'), panelUrl());

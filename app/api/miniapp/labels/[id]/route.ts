@@ -4,6 +4,7 @@ import { apiHandler, HttpError, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
 import { labels } from '@/lib/db';
 import { ForbiddenLabelError, LabelNameConflictError } from '@/lib/db/errors';
+import { removeLabelTopic, renameLabelTopic } from '@/lib/tg/topics';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -46,6 +47,7 @@ export const PUT = async (req: Request, { params }: RouteParams): Promise<Respon
         instruction: parsed.data.instruction,
         sort: parsed.data.sort,
       });
+      if (parsed.data.name) await renameLabelTopic(tenant, existing, parsed.data.name);
     } catch (error) {
       if (error instanceof ForbiddenLabelError) throw new HttpError(403, 'forbidden_default_label');
       if (error instanceof LabelNameConflictError) return jsonResponse({ ok: false, error: 'name_conflict' }, 409);
@@ -71,6 +73,7 @@ export const DELETE = async (req: Request, { params }: RouteParams): Promise<Res
     try {
       // drafts.label_id -> NULL при удалении метки обеспечивает FK `on delete set null`
       // (см. supabase/migrations/0001_init.sql) — приложению не нужно чистить drafts руками.
+      await removeLabelTopic(tenant, existing);
       await labels.deleteById(id);
     } catch (error) {
       if (error instanceof ForbiddenLabelError) throw new HttpError(403, 'forbidden_default_label');

@@ -1,6 +1,6 @@
 declare module 'grammy' {
   export type Context = {
-    from?: { id: number; language_code?: string };
+    from?: { id: number; language_code?: string; has_topics_enabled?: boolean };
     chat?: { id: number };
     reply(text: string, options?: { reply_markup?: InlineKeyboard }): Promise<unknown>;
     answerCallbackQuery(options?: { text?: string }): Promise<unknown>;
@@ -36,6 +36,10 @@ declare module 'grammy' {
         menu_button: { type: 'web_app'; text: string; web_app: { url: string } };
       }): Promise<unknown>;
       getWebhookInfo(): Promise<unknown>;
+      getChat(chatId: number | string): Promise<unknown>;
+      createForumTopic(chatId: number | string, name: string): Promise<unknown>;
+      editForumTopic(chatId: number | string, messageThreadId: number, options: { name: string }): Promise<unknown>;
+      deleteForumTopic(chatId: number | string, messageThreadId: number): Promise<unknown>;
     };
 
     constructor(token: string);

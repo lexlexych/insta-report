@@ -26,6 +26,7 @@ export type MiniAppTenant = {
   onboardingStep: string | null;
   orgName: string | null;
   uiLocale?: Locale;
+  tgTopicsEnabled?: boolean;
 };
 
 const BOT_USERNAME = 'InstaReplyBot';

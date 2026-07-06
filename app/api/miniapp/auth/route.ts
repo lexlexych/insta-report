@@ -15,7 +15,10 @@ export const POST = apiHandler(async (req: Request) => {
 
   try {
     const { user } = validateInitData(parsed.data.initData, env.TELEGRAM_BOT_TOKEN);
-    const tenant = await tenants.upsertByTelegramUserId(user.id, { tg_chat_id: user.id });
+    const tenant = await tenants.upsertByTelegramUserId(user.id, {
+      tg_chat_id: user.id,
+      ...(user.has_topics_enabled === undefined ? {} : { tg_topics_enabled: user.has_topics_enabled }),
+    });
     const session = await signSession({ tenantId: tenant.id });
 
     return Response.json(
@@ -26,6 +29,7 @@ export const POST = apiHandler(async (req: Request) => {
           onboardingStep: tenant.onboarding_step,
           orgName: tenant.org_name,
           uiLocale: tenant.ui_locale,
+          tgTopicsEnabled: tenant.tg_topics_enabled,
         },
       },
       {
