@@ -1,18 +1,14 @@
 import { labels, tenants } from '@/lib/db';
-import { createForumTopic, editForumTopic, deleteForumTopic } from '@/lib/tg/api';
+import { createForumTopic, deleteForumTopic, editForumTopic } from '@/lib/tg/api';
 
 import type { Database } from '@/lib/db/types.gen';
 
 type Tenant = Database['public']['Tables']['tenants']['Row'];
 type Label = Database['public']['Tables']['labels']['Row'];
 
-const HISTORY_TOPIC_NAME = '📜 История';
+const HISTORY_TOPIC_NAME = '📜 Архив';
 
 type TopicLogger = Pick<Console, 'error'>;
-
-function canUseTopics(tenant: Pick<Tenant, 'tg_topics_enabled' | 'tg_chat_id'>): tenant is Tenant & { tg_chat_id: number } {
-  return tenant.tg_topics_enabled && tenant.tg_chat_id !== null;
-}
 
 export async function syncTopicsEnabled(tenant: Tenant, valueFromUpdate?: boolean): Promise<Tenant> {
   const enabled = valueFromUpdate ?? tenant.tg_topics_enabled;
@@ -20,18 +16,36 @@ export async function syncTopicsEnabled(tenant: Tenant, valueFromUpdate?: boolea
   return tenants.update(tenant.id, { tg_topics_enabled: enabled });
 }
 
+/**
+ * Кэшируем факт «темы включены» после первого успешного создания топика. Раньше режим тем
+ * определялся только по `has_topics_enabled` из `/start`/initData, но Telegram отдаёт это
+ * поле ненадёжно (нет в `ChatFullInfo`/getChat для приватных чатов), поэтому кэш оставался
+ * `false` и топики не создавались никогда. Теперь источником истины служит сам вызов
+ * `createForumTopic`: удался — темы включены, обновляем кэш для индикатора в настройках.
+ */
+async function markTopicsEnabled(tenant: Tenant): Promise<void> {
+  if (tenant.tg_topics_enabled) return;
+  await tenants.update(tenant.id, { tg_topics_enabled: true });
+  tenant.tg_topics_enabled = true;
+}
+
 export async function ensureLabelTopic(
   tenant: Tenant,
   label: Label | null,
   logger: TopicLogger = console,
 ): Promise<number | null> {
-  if (!label || !canUseTopics(tenant)) return null;
+  if (!label) return null;
   if (label.tg_thread_id !== null) return label.tg_thread_id;
+  const chatId = tenant.tg_chat_id;
+  if (chatId === null) return null;
 
   try {
-    const threadId = await createForumTopic(tenant.tg_chat_id, label.name);
+    // Пробуем создать топик напрямую: если Threaded Mode у бота выключен — вызов упадёт,
+    // и мы бесшовно деградируем в плоский чат. Успех = темы включены (см. markTopicsEnabled).
+    const threadId = await createForumTopic(chatId, label.name);
     await labels.updateTopicId(label.id, threadId);
     label.tg_thread_id = threadId;
+    await markTopicsEnabled(tenant);
     return threadId;
   } catch (error) {
     logger.error(`[tg] label topic fallback tenant=${tenant.id} label=${label.id}`, error);
@@ -40,13 +54,15 @@ export async function ensureLabelTopic(
 }
 
 export async function ensureHistoryTopic(tenant: Tenant, logger: TopicLogger = console): Promise<number | null> {
-  if (!canUseTopics(tenant)) return null;
   if (tenant.history_thread_id !== null) return tenant.history_thread_id;
+  const chatId = tenant.tg_chat_id;
+  if (chatId === null) return null;
 
   try {
-    const threadId = await createForumTopic(tenant.tg_chat_id, HISTORY_TOPIC_NAME);
+    const threadId = await createForumTopic(chatId, HISTORY_TOPIC_NAME);
     await tenants.update(tenant.id, { history_thread_id: threadId });
     tenant.history_thread_id = threadId;
+    await markTopicsEnabled(tenant);
     return threadId;
   } catch (error) {
     logger.error(`[tg] history topic fallback tenant=${tenant.id}`, error);
@@ -55,18 +71,20 @@ export async function ensureHistoryTopic(tenant: Tenant, logger: TopicLogger = c
 }
 
 export async function renameLabelTopic(tenant: Tenant, label: Label, name: string, logger: TopicLogger = console): Promise<void> {
-  if (!canUseTopics(tenant) || label.tg_thread_id === null) return;
+  const chatId = tenant.tg_chat_id;
+  if (chatId === null || label.tg_thread_id === null) return;
   try {
-    await editForumTopic(tenant.tg_chat_id, label.tg_thread_id, name);
+    await editForumTopic(chatId, label.tg_thread_id, name);
   } catch (error) {
     logger.error(`[tg] label topic rename failed tenant=${tenant.id} label=${label.id}`, error);
   }
 }
 
 export async function removeLabelTopic(tenant: Tenant, label: Label, logger: TopicLogger = console): Promise<void> {
-  if (!canUseTopics(tenant) || label.tg_thread_id === null) return;
+  const chatId = tenant.tg_chat_id;
+  if (chatId === null || label.tg_thread_id === null) return;
   try {
-    await deleteForumTopic(tenant.tg_chat_id, label.tg_thread_id);
+    await deleteForumTopic(chatId, label.tg_thread_id);
   } catch (error) {
     logger.error(`[tg] label topic delete failed tenant=${tenant.id} label=${label.id}`, error);
   }

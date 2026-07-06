@@ -252,7 +252,7 @@
       "T-021",
       "T-023"
     ],
-    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Реализованы приватные Telegram-топики по категориям, fallback в General и топик истории. manual-test: docs/manual-tests/T-024.md."
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Реализованы приватные Telegram-топики по категориям, fallback в General и топик истории. manual-test: docs/manual-tests/T-024.md. FOLLOW-UP FIX (ветка claude/message-categorization-topics-gpofrg): (1) топики не появлялись — создание было заблокировано кэшем tg_topics_enabled, который наполнялся только из ненадёжного has_topics_enabled; теперь источник истины — сам createForumTopic (успех → кэш true, неудача → плоский fallback), Threaded Mode подхватывается сразу; (2) кнопка «Отправить» теперь переносит карточку из топика категории в топик «📜 Архив» (удаляет оригинал + публикует итоговую карточку в архиве, указатель черновика переводится на архивное сообщение) вместо правки на месте + отдельной записи. lint+typecheck зелёные, runtime-проверка move/flat пройдена."
   },
   "T-025": {
     "status": "done",

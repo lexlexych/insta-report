@@ -159,6 +159,20 @@ async function runScenario(
         `edit:${html.includes('Отправлено') ? 'sent' : html.includes('Отменено') ? 'manual' : html.includes('Ошибка') ? 'error' : html.includes('устарела') ? 'stale' : 'other'}`,
       );
     },
+    markProcessedEvent: async () => {
+      calls.push('mark-processed');
+      return true;
+    },
+    // Топики в этом сценарии выключены (tg_topics_enabled=false) — архивного топика нет,
+    // поэтому карточка помечается «Отправлено» на месте (editMessageHTML), без переноса.
+    ensureHistoryTopic: async () => null,
+    sendMessageHTML: async () => {
+      calls.push('archive-send');
+      return { message_id: 9009 };
+    },
+    deleteMessageSafe: async () => {
+      calls.push('archive-delete');
+    },
     now: () => new Date('2026-07-05T10:05:00Z'),
   };
 
