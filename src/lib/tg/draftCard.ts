@@ -75,7 +75,8 @@ export function draftKeyboard(draftId: string, username: string | null): InlineK
 
   const keyboard = new InlineKeyboard();
   if (username) {
-    keyboard.url('🔗 Открыть в Instagram', `https://ig.me/m/${encodeURIComponent(username)}`).row();
+    // Без .row() — кнопка «IG чат» и «Отправить» остаются в одной строке.
+    keyboard.url('IG чат', `https://ig.me/m/${encodeURIComponent(username)}`);
   }
 
   return keyboard.text('✅ Отправить', callbackData);

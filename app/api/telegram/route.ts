@@ -8,6 +8,7 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest): Promise<Response> {
   if (req.headers.get('x-telegram-bot-api-secret-token') !== env.TELEGRAM_WEBHOOK_SECRET) {
+    console.warn('[tg] webhook request rejected: secret token mismatch');
     return new Response('Unauthorized', { status: 401 });
   }
 
