@@ -34,6 +34,7 @@ export const PATCH = apiHandler(async (req: Request) => {
       onboardingStep: updated.onboarding_step,
       orgName: updated.org_name,
       uiLocale: updated.ui_locale,
+      tgTopicsEnabled: updated.tg_topics_enabled,
     },
   });
 });

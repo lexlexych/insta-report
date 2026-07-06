@@ -150,6 +150,12 @@ export default function Page() {
       </section>
 
       <section className="rounded-3xl bg-tg-secondary-bg p-4">
+        <h2 className="text-lg font-semibold">{t('settingsDeliveryTitle')}</h2>
+        <p className="mt-2 text-sm font-medium">{t(tenantState.status === 'ready' && tenantState.tenant.tgTopicsEnabled ? 'settingsTopicsEnabled' : 'settingsTopicsDisabled')}</p>
+        <p className="mt-1 text-sm text-tg-hint">{t('settingsTopicsHint')}</p>
+      </section>
+
+      <section className="rounded-3xl bg-tg-secondary-bg p-4">
         <h2 className="text-lg font-semibold">Instagram</h2>
         <p className="mt-2 text-sm text-tg-hint">{igStatus}</p>
         <button className="mt-3 rounded-xl bg-tg-bg px-4 py-2" disabled={busy === 'disconnect'} onClick={() => void disconnect()}>{t('settingsDisconnect')}</button>

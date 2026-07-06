@@ -11,8 +11,10 @@ import {
   usageStats,
 } from '@/lib/db';
 import { getConversation, sendMessage } from '@/lib/ig/client';
-import { editMessageHTML, answerCallback } from '@/lib/tg/api';
+import { answerCallback, editMessageHTML, sendMessageHTML } from '@/lib/tg/api';
 import { renderDraftCard } from '@/lib/tg/draftCard';
+import { escapeHTML } from '@/lib/tg/html';
+import { ensureHistoryTopic } from '@/lib/tg/topics';
 
 import type { Database } from '@/lib/db/types.gen';
 
@@ -34,6 +36,8 @@ type SendDeps = {
   incrementUsage: typeof usageStats.increment;
   markProcessedEvent: typeof processedEvents.tryInsert;
   editMessageHTML: typeof editMessageHTML;
+  sendMessageHTML: typeof sendMessageHTML;
+  ensureHistoryTopic: typeof ensureHistoryTopic;
   now: () => Date;
 };
 
@@ -52,6 +56,8 @@ const DEFAULT_DEPS: SendDeps = {
   incrementUsage: usageStats.increment,
   markProcessedEvent: processedEvents.tryInsert,
   editMessageHTML,
+  sendMessageHTML,
+  ensureHistoryTopic,
   now: () => new Date(),
 };
 
@@ -71,6 +77,26 @@ function formatBerlinTime(date: Date): string {
 
 function retryKeyboard(draftId: string): InlineKeyboard {
   return new InlineKeyboard().text('🔁 Повторить', `retry:${draftId}`);
+}
+
+
+function truncate(value: string, maxLength: number): string {
+  return value.length <= maxLength ? value : `${value.slice(0, maxLength - 1)}…`;
+}
+
+async function sendHistoryEntry(tenant: NonNullable<Awaited<ReturnType<typeof tenants.getById>>>, draft: Draft, label: Label | null, deps: SendDeps): Promise<void> {
+  if (tenant.tg_chat_id === null) return;
+  try {
+    const threadId = await deps.ensureHistoryTopic(tenant);
+    const username = draft.contact_username ? `@${draft.contact_username}` : '@client';
+    const labelName = label?.name ?? 'Без категории';
+    const html = `${escapeHTML(username)} · ${escapeHTML(labelName)}
+<b>Вопрос:</b> ${escapeHTML(truncate(draft.pending_text ?? '', 900))}
+<b>Ответ:</b> ${escapeHTML(truncate(draft.draft_text ?? '', 2500))}`;
+    await deps.sendMessageHTML(tenant.tg_chat_id, html, undefined, threadId ?? undefined);
+  } catch (error) {
+    console.error(`[pipeline] history topic log failed tenant=${tenant.id} draft=${draft.id}`, error);
+  }
 }
 
 async function renderCard(draft: Draft, deps: SendDeps, statusLine: string): Promise<string> {
@@ -169,6 +195,7 @@ export async function attemptSend(
     );
     await d.setDraftStatus(draft.id, 'sent', { error: null });
     await d.addMessageLog(tenant.id, draft.conversation_key, 'out', draftText);
+    await sendHistoryEntry(tenant, draft, draft.label_id ? await d.getLabel(draft.label_id) : null, d);
     await d.incrementUsage(tenant.id, { draftsSent: 1 });
     await editDraftCard(draft, d, `✅ Отправлено ${formatBerlinTime(d.now())}`);
   } catch (error) {

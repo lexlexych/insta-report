@@ -1,6 +1,7 @@
 import { PendingExistsError } from '@/lib/db/errors';
 import { conversationKey } from '@/lib/pipeline/key';
 import { draftKeyboard, renderDraftCard } from '@/lib/tg/draftCard';
+import { ensureLabelTopic } from '@/lib/tg/topics';
 
 import type { DecryptedIgConnection } from '@/lib/db/igConnections';
 import type { Label, Tenant } from '@/lib/pipeline/classify';
@@ -23,6 +24,7 @@ type DeliverDraftDeps = {
   insertPending: typeof import('@/lib/db/drafts').insertPending;
   sendMessageHTML: typeof import('@/lib/tg/api').sendMessageHTML;
   deleteMessageSafe: typeof import('@/lib/tg/api').deleteMessageSafe;
+  ensureLabelTopic: typeof ensureLabelTopic;
   randomUUID: typeof crypto.randomUUID;
   logger: Pick<Console, 'error'>;
 };
@@ -39,6 +41,7 @@ async function resolveDeps(deps: Partial<DeliverDraftDeps>): Promise<DeliverDraf
     insertPending: deps.insertPending ?? draftRepo?.insertPending,
     sendMessageHTML: deps.sendMessageHTML ?? tgApi?.sendMessageHTML,
     deleteMessageSafe: deps.deleteMessageSafe ?? tgApi?.deleteMessageSafe,
+    ensureLabelTopic: deps.ensureLabelTopic ?? ensureLabelTopic,
     randomUUID: deps.randomUUID ?? crypto.randomUUID,
     logger: deps.logger ?? console,
   } as DeliverDraftDeps;
@@ -82,7 +85,16 @@ export async function deliverDraft(
     labelName: input.label.name,
     draftText: input.draftText,
   });
-  const sent = await d.sendMessageHTML(chatId, html, draftKeyboard(draftId, input.ctx.username));
+  const keyboard = draftKeyboard(draftId, input.ctx.username);
+  const threadId = await d.ensureLabelTopic(input.tenant, input.label, d.logger);
+  let sent: unknown;
+  try {
+    sent = await d.sendMessageHTML(chatId, html, keyboard, threadId ?? undefined);
+  } catch (error) {
+    if (threadId === null) throw error;
+    d.logger.error(`[pipeline] draft topic send fallback tenant=${input.tenant.id} label=${input.label.id}`, error);
+    sent = await d.sendMessageHTML(chatId, html, keyboard);
+  }
   const messageId = sentMessageId(sent);
 
   try {

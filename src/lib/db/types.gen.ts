@@ -1,7 +1,7 @@
 // TODO(T-002): перегенерировать через `pnpm db:types` после `supabase link --project-ref <ref>`
 // к реальному Supabase-проекту. До тех пор этот файл написан вручную в формате,
 // максимально приближенном к реальному выводу `supabase gen types typescript`, и должен
-// соответствовать supabase/migrations/0001_init.sql и 0002_increment_usage.sql.
+// соответствовать supabase/migrations/0001_init.sql … 0008_tg_topics.sql.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -13,6 +13,8 @@ export type Database = {
           id: string;
           telegram_user_id: number;
           tg_chat_id: number | null;
+          tg_topics_enabled: boolean;
+          history_thread_id: number | null;
           org_name: string | null;
           org_description: string | null;
           knowledge_base: string | null;
@@ -27,6 +29,8 @@ export type Database = {
           id?: string;
           telegram_user_id: number;
           tg_chat_id?: number | null;
+          tg_topics_enabled?: boolean;
+          history_thread_id?: number | null;
           org_name?: string | null;
           org_description?: string | null;
           knowledge_base?: string | null;
@@ -41,6 +45,8 @@ export type Database = {
           id?: string;
           telegram_user_id?: number;
           tg_chat_id?: number | null;
+          tg_topics_enabled?: boolean;
+          history_thread_id?: number | null;
           org_name?: string | null;
           org_description?: string | null;
           knowledge_base?: string | null;

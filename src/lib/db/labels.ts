@@ -75,6 +75,17 @@ export async function deleteById(id: string): Promise<void> {
  * её позиция всегда последняя (сид с sort=999), а сортировка недоступна ей ни в UI,
  * ни здесь, даже если id случайно попал в список.
  */
+export async function updateTopicId(id: string, threadId: number | null): Promise<Label> {
+  const { data, error } = await getDb()
+    .from('labels')
+    .update({ tg_thread_id: threadId })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throwDb('labels.updateTopicId', error);
+  return data as Label;
+}
+
 export async function reorder(tenantId: string, ids: string[]): Promise<void> {
   const existing = await listByTenant(tenantId);
   const existingIds = new Set(existing.map((label) => label.id));

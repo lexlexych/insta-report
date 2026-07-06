@@ -47,6 +47,8 @@ const tenant: Tenant = {
   id: 'tenant-1',
   telegram_user_id: 42,
   tg_chat_id: 1001,
+  tg_topics_enabled: false,
+  history_thread_id: null,
   org_name: null,
   org_description: null,
   knowledge_base: null,

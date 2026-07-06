@@ -4,6 +4,7 @@ import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
 import { drafts, labels } from '@/lib/db';
 import { LabelNameConflictError } from '@/lib/db/errors';
+import { ensureLabelTopic } from '@/lib/tg/topics';
 import type { Database } from '@/lib/db';
 
 type Label = Database['public']['Tables']['labels']['Row'];
@@ -73,6 +74,8 @@ export const POST = apiHandler(async (req: Request) => {
       instruction: parsed.data.instruction,
       sort: maxSort + 1,
     });
+
+    await ensureLabelTopic(tenant, created);
 
     return jsonResponse({ ok: true, label: toApiLabel(created, {}) }, 201);
   } catch (error) {
