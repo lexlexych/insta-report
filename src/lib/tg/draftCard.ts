@@ -8,16 +8,26 @@ const DRAFT_TEXT_LIMIT = 3000;
 const UUID_LENGTH = 36;
 const CALLBACK_DATA_LIMIT_BYTES = 64;
 
-type DraftCardStatus = 'pending' | 'sent' | 'skipped' | 'error';
+export type DraftCardVariant = 'pending' | 'sent';
 
 export type DraftCardParams = {
   username: string | null;
   pendingText: string;
-  labelName: string;
   draftText: string;
-  status?: DraftCardStatus;
+  /** Время для шапки: приход сообщения (pending) или отправки (sent), формат «14:30». */
+  time: string;
+  variant?: DraftCardVariant;
   statusLine?: string;
 };
+
+export function formatBerlinTime(date: Date): string {
+  return new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Europe/Berlin',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+}
 
 function truncateWithEllipsis(value: string, maxLength: number): string {
   if (value.length <= maxLength) return value;
@@ -25,25 +35,44 @@ function truncateWithEllipsis(value: string, maxLength: number): string {
   return `${value.slice(0, maxLength - 1)}…`;
 }
 
-function usernameLine(username: string | null): string {
-  if (!username) return '📩 <b>Новое сообщение</b> от клиента';
-
+function contactLink(username: string): string {
   const safeUsername = escapeHTML(username);
   const hrefUsername = encodeURIComponent(username);
-  return `📩 <b>Новое сообщение</b> от <a href="https://instagram.com/${hrefUsername}">@${safeUsername}</a>`;
+  return `<a href="https://instagram.com/${hrefUsername}">@${safeUsername}</a>`;
+}
+
+function headerLine(variant: DraftCardVariant, username: string | null, time: string): string {
+  const safeTime = escapeHTML(time);
+
+  if (variant === 'sent') {
+    const recipient = username ? ` ${contactLink(username)}` : '';
+    return `✅ отправлено в ${safeTime}${recipient}`;
+  }
+
+  const suffix = time ? ` в ${safeTime}` : '';
+  if (!username) return `📩 <b>Новое сообщение</b> от клиента${suffix}`;
+  return `📩 <b>Новое сообщение</b> от ${contactLink(username)}${suffix}`;
 }
 
 function buildCardHtml(params: DraftCardParams, draftLimit: number): string {
   const pendingText = escapeHTML(truncateWithEllipsis(params.pendingText, PENDING_TEXT_LIMIT));
-  const labelName = escapeHTML(params.labelName);
   const draftText = escapeHTML(truncateWithEllipsis(params.draftText, draftLimit));
-  const statusLine = params.statusLine ? `\n${escapeHTML(params.statusLine)}` : '';
+  const variant = params.variant ?? 'pending';
+  const header = headerLine(variant, params.username, params.time);
 
-  return `${usernameLine(params.username)}
+  if (variant === 'sent') {
+    // Отправленная карточка остаётся в своём топике, но становится лаконичной:
+    // без кнопок, без категории и без строки статуса снизу.
+    return `${header}
 <blockquote>${pendingText}</blockquote>
-🏷 ${labelName}
+<b>сообщение</b>:
+<blockquote>${draftText}</blockquote>`;
+  }
 
-<b>Черновик ответа</b> <i>(нажмите текст, чтобы скопировать)</i>:
+  const statusLine = params.statusLine ? `\n${escapeHTML(params.statusLine)}` : '';
+  return `${header}
+<blockquote>${pendingText}</blockquote>
+<b>Черновик ответа</b>:
 <pre>${draftText}</pre>${statusLine}`;
 }
 

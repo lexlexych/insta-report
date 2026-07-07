@@ -1,6 +1,6 @@
 import { PendingExistsError } from '@/lib/db/errors';
 import { conversationKey } from '@/lib/pipeline/key';
-import { draftKeyboard, renderDraftCard } from '@/lib/tg/draftCard';
+import { draftKeyboard, formatBerlinTime, renderDraftCard } from '@/lib/tg/draftCard';
 import { ensureLabelTopic } from '@/lib/tg/topics';
 
 import type { DecryptedIgConnection } from '@/lib/db/igConnections';
@@ -82,8 +82,8 @@ export async function deliverDraft(
   const html = renderDraftCard({
     username: input.ctx.username,
     pendingText: input.ctx.pendingText,
-    labelName: input.label.name,
     draftText: input.draftText,
+    time: formatBerlinTime(new Date(input.ev.ts)),
   });
   const keyboard = draftKeyboard(draftId, input.ctx.username);
   const threadId = await d.ensureLabelTopic(input.tenant, input.label, d.logger);
