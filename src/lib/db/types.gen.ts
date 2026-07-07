@@ -63,7 +63,7 @@ export type Database = {
         Row: {
           id: string;
           tenant_id: string;
-          connection_mode: 'own_app';
+          connection_mode: 'own_app' | 'platform_app';
           ig_account_id: string | null;
           ig_username: string | null;
           access_token_enc: string | null;
@@ -78,7 +78,7 @@ export type Database = {
         Insert: {
           id?: string;
           tenant_id: string;
-          connection_mode: 'own_app';
+          connection_mode: 'own_app' | 'platform_app';
           ig_account_id?: string | null;
           ig_username?: string | null;
           access_token_enc?: string | null;
@@ -93,7 +93,7 @@ export type Database = {
         Update: {
           id?: string;
           tenant_id?: string;
-          connection_mode?: 'own_app';
+          connection_mode?: 'own_app' | 'platform_app';
           ig_account_id?: string | null;
           ig_username?: string | null;
           access_token_enc?: string | null;

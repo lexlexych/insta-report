@@ -44,7 +44,7 @@ export async function upsertForTenant(
   const { data, error } = await getDb()
     .from('ig_connections')
     .upsert(
-      { tenant_id: tenantId, connection_mode: 'own_app', ...toDbPatch(patch) },
+      { tenant_id: tenantId, connection_mode: patch.connection_mode ?? 'own_app', ...toDbPatch(patch) },
       { onConflict: 'tenant_id' },
     )
     .select()
@@ -60,6 +60,18 @@ export async function getForTenant(tenantId: string): Promise<DecryptedIgConnect
     .eq('tenant_id', tenantId)
     .maybeSingle();
   if (error) throwDb('igConnections.getForTenant', error);
+  return data ? decryptConnection(data as unknown as IgConnection) : null;
+}
+
+
+export async function getByIgAccountId(igAccountId: string): Promise<DecryptedIgConnection | null> {
+  const { data, error } = await getDb()
+    .from('ig_connections')
+    .select()
+    .eq('ig_account_id', igAccountId)
+    .eq('connection_mode', 'platform_app')
+    .maybeSingle();
+  if (error) throwDb('igConnections.getByIgAccountId', error);
   return data ? decryptConnection(data as unknown as IgConnection) : null;
 }
 

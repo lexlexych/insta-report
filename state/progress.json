@@ -337,5 +337,18 @@
       "T-030"
     ],
     "notes": ""
+  },
+  "T-033": {
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-033",
+    "pr": "created via make_pr tool",
+    "deps": [
+      "T-012",
+      "T-013",
+      "T-015",
+      "T-016"
+    ],
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Реализованы Business Login OAuth, signed state, platform_app migration, global webhook /api/wh/ig and UI accordion fallback. manual-test: docs/manual-tests/T-033.md."
   }
 }
