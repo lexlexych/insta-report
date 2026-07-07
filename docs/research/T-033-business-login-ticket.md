@@ -1,0 +1,127 @@
+<!--
+  Черновик тикета подготовлен агентом по запросу владельца.
+  docs/tickets/** закрыт для записи агентам (.claude/settings.json), поэтому файл лежит здесь.
+  Для ввода в конвейер (человеком):
+    git mv docs/research/T-033-business-login-ticket.md docs/tickets/T-033.md
+  и добавить строку в docs/tickets/00-INDEX.md:
+    | T-033 | Business Login for Instagram (OAuth) | T-012, T-013, T-015, T-016 | 9 Business Login |
+  После переноса этот комментарий удалить.
+-->
+
+# T-033 · Business Login for Instagram (OAuth-подключение в один клик)
+
+> **Перед началом:** прочитай `docs/research/instagram-business-login.md` (обязательно — там
+> endpoints, scopes и ограничения режимов Meta App) и `docs/plan.md` §5. Зависимости: T-012,
+> T-013, T-015, T-016.
+
+## Цель
+Заменить ручной онбординг Instagram (пользователь копирует access token, app secret и настраивает
+webhook в чужом дашборде) на OAuth-флоу «Instagram API with Instagram Login»: кнопка в Mini App →
+окно авторизации Instagram → `GET /api/ig/callback` → токен, профиль и подписка на вебхуки
+настраиваются автоматически. Используется **один платформенный Meta App** (наш), пользователи
+добавлены в него Instagram-тестировщиками (до прохождения App Review). Ручной режим `own_app`
+остаётся как fallback и не ломается.
+
+## Контекст (выжимка из research, полная версия — в файле исследования)
+- Authorize URL: `https://www.instagram.com/oauth/authorize?client_id={INSTAGRAM_APP_ID}&redirect_uri={APP_BASE_URL}/api/ig/callback&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages&state=...`
+- Обмен кода: `POST https://api.instagram.com/oauth/access_token` (form-encoded: client_id,
+  client_secret, grant_type=authorization_code, redirect_uri, code) → `{ access_token, user_id }`
+  (короткоживущий, ~1 ч).
+- Долгоживущий (60 дней): `GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=...&access_token=...`
+- Профиль: `GET https://graph.instagram.com/v23.0/me?fields=user_id,username`
+- Подписка аккаунта на вебхуки: `POST https://graph.instagram.com/v23.0/me/subscribed_apps?subscribed_fields=messages`
+- Вебхук при этой схеме **один на приложение** (URL и verify token задаёт разработчик в App
+  Dashboard); тенант определяется по `entry[].id` payload-а == `ig_account_id`. Подпись
+  `X-Hub-Signature-256` — HMAC-SHA256 от raw body ключом **INSTAGRAM_APP_SECRET** (не per-tenant).
+- Продление токена — уже реализованный `ig_refresh_token`-флоу (`src/lib/ig/client.ts`), менять
+  endpoint не нужно.
+
+## Шаги выполнения
+1. **Env** (`src/lib/env.ts` + `.env.example` с комментариями): опциональная группа
+   `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `IG_WEBHOOK_VERIFY_TOKEN`, `TELEGRAM_BOT_USERNAME`
+   (для deep-link возврата в Telegram). Хелпер `isBusinessLoginEnabled(env)` — true, когда заданы
+   первые три. Zod: refine «либо все три заданы, либо ни одной». При выключенной фиче поведение
+   приложения не меняется вовсе.
+2. **Миграция** `supabase/migrations/0009_business_login.sql`:
+   - расширить check: `connection_mode in ('own_app', 'platform_app')`;
+   - partial unique index `ig_connections(ig_account_id) where connection_mode = 'platform_app'`
+     (маппинг вебхуков; NULL допустим).
+   Новых колонок нет → `src/lib/db/types.gen.ts` не меняется. Применение миграции — шаг человека
+   в manual-test (`pnpm db:push`).
+3. **Подписанный state** `src/lib/ig/oauthState.ts`: `sign({ tenantId })` → base64url от JSON
+   `{ tenantId, nonce, iat }` + HMAC-SHA256 (ключ — производная от `ENCRYPTION_KEY`, см.
+   `src/lib/crypto.ts`); `verify(state)` проверяет подпись и TTL 15 минут, возвращает tenantId
+   или null. Ничего не хранить в БД. Юнит-тесты: round-trip, испорченная подпись, истёкший iat.
+4. **`GET /api/miniapp/ig/login-url`** (requireTenant): вернуть `{ url }` — authorize URL из
+   «Контекста» со свежим state. Если фича выключена — 404 `{ ok: false, error: 'disabled' }`.
+5. **`GET /api/ig/callback`** — публичный роут (авторизация запроса = валидный state, requireTenant
+   не применим: запрос приходит из браузера после редиректа Instagram):
+   - `?error=access_denied` (пользователь отказал) → HTML-страница «Доступ не выдан» с кнопкой
+     возврата в Telegram;
+   - невалидный/просроченный state → 403, никаких вызовов Meta;
+   - happy path: обмен code → short-lived → long-lived → `GET /me` →
+     `POST /me/subscribed_apps?subscribed_fields=messages` →
+     `igConnections.upsertForTenant(tenantId, { connection_mode: 'platform_app', ig_account_id,
+     ig_username, accessToken, token_refreshed_at: now, status: 'active' })` (шифрование токена —
+     внутри репозитория, как сейчас);
+   - повторное подключение того же тенанта — идемпотентный upsert (не плодить записи; смена
+     IG-аккаунта тенантом допустима — просто перезаписываем поля);
+   - ошибка любого вызова Meta → HTML-страница «Не получилось, попробуйте ещё раз» + `status:
+     'error'`; тело ответа Meta в лог **без** токенов/кода/секретов (код авторизации тоже секрет);
+   - страница успеха: «Instagram @username подключён» + ссылка
+     `https://t.me/{TELEGRAM_BOT_USERNAME}?startapp=connect` (если username не задан — текст
+     «вернитесь в Telegram»). Рендерь простым HTML-ответом роута, без клиентского JS-фреймворка.
+6. **Глобальный вебхук** `app/api/wh/ig/route.ts`:
+   - GET — верификация: `hub.mode=subscribe` и `hub.verify_token === IG_WEBHOOK_VERIFY_TOKEN` →
+     вернуть `hub.challenge`, иначе 403;
+   - POST — проверка `X-Hub-Signature-256` HMAC-ом `INSTAGRAM_APP_SECRET` по raw body (переиспользуй
+     `verifySignature` из per-tenant роута — вынеси общие хелперы в `src/lib/ig/webhook.ts`, сам
+     роут `/api/wh/ig/[tenantId]` НЕ менять поведенчески);
+   - маппинг: для каждого `entry[].id` найти connection по `ig_account_id` (новый метод
+     `igConnections.getByIgAccountId`), mode `platform_app`; не нашли — 200 и debug-лог (Meta
+     не должен ретраить), нашли — `handleIgEvent` + обновление `webhook_last_seen_at`, как в
+     per-tenant роуте (тот же `waitUntil`/обработка ошибок);
+   - дедупликация уже обеспечена `processed_events` — убедись, что ключ события не зависит от
+     роута доставки.
+7. **UI `/app/connect-instagram`**: при включённой фиче (флаг отдай через
+   `GET /api/miniapp/ig/connect`, добавь в ответ `businessLoginEnabled` и `connectionMode`):
+   - сверху — основной блок «Подключить через Instagram»: кнопка получает URL из
+     `/api/miniapp/ig/login-url` и открывает его через `Telegram.WebApp.openLink(url)`
+     (внешний браузер — OAuth внутри webview может не работать);
+   - после возврата пользователя страница по фокусу/кнопке «Проверить» перезапрашивает статус;
+     подключено → показать `@igUsername`, статус, кнопку «Переподключить»;
+   - ручной визард (шаги T-012) сворачивается в аккордеон «Продвинутый способ (вручную)»;
+     при выключенной фиче страница выглядит ровно как сейчас.
+8. **Cron `refresh-tokens`**: проверь, что выборка соединений не фильтрует по
+   `connection_mode = 'own_app'` — записи `platform_app` должны рефрешиться тем же
+   `ig_refresh_token`-флоу. Если фильтр есть — расширь.
+9. **Тесты** (в духе существующих): oauthState (п.3); login-url — корректный URL и 404 при
+   выключенной фиче; callback — невалидный state → 403 без fetch к Meta (мок), happy path
+   пишет connection и вызывает subscribed_apps, отказ пользователя → страница без вызовов;
+   глобальный вебхук — GET-верификация, невалидная подпись → 401/403, маппинг entry.id →
+   тенант; секреты не логируются (спай на console).
+10. **Manual-test** `docs/manual-tests/T-033.md` по шаблону `docs/orchestration/manual-testing.md`:
+    подготовка (человек): создать Meta App → продукт Instagram → вписать redirect URI →
+    настроить Webhooks (callback `{APP_BASE_URL}/api/wh/ig`, verify token, поле `messages`) →
+    добавить свой IG-аккаунт Instagram-тестировщиком и принять приглашение → включить в Instagram
+    «Allow access to messages» → `pnpm db:push` → заполнить env. Проверки: полный OAuth-проход из
+    Mini App; DM с аккаунта-тестировщика → карточка в Telegram; **пилотная проверка из research
+    §9**: DM с постороннего аккаунта в Dev Mode (не придёт — ожидаемо) и после переключения
+    приложения в Live Mode (ключевая проверка жизнеспособности схемы); повторное подключение;
+    ручной флоу own_app не сломан.
+
+## Вне объёма (отдельные тикеты после пилота)
+- Несколько Meta App одновременно (`app_key`, per-app webhook пути `/api/wh/ig/app/[appKey]`).
+- Материалы для App Review (Advanced Access) и миграция с модели тестировщиков.
+- Вывод ручного own_app-флоу из эксплуатации.
+
+## Критерии приёмки
+- [ ] Пользователь подключает Instagram без ввода токена/секрета/вебхука: клик в Mini App →
+      consent → «подключено» (при условии принятого приглашения тестировщика)
+- [ ] Токены, код авторизации и секреты не попадают в логи, ответы API и HTML страниц
+- [ ] Callback идемпотентен: повторный вход обновляет существующее соединение тенанта
+- [ ] Глобальный вебхук проверяет подпись платформенным секретом и корректно маппит события на
+      тенанта по `ig_account_id`; неизвестный аккаунт не роняет обработку (200)
+- [ ] Ручной флоу own_app и per-tenant вебхук работают как раньше; при незаполненных
+      INSTAGRAM_*-переменных приложение ведёт себя идентично текущему поведению
+- [ ] lint, typecheck зелёные; manual-test включает пилотную проверку Dev/Live из research §9
