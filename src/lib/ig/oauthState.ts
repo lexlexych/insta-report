@@ -8,7 +8,10 @@ type StatePayload = {
   tenantId: string;
   nonce: string;
   iat: number;
+  embedded?: boolean;
 };
+
+export type VerifiedState = { tenantId: string; embedded: boolean };
 
 function b64url(input: Buffer | string): string {
   return Buffer.from(input).toString('base64url');
@@ -24,13 +27,14 @@ function safeEqual(a: string, b: string): boolean {
   return ba.length === bb.length && timingSafeEqual(ba, bb);
 }
 
-export function sign({ tenantId }: { tenantId: string }): string {
+export function sign({ tenantId, embedded }: { tenantId: string; embedded?: boolean }): string {
   const payload: StatePayload = { tenantId, nonce: randomBytes(16).toString('base64url'), iat: Date.now() };
+  if (embedded === true) payload.embedded = true;
   const payloadB64 = b64url(JSON.stringify(payload));
   return `${payloadB64}.${signPayload(payloadB64)}`;
 }
 
-export function verify(state: string | null | undefined, now = Date.now()): string | null {
+export function verify(state: string | null | undefined, now = Date.now()): VerifiedState | null {
   if (!state) return null;
   const [payloadB64, mac, extra] = state.split('.');
   if (!payloadB64 || !mac || extra !== undefined) return null;
@@ -45,5 +49,5 @@ export function verify(state: string | null | undefined, now = Date.now()): stri
 
   if (!payload.tenantId || !payload.nonce || !Number.isFinite(payload.iat)) return null;
   if (payload.iat > now || now - payload.iat > TTL_MS) return null;
-  return payload.tenantId;
+  return { tenantId: payload.tenantId, embedded: payload.embedded === true };
 }

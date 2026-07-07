@@ -1,5 +1,6 @@
 'use client';
 
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -12,6 +13,19 @@ import { useT } from '@/lib/i18n';
 declare global {
   interface Window {
     Telegram?: { WebApp?: { openLink?: (url: string) => void } };
+  }
+}
+
+// На мобильных клиентах Telegram miniapp открывается в полноценном webview, и OAuth
+// можно пройти обычной навигацией текущей страницы. На Telegram Web miniapp — iframe,
+// а instagram.com запрещает framing, поэтому там оставляем внешнее открытие ссылки.
+function isMobileTelegram(): boolean {
+  try {
+    const launchParams = retrieveLaunchParams() as { tgWebAppPlatform?: unknown } | null | undefined;
+    const platform = typeof launchParams?.tgWebAppPlatform === 'string' ? launchParams.tgWebAppPlatform : '';
+    return platform === 'ios' || platform === 'android' || platform === 'android_x';
+  } catch {
+    return false;
   }
 }
 
@@ -115,6 +129,7 @@ export default function Page() {
   const [saveDone, setSaveDone] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [oauthError, setOauthError] = useState(false);
+  const [oauthResult, setOauthResult] = useState<'connected' | 'denied' | 'error' | null>(null);
   const diagnosticsRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
@@ -158,9 +173,15 @@ export default function Page() {
     setOauthLoading(true);
     setOauthError(false);
     try {
-      const response = await fetch('/api/miniapp/ig/login-url');
+      const embedded = isMobileTelegram();
+      const response = await fetch(embedded ? '/api/miniapp/ig/login-url?embedded=1' : '/api/miniapp/ig/login-url');
       if (!response.ok) throw new Error('login_url_failed');
       const payload = (await response.json()) as { url: string };
+      if (embedded) {
+        // Навигация текущей страницы внутри webview miniapp — вернёмся сюда через redirect из callback.
+        window.location.assign(payload.url);
+        return;
+      }
       const webApp = typeof window !== 'undefined' ? window.Telegram?.WebApp : undefined;
       if (webApp?.openLink) webApp.openLink(payload.url);
       else window.open(payload.url, '_blank', 'noopener,noreferrer');
@@ -168,6 +189,15 @@ export default function Page() {
       setOauthError(true);
     } finally {
       setOauthLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get('ig');
+    if (result === 'connected' || result === 'denied' || result === 'error') {
+      setOauthResult(result);
+      window.history.replaceState(null, '', window.location.pathname);
     }
   }, []);
 
@@ -239,6 +269,9 @@ export default function Page() {
             <p className="text-sm text-tg-hint">{state.connectionMode === 'platform_app' && state.igUsername ? t('igBusinessLoginConnected', { username: state.igUsername }) : t('igBusinessLoginBody')}</p>
           </div>
           {oauthError ? <p className="text-sm text-red-600">{t('igBusinessLoginError')}</p> : null}
+          {oauthResult === 'connected' ? <p className="text-sm text-emerald-600">{t('igOauthResultConnected')}</p> : null}
+          {oauthResult === 'denied' ? <p className="text-sm text-tg-hint">{t('igOauthResultDenied')}</p> : null}
+          {oauthResult === 'error' ? <p className="text-sm text-red-600">{t('igOauthResultError')}</p> : null}
           <div className="flex flex-wrap gap-2">
             <button className="rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-50" disabled={oauthLoading} type="button" onClick={() => void openBusinessLogin()}>
               {state.connectionMode === 'platform_app' ? t('igBusinessLoginReconnect') : t('igBusinessLoginButton')}
