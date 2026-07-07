@@ -48,8 +48,21 @@ export const envSchema = z.object({
   CRON_SECRET: z.string().min(1),
   /** CSV telegram_user_id администраторов для алертов; может быть пустым */
   ADMIN_TELEGRAM_IDS: z.string().default(''),
+  /** Instagram App ID для Business Login; опционально, но задаётся группой */
+  INSTAGRAM_APP_ID: z.string().trim().optional().default(''),
+  /** Instagram App Secret платформенного приложения для OAuth и глобального webhook */
+  INSTAGRAM_APP_SECRET: z.string().trim().optional().default(''),
+  /** Verify token глобального Instagram webhook */
+  IG_WEBHOOK_VERIFY_TOKEN: z.string().trim().optional().default(''),
+  /** Username Telegram-бота без @ для ссылки возврата из OAuth */
+  TELEGRAM_BOT_USERNAME: z.string().trim().optional().default(''),
   /** Суточный лимит запросов к симулятору тест-чата на tenant */
   SIMULATOR_DAILY_LIMIT: z.coerce.number().int().positive().default(30),
+}).refine((value) => {
+  const group = [value.INSTAGRAM_APP_ID, value.INSTAGRAM_APP_SECRET, value.IG_WEBHOOK_VERIFY_TOKEN];
+  return group.every(Boolean) || group.every((item) => !item);
+}, {
+  message: 'INSTAGRAM_APP_ID, INSTAGRAM_APP_SECRET и IG_WEBHOOK_VERIFY_TOKEN должны быть заданы все вместе или не заданы вовсе',
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -80,3 +93,7 @@ export const env = new Proxy({} as Env, {
     return prop in getEnv();
   },
 }) as Env;
+
+export function isBusinessLoginEnabled(value: Pick<Env, 'INSTAGRAM_APP_ID' | 'INSTAGRAM_APP_SECRET' | 'IG_WEBHOOK_VERIFY_TOKEN'>): boolean {
+  return Boolean(value.INSTAGRAM_APP_ID && value.INSTAGRAM_APP_SECRET && value.IG_WEBHOOK_VERIFY_TOKEN);
+}

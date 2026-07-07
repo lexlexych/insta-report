@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
 import { igConnections } from '@/lib/db';
-import { env } from '@/lib/env';
+import { env, isBusinessLoginEnabled } from '@/lib/env';
 
 const TOKEN_MIN_LENGTH = 10;
 
@@ -42,6 +42,8 @@ export const GET = apiHandler(async (req: Request) => {
     hasSecret: Boolean(connection.appSecret),
     webhookLastSeenAt: connection.webhook_last_seen_at,
     handshakeAt: connection.handshake_at,
+    businessLoginEnabled: isBusinessLoginEnabled(env),
+    connectionMode: connection.connection_mode,
   });
 });
 

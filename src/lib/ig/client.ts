@@ -97,6 +97,47 @@ async function throwIgError(response: Response, path: string): Promise<never> {
   throw new IgApiError(code, message, path);
 }
 
+
+export async function exchangeCodeForShortLivedToken(params: {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  code: string;
+}): Promise<{ accessToken: string; userId: string }> {
+  const body = new URLSearchParams({
+    client_id: params.clientId,
+    client_secret: params.clientSecret,
+    grant_type: 'authorization_code',
+    redirect_uri: params.redirectUri,
+    code: params.code,
+  });
+  const response = await fetch('https://api.instagram.com/oauth/access_token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) await throwIgError(response, '/oauth/access_token');
+  const data = await parseJson<{ access_token: string; user_id: string }>(response);
+  return { accessToken: data.access_token, userId: data.user_id };
+}
+
+export async function exchangeForLongLivedToken(
+  shortLivedToken: string,
+  clientSecret: string,
+): Promise<{ accessToken: string; expiresIn: number }> {
+  const path = `/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(clientSecret)}&access_token=${encodeURIComponent(shortLivedToken)}`;
+  const response = await fetch(`${GRAPH}${path}`, { signal: AbortSignal.timeout(15_000) });
+  if (!response.ok) await throwIgError(response, '/access_token?grant_type=ig_exchange_token');
+  const data = await parseJson<{ access_token: string; expires_in: number }>(response);
+  return { accessToken: data.access_token, expiresIn: data.expires_in };
+}
+
+export async function subscribeToMessages(token: string): Promise<void> {
+  const path = '/me/subscribed_apps?subscribed_fields=messages';
+  await igFetch<unknown>(token, path, { method: 'POST' });
+}
+
 export async function refreshToken(
   token: string,
 ): Promise<{ accessToken: string; expiresIn: number }> {

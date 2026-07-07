@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ConnectionDiagnostics } from '@/components/miniapp/ConnectionDiagnostics';
@@ -7,6 +8,12 @@ import { CopyField } from '@/components/miniapp/CopyField';
 import { GuideScreenshot } from '@/components/miniapp/GuideScreenshot';
 import { GuideStep } from '@/components/miniapp/GuideStep';
 import { useT } from '@/lib/i18n';
+
+declare global {
+  interface Window {
+    Telegram?: { WebApp?: { openLink?: (url: string) => void } };
+  }
+}
 
 type ConnectState = {
   status: 'pending' | 'active' | 'error';
@@ -17,6 +24,8 @@ type ConnectState = {
   hasSecret: boolean;
   webhookLastSeenAt: string | null;
   handshakeAt: string | null;
+  businessLoginEnabled: boolean;
+  connectionMode: 'own_app' | 'platform_app';
 };
 
 const TOKEN_MIN_LENGTH = 10;
@@ -80,6 +89,18 @@ function MaskedField({ label, hint, onReplace }: { label: string; hint?: string;
   );
 }
 
+
+function ManualShell({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  const { t } = useT();
+  if (!enabled) return <>{children}</>;
+  return (
+    <details className="rounded-2xl border p-3">
+      <summary className="cursor-pointer font-medium">{t('igManualAdvancedTitle')}</summary>
+      <div className="mt-4 space-y-4">{children}</div>
+    </details>
+  );
+}
+
 export default function Page() {
   const { t } = useT();
   const [state, setState] = useState<ConnectState | null>(null);
@@ -92,6 +113,8 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveDone, setSaveDone] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthError, setOauthError] = useState(false);
   const diagnosticsRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
@@ -130,6 +153,33 @@ export default function Page() {
     const secretOk = !secretFilled || appSecret.trim().length >= TOKEN_MIN_LENGTH;
     return hasAnyInput && tokenOk && secretOk;
   }, [accessToken, appSecret, secretFilled, tokenFilled]);
+
+  const openBusinessLogin = useCallback(async () => {
+    setOauthLoading(true);
+    setOauthError(false);
+    try {
+      const response = await fetch('/api/miniapp/ig/login-url');
+      if (!response.ok) throw new Error('login_url_failed');
+      const payload = (await response.json()) as { url: string };
+      const webApp = typeof window !== 'undefined' ? window.Telegram?.WebApp : undefined;
+      if (webApp?.openLink) webApp.openLink(payload.url);
+      else window.open(payload.url, '_blank', 'noopener,noreferrer');
+    } catch {
+      setOauthError(true);
+    } finally {
+      setOauthLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFocus = () => void load();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+    };
+  }, [load]);
 
   const submit = useCallback(async () => {
     if (!isValid) return;
@@ -182,6 +232,25 @@ export default function Page() {
       <h1 className="text-2xl font-bold">{t('pageConnectInstagramTitle')}</h1>
       <p className="text-sm text-tg-hint">{t('igIntro')}</p>
 
+      {state.businessLoginEnabled ? (
+        <section className="space-y-3 rounded-2xl border bg-white/60 p-4 shadow-sm">
+          <div>
+            <h2 className="text-lg font-semibold">{t('igBusinessLoginTitle')}</h2>
+            <p className="text-sm text-tg-hint">{state.connectionMode === 'platform_app' && state.igUsername ? t('igBusinessLoginConnected', { username: state.igUsername }) : t('igBusinessLoginBody')}</p>
+          </div>
+          {oauthError ? <p className="text-sm text-red-600">{t('igBusinessLoginError')}</p> : null}
+          <div className="flex flex-wrap gap-2">
+            <button className="rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-50" disabled={oauthLoading} type="button" onClick={() => void openBusinessLogin()}>
+              {state.connectionMode === 'platform_app' ? t('igBusinessLoginReconnect') : t('igBusinessLoginButton')}
+            </button>
+            <button className="rounded-xl border px-4 py-3 font-medium" type="button" onClick={() => void load()}>
+              {t('igBusinessLoginCheck')}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      <ManualShell enabled={state.businessLoginEnabled}>
       <GuideStep index={1} isOpen={openStep === 1} title={t('igStepMetaAppTitle')} onToggle={() => toggleStep(1)}>
         <p>{t('igStepMetaAppBody')}</p>
         <GuideScreenshot alt={t('igStepMetaAppTitle')} src="/guide/step1.png" />
@@ -242,6 +311,8 @@ export default function Page() {
           <ConnectionDiagnostics />
         </div>
       ) : null}
+
+      </ManualShell>
     </main>
   );
 }

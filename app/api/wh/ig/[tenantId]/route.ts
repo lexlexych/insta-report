@@ -1,36 +1,13 @@
-import { createHmac, timingSafeEqual } from 'crypto';
-
 import { waitUntil } from '@vercel/functions';
 import type { NextRequest } from 'next/server';
 
 import * as igConnections from '@/lib/db/igConnections';
+import { verifySignature, timingSafeEqualStrings } from '@/lib/ig/webhook';
 import { handleIgEvent, logPipelineError } from '@/lib/pipeline/handleIgEvent';
 
 export const maxDuration = 60;
 
 type RouteParams = { params: Promise<{ tenantId: string }> };
-
-function timingSafeEqualStrings(a: string, b: string): boolean {
-  const bufA = Buffer.from(a, 'utf8');
-  const bufB = Buffer.from(b, 'utf8');
-  if (bufA.length !== bufB.length) return false;
-  return timingSafeEqual(bufA, bufB);
-}
-
-function verifySignature(rawBody: string, appSecret: string, signatureHeader: string | null): boolean {
-  if (!signatureHeader) return false;
-  const [scheme, hex] = signatureHeader.split('=');
-  if (scheme !== 'sha256' || !hex) return false;
-
-  const expectedHex = createHmac('sha256', appSecret).update(rawBody, 'utf8').digest('hex');
-
-  const providedBuf = Buffer.from(hex, 'hex');
-  const expectedBuf = Buffer.from(expectedHex, 'hex');
-  // hex-декодирование невалидной строки может дать буфер другой длины —
-  // сравниваем длины перед timingSafeEqual, чтобы не словить исключение.
-  if (providedBuf.length !== expectedBuf.length) return false;
-  return timingSafeEqual(providedBuf, expectedBuf);
-}
 
 export async function GET(req: NextRequest, { params }: RouteParams): Promise<Response> {
   const { tenantId } = await params;
