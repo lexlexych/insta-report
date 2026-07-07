@@ -119,6 +119,9 @@ export const dictionary: Dictionary = {
     igBusinessLoginCheck: 'Проверить',
     igBusinessLoginConnected: '@{username} подключён через Instagram.',
     igBusinessLoginError: 'Не удалось открыть Instagram Login. Попробуйте ещё раз.',
+    igOauthResultConnected: 'Готово: Instagram подключён.',
+    igOauthResultDenied: 'Вы отменили подключение в Instagram. Можно попробовать ещё раз.',
+    igOauthResultError: 'Не получилось подключить Instagram. Попробуйте ещё раз.',
     igManualAdvancedTitle: 'Продвинутый способ (вручную)',
 
     igLoading: 'Загрузка…',
@@ -312,6 +315,9 @@ export const dictionary: Dictionary = {
     igBusinessLoginCheck: 'Prüfen',
     igBusinessLoginConnected: '@{username} ist über Instagram verbunden.',
     igBusinessLoginError: 'Instagram Login konnte nicht geöffnet werden. Bitte versuche es erneut.',
+    igOauthResultConnected: 'Fertig: Instagram ist verbunden.',
+    igOauthResultDenied: 'Du hast die Verbindung in Instagram abgebrochen. Du kannst es erneut versuchen.',
+    igOauthResultError: 'Instagram konnte nicht verbunden werden. Bitte versuche es erneut.',
     igManualAdvancedTitle: 'Erweiterte Methode (manuell)',
 
     igLoading: 'Wird geladen…',
