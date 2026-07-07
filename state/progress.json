@@ -244,7 +244,7 @@
     "notes": "Влит в текущую базовую ветку (локальная история содержит merge PR); RESUME fetch origin недоступен в среде без remote origin. ПЕРЕОТКРЫТ и реализован заново (PR #26 влил только правку progress.json — код никогда не коммитился, /app/labels оставался заглушкой T-006). Реализовано: labels API (GET/POST, [id] PUT/DELETE, reorder), реальный UI /app/labels вместо заглушки, i18n ru/de. DB drafts.label_id уже имел on delete set null (0001_init.sql) — миграция не нужна. Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-023.md."
   },
   "T-024": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-024",
     "pr": "created via make_pr tool",
