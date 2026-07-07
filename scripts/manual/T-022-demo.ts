@@ -131,7 +131,6 @@ async function demoOwnEchoDedup(): Promise<void> {
       ({ accessToken: 'token', ig_account_id: 'biz-1', status: 'active' }) as Awaited<
         ReturnType<typeof import('../../src/lib/db/igConnections').getForTenant>
       >,
-    getLabel: async () => null,
     getConversation: async () => [],
     sendMessage: async () => ['own-mid'],
     markProcessedEvent: async (_tenantId, mid) => {

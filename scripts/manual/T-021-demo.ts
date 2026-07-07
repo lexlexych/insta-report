@@ -21,7 +21,6 @@ import type { Database } from '../../src/lib/db/types.gen';
 
 type Draft = Database['public']['Tables']['drafts']['Row'];
 type Tenant = Database['public']['Tables']['tenants']['Row'];
-type Label = Database['public']['Tables']['labels']['Row'];
 
 type Call = string;
 
@@ -57,17 +56,6 @@ const tenant: Tenant = {
   ui_locale: 'ru',
   plan: 'free',
   onboarding_step: null,
-  created_at: '2026-07-05T09:00:00Z',
-};
-
-const label: Label = {
-  id: 'label-1',
-  tenant_id: 'tenant-1',
-  name: 'Запись',
-  description: null,
-  instruction: null,
-  tg_thread_id: null,
-  sort: 10,
   created_at: '2026-07-05T09:00:00Z',
 };
 
@@ -135,7 +123,6 @@ async function runScenario(
       status: 'active' as const,
       created_at: '2026-07-05T09:00:00Z',
     }),
-    getLabel: async () => label,
     getConversation: async () => {
       calls.push('conversation');
       return setup.manualReply
@@ -156,23 +143,15 @@ async function runScenario(
     },
     editMessageHTML: async (_chat: number | string, _msg: number, html: string) => {
       calls.push(
-        `edit:${html.includes('Отправлено') ? 'sent' : html.includes('Отменено') ? 'manual' : html.includes('Ошибка') ? 'error' : html.includes('устарела') ? 'stale' : 'other'}`,
+        `edit:${html.includes('отправлено в') ? 'sent' : html.includes('Отменено') ? 'manual' : html.includes('Ошибка') ? 'error' : html.includes('устарела') ? 'stale' : 'other'}`,
       );
     },
     markProcessedEvent: async () => {
       calls.push('mark-processed');
       return true;
     },
-    // Топики в этом сценарии выключены (tg_topics_enabled=false) — архивного топика нет,
-    // поэтому карточка помечается «Отправлено» на месте (editMessageHTML), без переноса.
-    ensureHistoryTopic: async () => null,
-    sendMessageHTML: async () => {
-      calls.push('archive-send');
-      return { message_id: 9009 };
-    },
-    deleteMessageSafe: async () => {
-      calls.push('archive-delete');
-    },
+    // Архивного топика больше нет: после отправки карточка редактируется на месте
+    // (editMessageHTML) в лаконичный вид «✅ отправлено в …», без переноса.
     now: () => new Date('2026-07-05T10:05:00Z'),
   };
 

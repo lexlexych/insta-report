@@ -4,21 +4,19 @@ import type { Context } from 'grammy';
 import {
   drafts,
   igConnections,
-  labels,
   messageLog,
   processedEvents,
   tenants,
   usageStats,
 } from '@/lib/db';
 import { getConversation, sendMessage } from '@/lib/ig/client';
-import { answerCallback, deleteMessageSafe, editMessageHTML, sendMessageHTML } from '@/lib/tg/api';
-import { renderDraftCard } from '@/lib/tg/draftCard';
-import { ensureHistoryTopic } from '@/lib/tg/topics';
+import { answerCallback, editMessageHTML } from '@/lib/tg/api';
+import { formatBerlinTime, renderDraftCard } from '@/lib/tg/draftCard';
 
+import type { DraftCardVariant } from '@/lib/tg/draftCard';
 import type { Database } from '@/lib/db/types.gen';
 
 type Draft = Database['public']['Tables']['drafts']['Row'];
-type Label = Database['public']['Tables']['labels']['Row'];
 
 type SendDeps = {
   answerCallback: typeof answerCallback;
@@ -28,16 +26,12 @@ type SendDeps = {
   setErrorToPending: typeof drafts.setErrorToPending;
   getTenant: typeof tenants.getById;
   getConnection: typeof igConnections.getForTenant;
-  getLabel: typeof labels.getById;
   getConversation: typeof getConversation;
   sendMessage: typeof sendMessage;
   addMessageLog: typeof messageLog.add;
   incrementUsage: typeof usageStats.increment;
   markProcessedEvent: typeof processedEvents.tryInsert;
   editMessageHTML: typeof editMessageHTML;
-  sendMessageHTML: typeof sendMessageHTML;
-  deleteMessageSafe: typeof deleteMessageSafe;
-  ensureHistoryTopic: typeof ensureHistoryTopic;
   now: () => Date;
 };
 
@@ -49,16 +43,12 @@ const DEFAULT_DEPS: SendDeps = {
   setErrorToPending: drafts.setErrorToPending,
   getTenant: tenants.getById,
   getConnection: igConnections.getForTenant,
-  getLabel: labels.getById,
   getConversation,
   sendMessage,
   addMessageLog: messageLog.add,
   incrementUsage: usageStats.increment,
   markProcessedEvent: processedEvents.tryInsert,
   editMessageHTML,
-  sendMessageHTML,
-  deleteMessageSafe,
-  ensureHistoryTopic,
   now: () => new Date(),
 };
 
@@ -67,78 +57,44 @@ function shortError(error: unknown): string {
   return 'неизвестная ошибка';
 }
 
-function formatBerlinTime(date: Date): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    timeZone: 'Europe/Berlin',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(date);
+function triggerTime(draft: Draft): string {
+  return draft.trigger_ts === null ? '' : formatBerlinTime(new Date(draft.trigger_ts));
 }
 
 function retryKeyboard(draftId: string): InlineKeyboard {
   return new InlineKeyboard().text('🔁 Повторить', `retry:${draftId}`);
 }
 
-
-function sentMessageId(message: unknown): number {
-  const messageId = (message as { message_id?: unknown } | undefined)?.message_id;
-  if (typeof messageId !== 'number') throw new Error('Telegram sendMessage returned no message_id');
-  return messageId;
-}
-
 /**
- * Переносит отправленную карточку из топика категории в топик «Архив»: публикует итоговую
- * карточку (со статусом «Отправлено») в архивном топике и удаляет оригинал из текущего
- * топика. Указатель черновика переводится на архивное сообщение, чтобы поздние правки не
- * били по удалённой карточке. Если темы выключены (плоский режим) или переносить некуда —
- * карточка просто помечается на месте. Ошибки архивации не срывают факт отправки в Instagram.
+ * Финализирует отправленную карточку прямо в её топике: редактирует сообщение в лаконичный
+ * вид (шапка «✅ отправлено в …», без кнопок, без категории и без нижней строки статуса).
+ * Архивного топика больше нет — карточка никуда не переносится. Ошибки редактирования не
+ * срывают факт отправки в Instagram.
  */
-async function archiveSentDraft(
-  tenant: NonNullable<Awaited<ReturnType<typeof tenants.getById>>>,
-  draft: Draft,
-  deps: SendDeps,
-): Promise<void> {
-  const statusLine = `✅ Отправлено ${formatBerlinTime(deps.now())}`;
+async function finalizeSentDraft(draft: Draft, deps: SendDeps): Promise<void> {
+  if (draft.tg_chat_id === null || draft.tg_message_id === null) return;
   try {
-    const chatId = tenant.tg_chat_id;
-    const cardChatId = draft.tg_chat_id;
-    const cardMessageId = draft.tg_message_id;
-    const historyThreadId = chatId === null ? null : await deps.ensureHistoryTopic(tenant);
-
-    if (historyThreadId === null || chatId === null || cardChatId === null || cardMessageId === null) {
-      await editDraftCard(draft, deps, statusLine);
-      return;
-    }
-
-    const html = await renderCard(draft, deps, statusLine);
-    const archived = await deps.sendMessageHTML(chatId, html, undefined, historyThreadId);
-    const archivedMessageId = sentMessageId(archived);
-    await deps.deleteMessageSafe(cardChatId, cardMessageId);
-    await deps.setDraftStatus(draft.id, 'sent', {
-      tg_chat_id: chatId,
-      tg_message_id: archivedMessageId,
+    const html = await renderCard(draft, {
+      variant: 'sent',
+      time: formatBerlinTime(deps.now()),
     });
+    await deps.editMessageHTML(draft.tg_chat_id, draft.tg_message_id, html);
   } catch (error) {
-    console.error(`[pipeline] archive move failed tenant=${tenant.id} draft=${draft.id}`, error);
-    try {
-      await editDraftCard(draft, deps, statusLine);
-    } catch (editError) {
-      console.error(`[pipeline] archive fallback edit failed draft=${draft.id}`, editError);
-    }
+    console.error(`[pipeline] sent card edit failed draft=${draft.id}`, error);
   }
 }
 
-async function renderCard(draft: Draft, deps: SendDeps, statusLine: string): Promise<string> {
-  let label: Label | null = null;
-  if (draft.label_id) label = await deps.getLabel(draft.label_id);
-
+async function renderCard(
+  draft: Draft,
+  opts: { variant: DraftCardVariant; time: string; statusLine?: string },
+): Promise<string> {
   return renderDraftCard({
     username: draft.contact_username,
     pendingText: draft.pending_text ?? '',
-    labelName: label?.name ?? 'Без категории',
     draftText: draft.draft_text ?? '',
-    statusLine,
+    time: opts.time,
+    variant: opts.variant,
+    statusLine: opts.statusLine,
   });
 }
 
@@ -149,12 +105,12 @@ async function editDraftCard(
   keyboard?: InlineKeyboard,
 ): Promise<void> {
   if (draft.tg_chat_id === null || draft.tg_message_id === null) return;
-  await deps.editMessageHTML(
-    draft.tg_chat_id,
-    draft.tg_message_id,
-    await renderCard(draft, deps, statusLine),
-    keyboard,
-  );
+  const html = await renderCard(draft, {
+    variant: 'pending',
+    time: triggerTime(draft),
+    statusLine,
+  });
+  await deps.editMessageHTML(draft.tg_chat_id, draft.tg_message_id, html, keyboard);
 }
 
 async function markError(draft: Draft, deps: SendDeps, message: string): Promise<void> {
@@ -226,7 +182,7 @@ export async function attemptSend(
     await d.setDraftStatus(draft.id, 'sent', { error: null });
     await d.addMessageLog(tenant.id, draft.conversation_key, 'out', draftText);
     await d.incrementUsage(tenant.id, { draftsSent: 1 });
-    await archiveSentDraft(tenant, draft, d);
+    await finalizeSentDraft(draft, d);
   } catch (error) {
     await markError(draft, d, shortError(error));
   }

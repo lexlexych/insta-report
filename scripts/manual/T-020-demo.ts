@@ -51,8 +51,8 @@ async function main(): Promise<void> {
   const html = renderDraftCard({
     username: 'bad"><script>',
     pendingText: '<script>alert(1)</script>',
-    labelName: '<VIP>',
     draftText: 'Ответ с <b>html</b>',
+    time: '10:00',
   });
   assertOk('HTML клиента экранирован', html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
   assertOk('сырой script не попал в карточку', !html.includes('<script>'));
@@ -61,8 +61,8 @@ async function main(): Promise<void> {
     renderDraftCard({
       username: null,
       pendingText: 'x'.repeat(1000),
-      labelName: 'label',
       draftText: 'y'.repeat(5000),
+      time: '10:00',
     }).length <= 4096,
   );
 
@@ -105,8 +105,8 @@ async function main(): Promise<void> {
       'cancel-old>delete-41>send-new>insert-00000000-0000-4000-8000-000000000001',
   );
   assertOk(
-    'отправленная карточка экранирует label/draft/pending',
-    sentHtml.includes('&lt;VIP&gt;') && sentHtml.includes('&lt;script&gt;'),
+    'карточка экранирует pending/draft и не содержит категории',
+    sentHtml.includes('&lt;script&gt;') && !sentHtml.includes('🏷'),
   );
 
   const raceOperations: string[] = [];

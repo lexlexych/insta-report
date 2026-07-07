@@ -6,8 +6,6 @@ import type { Database } from '@/lib/db/types.gen';
 type Tenant = Database['public']['Tables']['tenants']['Row'];
 type Label = Database['public']['Tables']['labels']['Row'];
 
-const HISTORY_TOPIC_NAME = '📜 Архив';
-
 type TopicLogger = Pick<Console, 'error'>;
 
 export async function syncTopicsEnabled(tenant: Tenant, valueFromUpdate?: boolean): Promise<Tenant> {
@@ -49,23 +47,6 @@ export async function ensureLabelTopic(
     return threadId;
   } catch (error) {
     logger.error(`[tg] label topic fallback tenant=${tenant.id} label=${label.id}`, error);
-    return null;
-  }
-}
-
-export async function ensureHistoryTopic(tenant: Tenant, logger: TopicLogger = console): Promise<number | null> {
-  if (tenant.history_thread_id !== null) return tenant.history_thread_id;
-  const chatId = tenant.tg_chat_id;
-  if (chatId === null) return null;
-
-  try {
-    const threadId = await createForumTopic(chatId, HISTORY_TOPIC_NAME);
-    await tenants.update(tenant.id, { history_thread_id: threadId });
-    tenant.history_thread_id = threadId;
-    await markTopicsEnabled(tenant);
-    return threadId;
-  } catch (error) {
-    logger.error(`[tg] history topic fallback tenant=${tenant.id}`, error);
     return null;
   }
 }
