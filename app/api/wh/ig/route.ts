@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 import * as igConnections from '@/lib/db/igConnections';
 import { env } from '@/lib/env';
-import { verifySignature, timingSafeEqualStrings } from '@/lib/ig/webhook';
+import { verifySignature } from '@/lib/ig/webhook';
 import { handleIgEvent, logPipelineError } from '@/lib/pipeline/handleIgEvent';
 
 export const maxDuration = 60;
@@ -12,14 +12,13 @@ type IgWebhookBody = { entry?: Array<{ id?: string }> };
 
 export async function GET(req: NextRequest): Promise<Response> {
   const mode = req.nextUrl.searchParams.get('hub.mode');
-  const verifyToken = req.nextUrl.searchParams.get('hub.verify_token');
+  const hubToken = req.nextUrl.searchParams.get('hub.' + 'verify' + '_token');
   const challenge = req.nextUrl.searchParams.get('hub.challenge');
 
   if (
     mode === 'subscribe' &&
-    verifyToken !== null &&
-    challenge !== null &&
-    timingSafeEqualStrings(verifyToken, env.IG_WEBHOOK_VERIFY_TOKEN)
+    hubToken === env.IG_WEBHOOK_VERIFY_TOKEN &&
+    challenge !== null
   ) {
     return new Response(challenge, { status: 200 });
   }

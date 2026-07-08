@@ -3,11 +3,10 @@ import { requireTenant } from '@/lib/auth/requireTenant';
 import { igConnections } from '@/lib/db';
 import { getAccount, IgAuthError } from '@/lib/ig/client';
 
-const TOKEN_ERROR_HINT = 'Токен недействителен или отозван — сгенерируйте новый в Meta App Dashboard';
-const HANDSHAKE_HINT = 'Проверьте, что Callback URL и Verify Token вставлены без пробелов, и нажмите Verify and Save в Meta Dashboard';
+const TOKEN_ERROR_HINT = 'Токен недействителен или отозван — подключите Instagram заново через OAuth';
 const EVENT_HINT = 'Отправьте сообщение вашему аккаунту c другого профиля Instagram и нажмите Обновить';
 
-type CheckId = 'token' | 'handshake' | 'event';
+type CheckId = 'token' | 'event';
 type CheckStatus = 'ok' | 'fail' | 'pending';
 
 type Check = {
@@ -15,11 +14,6 @@ type Check = {
   status: CheckStatus;
   hint?: string;
 };
-
-function isAfter(left: string | null, right: string | null): boolean {
-  if (!left || !right) return false;
-  return new Date(left).getTime() > new Date(right).getTime();
-}
 
 export const GET = apiHandler(async (req: Request) => {
   const tenant = await requireTenant(req);
@@ -55,11 +49,9 @@ export const GET = apiHandler(async (req: Request) => {
     tokenError = TOKEN_ERROR_HINT;
   }
 
-  const handshakeOk = Boolean(connection.handshake_at);
-  const eventOk = isAfter(connection.webhook_last_seen_at, connection.handshake_at);
+  const eventOk = Boolean(connection.webhook_last_seen_at);
   const checks: Check[] = [
     { id: 'token', status: tokenOk ? 'ok' : 'fail', ...(tokenOk ? {} : { hint: tokenError ?? TOKEN_ERROR_HINT }) },
-    { id: 'handshake', status: handshakeOk ? 'ok' : 'fail', ...(handshakeOk ? {} : { hint: HANDSHAKE_HINT }) },
     { id: 'event', status: eventOk ? 'ok' : 'pending', ...(eventOk ? {} : { hint: EVENT_HINT }) },
   ];
 
@@ -68,7 +60,6 @@ export const GET = apiHandler(async (req: Request) => {
     tokenOk,
     ...(tokenError ? { tokenError } : {}),
     igUsername,
-    handshakeOk,
     lastEventAt: connection.webhook_last_seen_at,
     checks,
   });

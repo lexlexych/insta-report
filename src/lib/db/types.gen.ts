@@ -1,7 +1,7 @@
 // TODO(T-002): перегенерировать через `pnpm db:types` после `supabase link --project-ref <ref>`
 // к реальному Supabase-проекту. До тех пор этот файл написан вручную в формате,
 // максимально приближенном к реальному выводу `supabase gen types typescript`, и должен
-// соответствовать supabase/migrations/0001_init.sql … 0008_tg_topics.sql.
+// соответствовать supabase/migrations/0001_init.sql … latest migrations.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -14,7 +14,6 @@ export type Database = {
           telegram_user_id: number;
           tg_chat_id: number | null;
           tg_topics_enabled: boolean;
-          history_thread_id: number | null;
           org_name: string | null;
           org_description: string | null;
           knowledge_base: string | null;
@@ -30,7 +29,6 @@ export type Database = {
           telegram_user_id: number;
           tg_chat_id?: number | null;
           tg_topics_enabled?: boolean;
-          history_thread_id?: number | null;
           org_name?: string | null;
           org_description?: string | null;
           knowledge_base?: string | null;
@@ -46,7 +44,6 @@ export type Database = {
           telegram_user_id?: number;
           tg_chat_id?: number | null;
           tg_topics_enabled?: boolean;
-          history_thread_id?: number | null;
           org_name?: string | null;
           org_description?: string | null;
           knowledge_base?: string | null;
@@ -63,45 +60,33 @@ export type Database = {
         Row: {
           id: string;
           tenant_id: string;
-          connection_mode: 'own_app' | 'platform_app';
           ig_account_id: string | null;
           ig_username: string | null;
           access_token_enc: string | null;
-          app_secret_enc: string | null;
-          verify_token: string | null;
           token_refreshed_at: string | null;
           webhook_last_seen_at: string | null;
-          handshake_at: string | null;
           status: 'pending' | 'active' | 'error';
           created_at: string;
         };
         Insert: {
           id?: string;
           tenant_id: string;
-          connection_mode: 'own_app' | 'platform_app';
           ig_account_id?: string | null;
           ig_username?: string | null;
           access_token_enc?: string | null;
-          app_secret_enc?: string | null;
-          verify_token?: string | null;
           token_refreshed_at?: string | null;
           webhook_last_seen_at?: string | null;
-          handshake_at?: string | null;
           status?: 'pending' | 'active' | 'error';
           created_at?: string;
         };
         Update: {
           id?: string;
           tenant_id?: string;
-          connection_mode?: 'own_app' | 'platform_app';
           ig_account_id?: string | null;
           ig_username?: string | null;
           access_token_enc?: string | null;
-          app_secret_enc?: string | null;
-          verify_token?: string | null;
           token_refreshed_at?: string | null;
           webhook_last_seen_at?: string | null;
-          handshake_at?: string | null;
           status?: 'pending' | 'active' | 'error';
           created_at?: string;
         };

@@ -55,12 +55,9 @@ export async function GET(req: Request): Promise<Response> {
     const account = await getAccount(long.accessToken);
     await subscribeToMessages(long.accessToken);
     await igConnections.upsertForTenant(tenantId, {
-      connection_mode: 'platform_app',
       ig_account_id: account.igAccountId,
       ig_username: account.username,
       accessToken: long.accessToken,
-      appSecret: null,
-      verify_token: null,
       token_refreshed_at: new Date().toISOString(),
       status: 'active',
     });

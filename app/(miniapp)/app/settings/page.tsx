@@ -6,7 +6,7 @@ import { useTenant } from '@/components/miniapp/TmaProvider';
 import { useT, type Locale } from '@/lib/i18n';
 
 type KnowledgePayload = { knowledgeBase: string | null; systemPrompt: string | null };
-type IgPayload = { status: string; igUsername: string | null; hasToken: boolean; hasSecret: boolean } | { state: string };
+type IgPayload = { status: string; igUsername: string | null } | { state: string };
 
 const DELETE_WORD: Record<Locale, string> = { ru: 'УДАЛИТЬ', de: 'LÖSCHEN' };
 
@@ -105,7 +105,7 @@ export default function Page() {
       setError(t('settingsSaveError'));
       return;
     }
-    setIg({ status: 'pending', igUsername: null, hasToken: false, hasSecret: false });
+    setIg({ status: 'pending', igUsername: null });
   }
 
   async function deleteTenant() {

@@ -9,31 +9,27 @@ type IgConnectionInsert = Database['public']['Tables']['ig_connections']['Insert
 type IgConnectionUpdate = Database['public']['Tables']['ig_connections']['Update'];
 type IgStatus = IgConnection['status'];
 
-export type IgConnectionPatch = Omit<Partial<IgConnectionInsert>, 'tenant_id' | 'access_token_enc' | 'app_secret_enc'> & {
+export type IgConnectionPatch = Omit<Partial<IgConnectionInsert>, 'tenant_id' | 'access_token_enc'> & {
   accessToken?: string | null;
-  appSecret?: string | null;
 };
 
-export type DecryptedIgConnection = Omit<IgConnection, 'access_token_enc' | 'app_secret_enc'> & {
+export type DecryptedIgConnection = Omit<IgConnection, 'access_token_enc'> & {
   accessToken: string | null;
-  appSecret: string | null;
 };
 
 function decryptConnection(row: IgConnection): DecryptedIgConnection {
-  const { access_token_enc: accessTokenEnc, app_secret_enc: appSecretEnc, ...rest } = row;
+  const { access_token_enc: accessTokenEnc, ...rest } = row;
   return {
     ...rest,
     accessToken: accessTokenEnc ? decrypt(accessTokenEnc) : null,
-    appSecret: appSecretEnc ? decrypt(appSecretEnc) : null,
   };
 }
 
 function toDbPatch(patch: IgConnectionPatch): IgConnectionUpdate {
-  const { accessToken, appSecret, ...rest } = patch;
+  const { accessToken, ...rest } = patch;
   return {
     ...rest,
     ...(accessToken === undefined ? {} : { access_token_enc: accessToken === null ? null : encrypt(accessToken) }),
-    ...(appSecret === undefined ? {} : { app_secret_enc: appSecret === null ? null : encrypt(appSecret) }),
   };
 }
 
@@ -44,7 +40,7 @@ export async function upsertForTenant(
   const { data, error } = await getDb()
     .from('ig_connections')
     .upsert(
-      { tenant_id: tenantId, connection_mode: patch.connection_mode ?? 'own_app', ...toDbPatch(patch) },
+      { tenant_id: tenantId, ...toDbPatch(patch) },
       { onConflict: 'tenant_id' },
     )
     .select()
@@ -63,13 +59,11 @@ export async function getForTenant(tenantId: string): Promise<DecryptedIgConnect
   return data ? decryptConnection(data as unknown as IgConnection) : null;
 }
 
-
 export async function getByIgAccountId(igAccountId: string): Promise<DecryptedIgConnection | null> {
   const { data, error } = await getDb()
     .from('ig_connections')
     .select()
     .eq('ig_account_id', igAccountId)
-    .eq('connection_mode', 'platform_app')
     .maybeSingle();
   if (error) throwDb('igConnections.getByIgAccountId', error);
   return data ? decryptConnection(data as unknown as IgConnection) : null;
@@ -99,17 +93,6 @@ export async function touchWebhookSeen(tenantId: string): Promise<IgConnection> 
     .select()
     .single();
   if (error) throwDb('igConnections.touchWebhookSeen', error);
-  return data as unknown as IgConnection;
-}
-
-export async function markHandshake(tenantId: string): Promise<IgConnection> {
-  const { data, error } = await getDb()
-    .from('ig_connections')
-    .update({ handshake_at: new Date().toISOString() })
-    .eq('tenant_id', tenantId)
-    .select()
-    .single();
-  if (error) throwDb('igConnections.markHandshake', error);
   return data as unknown as IgConnection;
 }
 
@@ -155,9 +138,7 @@ export async function disconnectTenant(tenantId: string): Promise<IgConnection> 
     .from('ig_connections')
     .update({
       access_token_enc: null,
-      app_secret_enc: null,
       status: 'pending',
-      handshake_at: null,
       token_refreshed_at: null,
       webhook_last_seen_at: null,
     })

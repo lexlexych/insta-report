@@ -33,3 +33,4 @@
 | T-024 | awaiting_merge | ticket/T-024 | make_pr tool | 0 | 2026-07-06 |
 | T-024-fix | in_review | claude/message-categorization-topics-gpofrg | pending PR | 1 | 2026-07-06 |
 | T-033 | awaiting_merge | ticket/T-033 | make_pr tool | 0 | 2026-07-07 |
+| T-034 | awaiting_merge | ticket/T-034 | make_pr tool | 0 | 2026-07-08 |

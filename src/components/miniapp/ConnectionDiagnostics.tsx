@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useT } from '@/lib/i18n';
 
 type Check = {
-  id: 'token' | 'handshake' | 'event';
+  id: 'token' | 'event';
   status: 'ok' | 'fail' | 'pending';
   hint?: string;
 };
@@ -18,7 +18,6 @@ type StatusPayload =
       tokenOk: boolean;
       tokenError?: string;
       igUsername: string | null;
-      handshakeOk: boolean;
       lastEventAt: string | null;
       checks: Check[];
     };

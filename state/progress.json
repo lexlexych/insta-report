@@ -352,13 +352,13 @@
     "notes": "Влит в main (код T-033 присутствует в origin/main b93ab2a: 0009_business_login.sql, /api/ig/callback, /api/wh/ig, login-url; поверх него уже влиты follow-up PR #44/#45). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-033.md."
   },
   "T-034": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "ticket/T-034",
+    "pr": "created via make_pr tool",
     "deps": [
       "T-033"
     ],
-    "notes": "Тикет создан 2026-07-08 по прямому поручению владельца: вывод own_app-флоу из эксплуатации (логика, UI, роуты, поля БД) + удаление tenants.history_thread_id (остаток архивного топика)."
+    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
   }
 }
