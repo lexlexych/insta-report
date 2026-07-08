@@ -339,7 +339,7 @@
     "notes": ""
   },
   "T-033": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-033",
     "pr": "created via make_pr tool",
@@ -349,6 +349,16 @@
       "T-015",
       "T-016"
     ],
-    "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Реализованы Business Login OAuth, signed state, platform_app migration, global webhook /api/wh/ig and UI accordion fallback. manual-test: docs/manual-tests/T-033.md."
+    "notes": "Влит в main (код T-033 присутствует в origin/main b93ab2a: 0009_business_login.sql, /api/ig/callback, /api/wh/ig, login-url; поверх него уже влиты follow-up PR #44/#45). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-033.md."
+  },
+  "T-034": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-033"
+    ],
+    "notes": "Тикет создан 2026-07-08 по прямому поручению владельца: вывод own_app-флоу из эксплуатации (логика, UI, роуты, поля БД) + удаление tenants.history_thread_id (остаток архивного топика)."
   }
 }
