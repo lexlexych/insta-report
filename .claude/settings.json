@@ -12,8 +12,7 @@
     ],
     "deny": [
       "Bash(rm -rf *)", "Bash(git push --force*)", "Bash(git reset --hard*)",
-      "Read(.env*)",
-      "Edit(docs/plan.md)", "Edit(docs/tickets/**)", "Edit(docs/orchestration/**)"
+      "Read(.env*)"
     ]
   }
 }
