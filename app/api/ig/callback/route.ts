@@ -26,8 +26,8 @@ function sanitizedMetaMessage(error: unknown): string {
 
 // Для embedded-потоков (мобильный Telegram, webview miniapp) вместо HTML-страницы
 // возвращаем redirect обратно в miniapp — там результат отрисует сам React-компонент.
-function miniappRedirect(result: 'connected' | 'denied' | 'error'): Response {
-  return Response.redirect(`${env.APP_BASE_URL}/app/connect-instagram?ig=${result}`, 303);
+function miniappRedirect(path: string): Response {
+  return Response.redirect(`${env.APP_BASE_URL}${path}`, 303);
 }
 
 export async function GET(req: Request): Promise<Response> {
@@ -35,7 +35,7 @@ export async function GET(req: Request): Promise<Response> {
   const state = verify(url.searchParams.get('state'));
 
   if (url.searchParams.get('error') === 'access_denied') {
-    if (state?.embedded) return miniappRedirect('denied');
+    if (state?.embedded) return miniappRedirect('/app/connect-instagram?ig=denied');
     return htmlPage('Доступ не выдан', 'Вы отменили подключение Instagram. Можно вернуться в Telegram и попробовать снова.');
   }
 
@@ -44,7 +44,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const code = url.searchParams.get('code');
   if (!code) {
-    if (state.embedded) return miniappRedirect('error');
+    if (state.embedded) return miniappRedirect('/app/connect-instagram?ig=error');
     return htmlPage('Не получилось', 'Instagram не вернул код авторизации. Попробуйте ещё раз.', 400);
   }
 
@@ -64,12 +64,12 @@ export async function GET(req: Request): Promise<Response> {
       token_refreshed_at: new Date().toISOString(),
       status: 'active',
     });
-    if (state.embedded) return miniappRedirect('connected');
+    if (state.embedded) return miniappRedirect('/app/connect-instagram/success');
     return htmlPage('Instagram подключён', `Instagram @${account.username} подключён.`);
   } catch (error) {
     console.error(`[ig/callback] Meta OAuth failed tenant=${tenantId}: ${sanitizedMetaMessage(error)}`);
     await igConnections.setStatus(tenantId, 'error').catch(() => undefined);
-    if (state.embedded) return miniappRedirect('error');
+    if (state.embedded) return miniappRedirect('/app/connect-instagram?ig=error');
     return htmlPage('Не получилось', 'Не получилось подключить Instagram, попробуйте ещё раз.', 502);
   }
 }

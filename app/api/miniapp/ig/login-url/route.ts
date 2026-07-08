@@ -14,6 +14,8 @@ export const GET = apiHandler(async (req: Request) => {
   url.searchParams.set('redirect_uri', `${env.APP_BASE_URL}/api/ig/callback`);
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('scope', SCOPES);
+  // Убирает со страницы авторизации опцию «Войти через Facebook» — остаётся только вход по логину/паролю Instagram.
+  url.searchParams.set('enable_fb_login', '0');
   url.searchParams.set('state', sign({ tenantId: tenant.id, embedded }));
   return jsonResponse({ url: url.toString() });
 });

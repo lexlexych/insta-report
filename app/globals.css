@@ -18,3 +18,36 @@ body {
   background: var(--bg);
   color: var(--text);
 }
+
+/* Анимация бейджа успешного подключения Instagram (connect-instagram/success). */
+@keyframes ig-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ig-draw {
+  to { stroke-dashoffset: 0; }
+}
+.ig-success-badge {
+  animation: ig-pop 0.45s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+/* Круг r=42 → длина окружности ≈264 (2πr). */
+.ig-success-circle {
+  stroke-dasharray: 264;
+  stroke-dashoffset: 264;
+  animation: ig-draw 0.7s ease-out 0.2s forwards;
+}
+/* Ломаная галочки (M30 49 L42 61 L67 35) → суммарная длина ≈54. */
+.ig-success-check {
+  stroke-dasharray: 54;
+  stroke-dashoffset: 54;
+  animation: ig-draw 0.4s ease-out 0.75s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig-success-badge,
+  .ig-success-circle,
+  .ig-success-check {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

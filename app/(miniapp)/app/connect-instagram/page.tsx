@@ -129,7 +129,7 @@ export default function Page() {
   const [saveDone, setSaveDone] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [oauthError, setOauthError] = useState(false);
-  const [oauthResult, setOauthResult] = useState<'connected' | 'denied' | 'error' | null>(null);
+  const [oauthResult, setOauthResult] = useState<'denied' | 'error' | null>(null);
   const diagnosticsRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
@@ -195,7 +195,7 @@ export default function Page() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const result = params.get('ig');
-    if (result === 'connected' || result === 'denied' || result === 'error') {
+    if (result === 'denied' || result === 'error') {
       setOauthResult(result);
       window.history.replaceState(null, '', window.location.pathname);
     }
@@ -269,7 +269,6 @@ export default function Page() {
             <p className="text-sm text-tg-hint">{state.connectionMode === 'platform_app' && state.igUsername ? t('igBusinessLoginConnected', { username: state.igUsername }) : t('igBusinessLoginBody')}</p>
           </div>
           {oauthError ? <p className="text-sm text-red-600">{t('igBusinessLoginError')}</p> : null}
-          {oauthResult === 'connected' ? <p className="text-sm text-emerald-600">{t('igOauthResultConnected')}</p> : null}
           {oauthResult === 'denied' ? <p className="text-sm text-tg-hint">{t('igOauthResultDenied')}</p> : null}
           {oauthResult === 'error' ? <p className="text-sm text-red-600">{t('igOauthResultError')}</p> : null}
           <div className="flex flex-wrap gap-2">
