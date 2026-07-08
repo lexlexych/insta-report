@@ -28,8 +28,8 @@ const eslint = read('eslint.config.mjs');
 
 const checks: Array<[string, boolean]> = [
   ['Supabase client is server-only and uses secret key env', read('src/lib/db/client.ts').includes("import 'server-only'") && read('src/lib/db/client.ts').includes('SUPABASE_SECRET_KEY')],
-  ['IG access token/app secret are encrypted before upsert', igConnections.includes('access_token_enc: encrypt(accessToken)') && igConnections.includes('app_secret_enc: encrypt(appSecret)')],
-  ['IG secrets are decrypted on getForTenant', igConnections.includes('decrypt(accessTokenEnc)') && igConnections.includes('decrypt(appSecretEnc)')],
+  ['IG access token is encrypted before upsert', igConnections.includes('access_token_enc: accessToken === null ? null : encrypt(accessToken)')],
+  ['IG token is decrypted on getForTenant', igConnections.includes('decrypt(accessTokenEnc)')],
   ['claimPendingToSending updates only pending drafts and may return null', drafts.includes(".eq('status', 'pending')") && drafts.includes('.maybeSingle()')],
   ['processedEvents.tryInsert returns false on duplicate 23505', processedEvents.includes("isSupabaseCode(error, '23505')") && processedEvents.includes('return false')],
   ['default label deletion/update is blocked', labels.includes('ForbiddenLabelError') && labels.includes("'Без категории'")],

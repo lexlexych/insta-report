@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { env } from './env';
 
 /**
- * Шифрование секретов тенантов (токены Instagram, app_secret и т.п.) — AES-256-GCM
+ * Шифрование секретов тенантов (токены Instagram и т.п.) — AES-256-GCM
  * с версионированным текстовым форматом. Это единственный способ записи/чтения
  * секретов в БД (см. docs/plan.md §5, п.6): пишем только через `encrypt()`, читаем
  * только через `decrypt()`.
