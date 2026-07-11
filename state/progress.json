@@ -352,7 +352,7 @@
     "notes": "Влит в main (код T-033 присутствует в origin/main b93ab2a: 0009_business_login.sql, /api/ig/callback, /api/wh/ig, login-url; поверх него уже влиты follow-up PR #44/#45). Review: approved (0 циклов доработки). lint+typecheck зелёные. manual-test: docs/manual-tests/T-033.md."
   },
   "T-034": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "ticket/T-034",
     "pr": "created via make_pr tool",
