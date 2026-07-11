@@ -360,5 +360,57 @@
       "T-033"
     ],
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
+  },
+  "T-035": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [],
+    "notes": "Эпик 10 (Онбординг 2.0). Шаблоны src/lib/kb-templates/{ru,de}/*.md уже в репозитории на обоих языках (созданы при постановке эпика) — тикет добавляет реестр/кодоген/i18n; getKbTemplate(id, locale)."
+  },
+  "T-036": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-034"
+    ],
+    "notes": "Эпик 10. Миграция 0011_ig_accounts.sql + репозиторий igAccounts."
+  },
+  "T-037": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-005",
+      "T-033",
+      "T-036"
+    ],
+    "notes": "Эпик 10. Заявки на подключение IG: эндпоинт, уведомление админов, кнопка «Подтвердить», сообщение пользователю."
+  },
+  "T-038": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-033",
+      "T-035",
+      "T-037"
+    ],
+    "notes": "Эпик 10. Полноэкранный визард онбординга 2.0 (5 экранов) + POST onboarding/complete."
+  },
+  "T-039": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-038"
+    ],
+    "notes": "Эпик 10. Демонтаж LLM-генерации онбординга: роут generate, kbGenerationPrompt, org_description."
   }
 }
