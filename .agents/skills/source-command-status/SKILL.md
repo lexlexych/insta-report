@@ -1,0 +1,15 @@
+---
+name: "source-command-status"
+description: "Сводка прогресса (ничего не выполняет)"
+---
+
+# source-command-status
+
+Use this skill when the user asks to run the migrated source command `status`.
+
+## Command Template
+
+Выполни процедуру RESUME из docs/orchestration/workflow.md ТОЛЬКО в части чтения (без коммита
+sync, если изменений нет). Выведи таблицу по эпикам: тикет | статус | ветка/PR. Затем:
+следующий доступный тикет, тикеты awaiting_merge (что человеку осталось протестировать,
+со ссылками на manual-tests), процент критического пути MVP.
