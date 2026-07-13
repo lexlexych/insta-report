@@ -15,7 +15,6 @@ export type Database = {
           tg_chat_id: number | null;
           tg_topics_enabled: boolean;
           org_name: string | null;
-          org_description: string | null;
           business_sphere: string | null;
           knowledge_base: string | null;
           system_prompt: string | null;
@@ -31,7 +30,6 @@ export type Database = {
           tg_chat_id?: number | null;
           tg_topics_enabled?: boolean;
           org_name?: string | null;
-          org_description?: string | null;
           business_sphere?: string | null;
           knowledge_base?: string | null;
           system_prompt?: string | null;
@@ -47,7 +45,6 @@ export type Database = {
           tg_chat_id?: number | null;
           tg_topics_enabled?: boolean;
           org_name?: string | null;
-          org_description?: string | null;
           business_sphere?: string | null;
           knowledge_base?: string | null;
           system_prompt?: string | null;
