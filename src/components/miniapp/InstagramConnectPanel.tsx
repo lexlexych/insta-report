@@ -20,17 +20,25 @@ function isMobileTelegram(): boolean {
 export function InstagramConnectPanel({ onActiveChange }: Props) {
   const { t } = useT();
   const [state, setState] = useState<ConnectState | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [connectFailed, setConnectFailed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthResult, setOauthResult] = useState<'denied' | 'error' | null>(null);
   const load = useCallback(async () => {
     try {
       const response = await fetch('/api/miniapp/ig/connect');
       if (!response.ok) throw new Error('load_failed');
       const next = await response.json() as ConnectState;
-      setState(next); setFailed(false); onActiveChange?.(next.status === 'active');
-    } catch { setFailed(true); onActiveChange?.(false); }
+      setState(next); setLoadFailed(false); onActiveChange?.(next.status === 'active');
+    } catch { setLoadFailed(true); onActiveChange?.(false); }
   }, [onActiveChange]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    const result = new URLSearchParams(window.location.search).get('ig');
+    if (result !== 'denied' && result !== 'error') return;
+    setOauthResult(result);
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.hash}`);
+  }, []);
   useEffect(() => {
     const refresh = () => void load();
     window.addEventListener('focus', refresh); document.addEventListener('visibilitychange', refresh);
@@ -38,6 +46,7 @@ export function InstagramConnectPanel({ onActiveChange }: Props) {
   }, [load]);
   const connect = useCallback(async () => {
     setLoading(true);
+    setConnectFailed(false);
     try {
       const embedded = isMobileTelegram();
       const response = await fetch(`/api/miniapp/ig/login-url${embedded ? '?embedded=1' : ''}`);
@@ -46,13 +55,16 @@ export function InstagramConnectPanel({ onActiveChange }: Props) {
       if (embedded) window.location.assign(url);
       else if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
       else window.open(url, '_blank', 'noopener,noreferrer');
-    } catch { setFailed(true); } finally { setLoading(false); }
+    } catch { setConnectFailed(true); } finally { setLoading(false); }
   }, []);
-  if (!state && !failed) return <p className="text-tg-hint">{t('igLoading')}</p>;
+  if (!state && !loadFailed) return <p className="text-tg-hint">{t('igLoading')}</p>;
   return <section className="space-y-3 rounded-2xl border bg-white/60 p-4 shadow-sm">
     <h2 className="text-lg font-semibold">{t('igBusinessLoginTitle')}</h2>
     <p className="text-sm text-tg-hint">{state?.igUsername ? t('igBusinessLoginConnected', { username: state.igUsername }) : t('igBusinessLoginBody')}</p>
-    {failed ? <p className="text-sm text-red-600">{t('igBusinessLoginError')}</p> : null}
+    {loadFailed ? <p className="text-sm text-red-600">{t('igLoadError')}</p> : null}
+    {connectFailed ? <p className="text-sm text-red-600">{t('igBusinessLoginError')}</p> : null}
+    {oauthResult === 'denied' ? <p className="text-sm text-red-600">{t('igOauthResultDenied')}</p> : null}
+    {oauthResult === 'error' ? <p className="text-sm text-red-600">{t('igOauthResultError')}</p> : null}
     <div className="flex flex-wrap gap-2"><button className="rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-50" disabled={loading} type="button" onClick={() => void connect()}>{state?.igUsername ? t('igBusinessLoginReconnect') : t('igBusinessLoginButton')}</button><button className="rounded-xl border px-4 py-3 font-medium" type="button" onClick={() => void load()}>{t('igBusinessLoginCheck')}</button></div>
   </section>;
 }
