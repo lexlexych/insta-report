@@ -3,15 +3,18 @@ import { z } from 'zod';
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
 import { tenants } from '@/lib/db';
+import { isBusinessSphereId } from '@/lib/kb-templates';
 import { sendMessageHTML } from '@/lib/tg/api';
 import { escapeHTML } from '@/lib/tg/html';
 
 const patchSchema = z
   .object({
-    onboardingStep: z.enum(['welcome', 'org_form', 'generating', 'review_kb', 'done']).optional(),
+    onboardingStep: z.enum(['sphere', 'business', 'ig_wait', 'ig_connect', 'knowledge', 'finish', 'done']).optional(),
     uiLocale: z.enum(['ru', 'de']).optional(),
+    businessSphere: z.string().refine(isBusinessSphereId).optional(),
+    orgName: z.string().trim().min(2).optional(),
   })
-  .refine((data) => data.onboardingStep !== undefined || data.uiLocale !== undefined);
+  .refine((data) => Object.values(data).some((value) => value !== undefined));
 
 function clearSessionCookie(): string {
   return 'session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0';
@@ -25,6 +28,8 @@ export const PATCH = apiHandler(async (req: Request) => {
   const updated = await tenants.update(tenant.id, {
     onboarding_step: parsed.data.onboardingStep,
     ui_locale: parsed.data.uiLocale,
+    business_sphere: parsed.data.businessSphere,
+    org_name: parsed.data.orgName,
   });
 
   return jsonResponse({
@@ -33,6 +38,8 @@ export const PATCH = apiHandler(async (req: Request) => {
       id: updated.id,
       onboardingStep: updated.onboarding_step,
       orgName: updated.org_name,
+      businessSphere: updated.business_sphere,
+      knowledgeBase: updated.knowledge_base,
       uiLocale: updated.ui_locale,
       tgTopicsEnabled: updated.tg_topics_enabled,
     },

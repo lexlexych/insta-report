@@ -1,138 +1,43 @@
 'use client';
 
-import { mainButton } from '@telegram-apps/sdk-react';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
+import { InstagramConnectPanel } from '@/components/miniapp/InstagramConnectPanel';
 import { useTenant } from '@/components/miniapp/TmaProvider';
+import { normalizeIgUsername } from '@/lib/ig/username';
+import { BUSINESS_SPHERES, getKbTemplate, isBusinessSphereId, type BusinessSphereId } from '@/lib/kb-templates';
 import { useT } from '@/lib/i18n';
 
-type Step = 'welcome' | 'org_form' | 'generating' | 'review_kb' | 'done';
-
-const stepOrder: Step[] = ['welcome', 'org_form', 'generating', 'review_kb', 'done'];
-
-function normalizeStep(value: string | null | undefined): Step {
-  return stepOrder.includes(value as Step) ? (value as Step) : 'welcome';
-}
-
-function MarkdownView({ markdown }: { markdown: string }) {
-  return (
-    <div className="space-y-3 rounded-2xl bg-tg-secondary-bg p-4 text-sm leading-6">
-      {markdown.split(/\n{2,}/).map((block, index) => {
-        const text = block.trim();
-        if (!text) return null;
-        if (text.startsWith('#')) {
-          return <h3 key={index} className="text-lg font-semibold">{text.replace(/^#+\s*/, '')}</h3>;
-        }
-        if (/^[-*]\s/m.test(text)) {
-          return <ul key={index} className="list-disc space-y-1 pl-5">{text.split('\n').map((line, itemIndex) => <li key={itemIndex}>{line.replace(/^[-*]\s*/, '')}</li>)}</ul>;
-        }
-        return <p key={index}>{text}</p>;
-      })}
-    </div>
-  );
-}
-
-async function patchStep(onboardingStep: Step) {
-  await fetch('/api/miniapp/tenant', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ onboardingStep }),
-  });
-}
+type Step = 'sphere' | 'business' | 'ig_wait' | 'ig_connect' | 'knowledge' | 'finish' | 'done';
+const steps: Step[] = ['sphere', 'business', 'ig_wait', 'ig_connect', 'knowledge', 'finish', 'done'];
+const normalizeStep = (value: string | null | undefined): Step => steps.includes(value as Step) ? value as Step : 'sphere';
+async function patchTenant(data: Record<string, string>) { const response = await fetch('/api/miniapp/tenant', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); if (!response.ok) throw new Error('tenant_update_failed'); }
 
 export default function Page() {
-  const tenant = useTenant();
-  const router = useRouter();
-  const { t } = useT();
-  const [step, setStep] = useState<Step>(() => normalizeStep(tenant.tenant?.onboardingStep));
-  const [orgName, setOrgName] = useState(tenant.tenant?.orgName ?? '');
-  const [orgDescription, setOrgDescription] = useState('');
-  const [knowledgeBase, setKnowledgeBase] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-  const [savingKb, setSavingKb] = useState(false);
-
-  useEffect(() => {
-    if (tenant.status === 'ready') {
-      const currentStep = normalizeStep(tenant.tenant.onboardingStep);
-      if (currentStep === 'done') router.replace('/app');
-      else setStep(currentStep);
-    }
-  }, [router, tenant]);
-
-  const validation = useMemo(() => ({
-    orgName: orgName.trim().length < 2 ? t('onboardingOrgNameError') : null,
-    orgDescription: orgDescription.trim().length < 80 ? t('onboardingOrgDescriptionError', { min: 80 }) : null,
-  }), [orgDescription, orgName, t]);
-
-  const goStep = useCallback((nextStep: Step) => {
-    setStep(nextStep);
-    void patchStep(nextStep);
-  }, []);
-
-  const generate = useCallback(async () => {
-    setError(null);
-    setStep('generating');
-    void patchStep('generating');
-    try {
-      const response = await fetch('/api/miniapp/onboarding/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orgName, orgDescription }),
-      });
-      const payload = (await response.json()) as { knowledgeBase?: string; error?: string };
-      if (!response.ok || !payload.knowledgeBase) throw new Error(payload.error ?? 'generate_failed');
-      setKnowledgeBase(payload.knowledgeBase);
-      goStep('review_kb');
-    } catch {
-      setError(t('onboardingGenerateError'));
-      setToast(t('onboardingGenerateToast'));
-    }
-  }, [goStep, orgDescription, orgName, t]);
-
-  const primary = useMemo(() => {
-    if (step === 'welcome') return { text: t('onboardingStart'), action: () => goStep('org_form') };
-    if (step === 'org_form') return { text: t('onboardingGenerate'), action: () => { if (!validation.orgName && !validation.orgDescription) void generate(); } };
-    if (step === 'generating' && error) return { text: t('retry'), action: () => void generate() };
-    if (step === 'review_kb') return { text: t('onboardingApprove'), action: async () => {
-      setSavingKb(true);
-      await fetch('/api/miniapp/knowledge', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ knowledgeBase }) });
-      setSavingKb(false);
-      goStep('done');
-    } };
-    return null;
-  }, [error, generate, goStep, knowledgeBase, step, t, validation.orgDescription, validation.orgName]);
-
-  useEffect(() => {
-    if (mainButton.mount.isAvailable()) mainButton.mount();
-  }, []);
-
-  useEffect(() => {
-    if (!mainButton.setParams.isAvailable()) return;
-    if (!primary) {
-      mainButton.setParams({ isVisible: false });
-      return;
-    }
-    mainButton.setParams({ text: primary.text, isVisible: true, isEnabled: true });
-    const off = mainButton.onClick(primary.action);
-    return () => {
-      off();
-      mainButton.setParams({ isVisible: false });
-    };
-  }, [primary]);
-
+  const tenant = useTenant(); const router = useRouter(); const { t, locale } = useT();
+  const [step, setStep] = useState<Step>('sphere'); const [sphere, setSphere] = useState<BusinessSphereId | null>(null);
+  const [orgName, setOrgName] = useState(''); const [username, setUsername] = useState(''); const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [knowledge, setKnowledge] = useState(''); const [active, setActive] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState<string | null>(null);
+  useEffect(() => { if (tenant.status !== 'ready') return; const initial = normalizeStep(tenant.tenant.onboardingStep); if (initial === 'done') { router.replace('/app'); return; } setStep(initial); setOrgName(tenant.tenant.orgName ?? ''); if (isBusinessSphereId(tenant.tenant.businessSphere ?? '')) setSphere(tenant.tenant.businessSphere as BusinessSphereId); if (initial === 'knowledge') setKnowledge(tenant.tenant.knowledgeBase ?? getKbTemplate(tenant.tenant.businessSphere as BusinessSphereId, locale)); if (!tenant.tenant.onboardingStep) void patchTenant({ uiLocale: locale }); }, [locale, router, tenant]);
+  const canContinue = useMemo(() => ({ sphere: Boolean(sphere), business: orgName.trim().length >= 2 && Boolean(normalizeIgUsername(username)), ig_wait: true, ig_connect: active, knowledge: knowledge.trim().length > 0 && knowledge.length <= 20_000, finish: true, done: false }[step]), [active, knowledge, orgName, sphere, step, username]);
+  const go = useCallback(async (next: Step) => { setSaving(true); setError(null); try { await patchTenant({ onboardingStep: next }); setStep(next); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } }, [t]);
+  const next = useCallback(async () => {
+    if (!canContinue || saving) return;
+    if (step === 'sphere' && sphere) { await patchTenant({ businessSphere: sphere, onboardingStep: 'business' }); setStep('business'); return; }
+    if (step === 'business') { const normalized = normalizeIgUsername(username); if (!normalized) return; setSaving(true); setError(null); try { await patchTenant({ orgName: orgName.trim() }); const response = await fetch('/api/miniapp/onboarding/ig-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ igUsername: normalized }) }); const data = await response.json() as { status?: 'pending' | 'approved'; code?: string }; if (response.status === 409 && data.code === 'taken') { setUsernameError(t('onboardingUsernameTaken')); return; } if (!response.ok || !data.status) throw new Error('ig_account_failed'); await go(data.status === 'approved' ? 'ig_connect' : 'ig_wait'); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } return; }
+    if (step === 'ig_wait' || step === 'ig_connect') { await go('knowledge'); if (!knowledge && sphere) setKnowledge(getKbTemplate(sphere, locale)); return; }
+    if (step === 'knowledge') { setSaving(true); setError(null); try { const response = await fetch('/api/miniapp/onboarding/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ knowledgeBase: knowledge }) }); if (!response.ok) throw new Error('complete_failed'); setStep('finish'); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } return; }
+    if (step === 'finish') { await go('done'); tenant.retry(); router.replace('/app'); }
+  }, [canContinue, go, knowledge, locale, orgName, router, saving, sphere, step, t, tenant, username]);
   if (tenant.status !== 'ready') return null;
-
-  return (
-    <main className="min-h-screen bg-tg-bg px-5 py-8 text-tg-text">
-      {toast ? <div className="mb-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-600">{toast}</div> : null}
-      {step === 'welcome' ? <section className="space-y-6"><h1 className="text-2xl font-bold">{t('onboardingWelcomeTitle')}</h1>{['onboardingPointFast','onboardingPointKnowledge','onboardingPointTelegram'].map((key) => <div key={key} className="flex gap-3 rounded-2xl bg-tg-secondary-bg p-4"><span>✨</span><p>{t(key)}</p></div>)}</section> : null}
-      {step === 'org_form' ? <section className="space-y-5"><h1 className="text-2xl font-bold">{t('onboardingOrgTitle')}</h1><label className="block space-y-2"><span>{t('onboardingOrgName')}</span><input className="w-full rounded-xl border bg-transparent p-3" value={orgName} onChange={(event) => setOrgName(event.target.value)} />{validation.orgName ? <span className="text-sm text-red-600">{validation.orgName}</span> : null}</label><label className="block space-y-2"><span>{t('onboardingOrgDescription')}</span><textarea className="min-h-40 w-full rounded-xl border bg-transparent p-3" value={orgDescription} onChange={(event) => setOrgDescription(event.target.value)} placeholder={t('onboardingOrgDescriptionPlaceholder')} /><span className="text-xs text-tg-hint">{orgDescription.trim().length}/80</span>{validation.orgDescription ? <span className="block text-sm text-red-600">{validation.orgDescription}</span> : null}</label></section> : null}
-      {step === 'generating' ? <section className="space-y-5"><h1 className="text-2xl font-bold">{t('onboardingGeneratingTitle')}</h1>{['onboardingGenAnalyze','onboardingGenStructure','onboardingGenTone'].map((key) => <div key={key} className="animate-pulse rounded-2xl bg-tg-secondary-bg p-4">{t(key)}</div>)}{error ? <p className="text-red-600">{error}</p> : null}</section> : null}
-      {step === 'review_kb' ? <section className="space-y-5"><h1 className="text-2xl font-bold">{t('onboardingReviewTitle')}</h1>{isEditing ? <textarea className="min-h-72 w-full rounded-xl border bg-transparent p-3" value={knowledgeBase} onChange={(event) => setKnowledgeBase(event.target.value)} /> : <MarkdownView markdown={knowledgeBase} />}<button className="rounded-xl border px-4 py-3" type="button" onClick={() => setIsEditing((value) => !value)}>{isEditing ? t('onboardingPreview') : t('onboardingEdit')}</button>{savingKb ? <p className="text-sm text-tg-hint">{t('onboardingSaving')}</p> : null}</section> : null}
-      {step === 'done' ? <section className="space-y-5"><h1 className="text-2xl font-bold">{t('onboardingDoneTitle')}</h1><p>{t('onboardingDoneHint')}</p><button className="w-full rounded-xl bg-tg-button p-4 text-tg-button-text" onClick={async () => { await patchStep('done'); router.push('/app/connect-instagram'); }}>{t('onboardingConnectInstagram')}</button><button className="w-full rounded-xl border p-4" onClick={async () => { await patchStep('done'); router.push('/app/simulator'); }}>{t('onboardingTrySimulator')}</button></section> : null}
-    </main>
-  );
+  return <main className="min-h-screen bg-tg-bg pb-28 text-tg-text"><section className="mx-auto max-w-xl space-y-5 px-5 py-8">
+    {step === 'sphere' && <><h1 className="text-2xl font-bold">{t('onboardingSphereTitle')}</h1><p className="text-tg-hint">{t('onboardingSphereHint')}</p>{BUSINESS_SPHERES.map((item) => <button key={item.id} type="button" onClick={() => setSphere(item.id)} className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left ${sphere === item.id ? 'border-tg-button bg-tg-secondary-bg' : ''}`}><span className="text-2xl">{item.icon}</span>{t(item.nameKey)}</button>)}</>}
+    {step === 'business' && <><h1 className="text-2xl font-bold">{t('onboardingBusinessTitle')}</h1><label className="block space-y-2"><span>{t('onboardingBusinessName')}</span><input className="w-full rounded-xl border bg-transparent p-3" value={orgName} onChange={(e) => setOrgName(e.target.value)} /></label><label className="block space-y-2"><span>{t('onboardingInstagramAccount')}</span><input className="w-full rounded-xl border bg-transparent p-3" placeholder="@username" value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }} />{username && !normalizeIgUsername(username) ? <span className="text-sm text-red-600">{t('onboardingUsernameInvalid')}</span> : null}{usernameError ? <span className="text-sm text-red-600">{usernameError}</span> : null}</label></>}
+    {step === 'ig_wait' && <><h1 className="text-2xl font-bold">{t('onboardingWaitTitle')}</h1><p className="rounded-2xl bg-tg-secondary-bg p-4">⏳ {t('onboardingWaitBody')}</p></>}
+    {step === 'ig_connect' && <><h1 className="text-2xl font-bold">{t('onboardingConnectTitle')}</h1><InstagramConnectPanel onActiveChange={setActive} /></>}
+    {step === 'knowledge' && <><h1 className="text-2xl font-bold">{t('onboardingKnowledgeTitle')}</h1><p className="text-tg-hint">{t('onboardingKnowledgeHint')}</p><textarea className="min-h-80 w-full rounded-xl border bg-transparent p-3 font-mono text-sm" value={knowledge} onChange={(e) => setKnowledge(e.target.value)} /><p className="text-xs text-tg-hint">{knowledge.length}/20000</p></>}
+    {step === 'finish' && <><h1 className="text-2xl font-bold">{t('onboardingFinishTitle')}</h1>{['onboardingFinishSimulator','onboardingFinishIncoming','onboardingFinishLabels','onboardingFinishSettings','onboardingFinishDashboard'].map((key) => <p className="rounded-2xl bg-tg-secondary-bg p-4" key={key}>✓ {t(key)}</p>)}</>}
+    {error ? <p className="text-sm text-red-600">{error}</p> : null}
+  </section><footer className="fixed inset-x-0 bottom-0 border-t bg-tg-bg p-4"><button type="button" disabled={!canContinue || saving} onClick={() => void next()} className="mx-auto block w-full max-w-xl rounded-xl bg-tg-button p-4 font-medium text-tg-button-text disabled:opacity-40">{saving ? t('onboardingSaving') : step === 'knowledge' ? t('onboardingComplete') : step === 'finish' ? t('onboardingStartWork') : t('onboardingNext')}</button></footer></main>;
 }

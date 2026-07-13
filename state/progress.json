@@ -362,55 +362,55 @@
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
   },
   "T-035": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [],
-    "notes": "Эпик 10 (Онбординг 2.0). Шаблоны src/lib/kb-templates/{ru,de}/*.md уже в репозитории на обоих языках (созданы при постановке эпика) — тикет добавляет реестр/кодоген/i18n; getKbTemplate(id, locale)."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-035.md. Реализованы реестр BUSINESS_SPHERES, кодоген gen:kb-templates (+--check), getKbTemplate(id, locale), i18n ru/de. PR эпика будет открыт по завершении эпика."
   },
   "T-036": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-034"
     ],
-    "notes": "Эпик 10. Миграция 0011_ig_accounts.sql + репозиторий igAccounts."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-036.md. Миграция 0011_ig_accounts.sql (таблица ig_accounts + tenants.business_sphere, RLS deny-all), репозиторий igAccounts (normalizeIgUsername, createPending, approve идемпотентен, bindTenant). PR эпика будет открыт по завершении эпика."
   },
   "T-037": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-005",
       "T-033",
       "T-036"
     ],
-    "notes": "Эпик 10. Заявки на подключение IG: эндпоинт, уведомление админов, кнопка «Подтвердить», сообщение пользователю."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-037.md. POST onboarding/ig-account (createPending + notifyIgAccountAdmins), кнопка «Подтвердить» в боте (только админы, идемпотентно через igAccounts.approve), уведомление владельца со startapp=connect, обработка start_param=connect в TmaProvider. PR эпика будет открыт по завершении эпика."
   },
   "T-038": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-033",
       "T-035",
       "T-037"
     ],
-    "notes": "Эпик 10. Полноэкранный визард онбординга 2.0 (5 экранов) + POST onboarding/complete."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (1 цикл — восстановлена обработка OAuth-редиректа ?ig=denied/error в InstagramConnectPanel). lint+typecheck зелёные. manual-test: docs/manual-tests/T-038.md. Полноэкранный визард (сфера/IG-заявка/подключение/база знаний), POST onboarding/complete (KB+system_prompt из шаблона T-035 + defaultSystemPrompt, seed labels), синхронизация ui_locale, вынос normalizeIgUsername в src/lib/ig/username.ts. PR эпика будет открыт по завершении эпика."
   },
   "T-039": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-038"
     ],
-    "notes": "Эпик 10. Демонтаж LLM-генерации онбординга: роут generate, kbGenerationPrompt, org_description."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-039.md. Удалены роут onboarding/generate, kbGenerationPrompt, колонка tenants.org_description (миграция 0012), устаревшие i18n-ключи старого визарда. seedDefaultLabels сохранён через onboarding/complete. PR эпика будет открыт по завершении эпика."
   }
 }

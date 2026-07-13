@@ -1,8 +1,25 @@
 'use client';
 
-import { init, miniApp, retrieveLaunchParams, retrieveRawInitData, themeParams, useLaunchParams, viewport } from '@telegram-apps/sdk-react';
+import {
+  init,
+  miniApp,
+  retrieveLaunchParams,
+  retrieveRawInitData,
+  themeParams,
+  useLaunchParams,
+  viewport,
+} from '@telegram-apps/sdk-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { I18nProvider, resolveLocale, t, useT, type Locale } from '@/lib/i18n';
 
@@ -25,6 +42,8 @@ export type MiniAppTenant = {
   id: string;
   onboardingStep: string | null;
   orgName: string | null;
+  businessSphere?: string | null;
+  knowledgeBase?: string | null;
   uiLocale?: Locale;
   tgTopicsEnabled?: boolean;
 };
@@ -57,8 +76,15 @@ function applyTheme(theme: TelegramTheme | undefined) {
 function LaunchParamsLocale({ children }: { children: ReactNode }) {
   const launchParams = useLaunchParams();
   const locale = useMemo(
-    () => resolveLocale(launchParams.initDataUnsafe?.user?.languageCode ?? launchParams.initDataUnsafe?.user?.language_code),
-    [launchParams.initDataUnsafe?.user?.languageCode, launchParams.initDataUnsafe?.user?.language_code],
+    () =>
+      resolveLocale(
+        launchParams.initDataUnsafe?.user?.languageCode ??
+          launchParams.initDataUnsafe?.user?.language_code,
+      ),
+    [
+      launchParams.initDataUnsafe?.user?.languageCode,
+      launchParams.initDataUnsafe?.user?.language_code,
+    ],
   );
 
   return <I18nProvider initialLocale={locale}>{children}</I18nProvider>;
@@ -81,7 +107,11 @@ function AuthErrorScreen({ onRetry }: { onRetry: () => void }) {
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-tg-bg p-6 text-center text-tg-text">
       <h1 className="text-xl font-semibold">{t('de', 'miniAppAuthErrorTitle')}</h1>
       <p className="max-w-sm text-sm text-tg-hint">{t('de', 'miniAppAuthErrorHint')}</p>
-      <button className="rounded-xl bg-tg-button px-5 py-3 font-medium text-tg-button-text" type="button" onClick={onRetry}>
+      <button
+        className="rounded-xl bg-tg-button px-5 py-3 font-medium text-tg-button-text"
+        type="button"
+        onClick={onRetry}
+      >
         {t('de', 'retry')}
       </button>
     </main>
@@ -90,8 +120,12 @@ function AuthErrorScreen({ onRetry }: { onRetry: () => void }) {
 
 function TenantProvider({ children }: { children: ReactNode }) {
   const { setLocale } = useT();
+  const launchParams = useLaunchParams(true);
   const [authAttempt, setAuthAttempt] = useState(0);
-  const [state, setState] = useState<Omit<TenantContextValue, 'retry'>>({ status: 'loading', tenant: null });
+  const [state, setState] = useState<Omit<TenantContextValue, 'retry'>>({
+    status: 'loading',
+    tenant: null,
+  });
   const retry = useCallback(() => {
     setState({ status: 'loading', tenant: null });
     setAuthAttempt((value) => value + 1);
@@ -117,7 +151,9 @@ function TenantProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error('Mini App auth failed');
         const payload = (await response.json()) as { tenant?: MiniAppTenant };
         if (!payload.tenant) throw new Error('Mini App auth response missing tenant');
-        if (payload.tenant.uiLocale) setLocale(payload.tenant.uiLocale);
+        // До завершения онбординга язык всегда берётся из Telegram: ui_locale в
+        // новой записи по умолчанию de и не должен переопределять язык визарда.
+        if (payload.tenant.uiLocale && payload.tenant.onboardingStep === 'done') setLocale(payload.tenant.uiLocale);
         setState({ status: 'ready', tenant: payload.tenant });
       } catch {
         if (!controller.signal.aborted) setState({ status: 'error', tenant: null });
@@ -146,15 +182,24 @@ function TenantProvider({ children }: { children: ReactNode }) {
 
     const isOnboarding = pathname === '/app/onboarding';
     const isDone = tenant.onboardingStep === 'done';
+    const startParam = launchParams.startParam;
+
+    if (startParam === 'connect') {
+      router.replace('/app/connect-instagram');
+      return;
+    }
 
     if (!isDone && !isOnboarding) {
       router.replace('/app/onboarding');
     } else if (isDone && isOnboarding) {
       router.replace('/app');
     }
-  }, [pathname, router, state]);
+  }, [launchParams.startParam, pathname, router, state]);
 
-  const value = useMemo<TenantContextValue>(() => ({ ...state, retry }) as TenantContextValue, [retry, state]);
+  const value = useMemo<TenantContextValue>(
+    () => ({ ...state, retry }) as TenantContextValue,
+    [retry, state],
+  );
 
   let content: ReactNode = children;
   if (state.status === 'error') content = <AuthErrorScreen onRetry={retry} />;
