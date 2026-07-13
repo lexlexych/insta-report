@@ -49,6 +49,7 @@ const tenant: Tenant = {
   tg_topics_enabled: false,
   org_name: null,
   org_description: null,
+  business_sphere: null,
   knowledge_base: null,
   system_prompt: null,
   reply_language: 'ru',

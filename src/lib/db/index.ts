@@ -1,6 +1,7 @@
 export * from './errors';
 export * as tenants from './tenants';
 export * as igConnections from './igConnections';
+export * as igAccounts from './igAccounts';
 export * as labels from './labels';
 export * as drafts from './drafts';
 export * as processedEvents from './processedEvents';

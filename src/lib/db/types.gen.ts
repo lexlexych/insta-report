@@ -16,6 +16,7 @@ export type Database = {
           tg_topics_enabled: boolean;
           org_name: string | null;
           org_description: string | null;
+          business_sphere: string | null;
           knowledge_base: string | null;
           system_prompt: string | null;
           reply_language: string;
@@ -31,6 +32,7 @@ export type Database = {
           tg_topics_enabled?: boolean;
           org_name?: string | null;
           org_description?: string | null;
+          business_sphere?: string | null;
           knowledge_base?: string | null;
           system_prompt?: string | null;
           reply_language?: string;
@@ -46,6 +48,7 @@ export type Database = {
           tg_topics_enabled?: boolean;
           org_name?: string | null;
           org_description?: string | null;
+          business_sphere?: string | null;
           knowledge_base?: string | null;
           system_prompt?: string | null;
           reply_language?: string;
@@ -55,6 +58,44 @@ export type Database = {
           created_at?: string;
         };
         Relationships: [];
+      };
+      ig_accounts: {
+        Row: {
+          id: string;
+          ig_username: string;
+          tenant_id: string | null;
+          status: 'pending' | 'approved';
+          requested_at: string;
+          approved_at: string | null;
+          approved_by_tg_id: number | null;
+        };
+        Insert: {
+          id?: string;
+          ig_username: string;
+          tenant_id?: string | null;
+          status?: 'pending' | 'approved';
+          requested_at?: string;
+          approved_at?: string | null;
+          approved_by_tg_id?: number | null;
+        };
+        Update: {
+          id?: string;
+          ig_username?: string;
+          tenant_id?: string | null;
+          status?: 'pending' | 'approved';
+          requested_at?: string;
+          approved_at?: string | null;
+          approved_by_tg_id?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ig_accounts_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       ig_connections: {
         Row: {
