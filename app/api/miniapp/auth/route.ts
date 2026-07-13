@@ -28,6 +28,8 @@ export const POST = apiHandler(async (req: Request) => {
           id: tenant.id,
           onboardingStep: tenant.onboarding_step,
           orgName: tenant.org_name,
+          businessSphere: tenant.business_sphere,
+          knowledgeBase: tenant.knowledge_base,
           uiLocale: tenant.ui_locale,
           tgTopicsEnabled: tenant.tg_topics_enabled,
         },

@@ -7,6 +7,12 @@ function normalizePromptValue(value: string): string {
   return value.trim();
 }
 
+export function defaultSystemPrompt(orgName: string): string {
+  return `Ты — ассистент службы поддержки компании «${normalizePromptValue(orgName)}».
+Отвечай кратко, дружелюбно и на языке клиента. Опирайся только на базу знаний.
+Не выдумывай цены, сроки, факты или обещания. Если точного ответа нет, предложи дождаться ответа сотрудника.`;
+}
+
 export function kbGenerationPrompt(orgName: string, orgDescription: string): KbGenerationPrompt {
   const safeOrgName = normalizePromptValue(orgName);
   const safeOrgDescription = normalizePromptValue(orgDescription);

@@ -42,6 +42,8 @@ export type MiniAppTenant = {
   id: string;
   onboardingStep: string | null;
   orgName: string | null;
+  businessSphere?: string | null;
+  knowledgeBase?: string | null;
   uiLocale?: Locale;
   tgTopicsEnabled?: boolean;
 };
@@ -149,7 +151,9 @@ function TenantProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error('Mini App auth failed');
         const payload = (await response.json()) as { tenant?: MiniAppTenant };
         if (!payload.tenant) throw new Error('Mini App auth response missing tenant');
-        if (payload.tenant.uiLocale) setLocale(payload.tenant.uiLocale);
+        // До завершения онбординга язык всегда берётся из Telegram: ui_locale в
+        // новой записи по умолчанию de и не должен переопределять язык визарда.
+        if (payload.tenant.uiLocale && payload.tenant.onboardingStep === 'done') setLocale(payload.tenant.uiLocale);
         setState({ status: 'ready', tenant: payload.tenant });
       } catch {
         if (!controller.signal.aborted) setState({ status: 'error', tenant: null });

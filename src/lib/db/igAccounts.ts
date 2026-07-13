@@ -1,13 +1,10 @@
 import { getDb } from './client';
 import { throwDb } from './errors';
 import type { Database } from './types.gen';
+export { normalizeIgUsername } from '@/lib/ig/username';
+import { normalizeIgUsername } from '@/lib/ig/username';
 
 type IgAccount = Database['public']['Tables']['ig_accounts']['Row'];
-
-export function normalizeIgUsername(input: string): string | null {
-  const normalized = input.trim().replace(/^@/, '').toLowerCase();
-  return /^[a-z0-9._]{1,30}$/.test(normalized) ? normalized : null;
-}
 
 function normalizeOrThrow(username: string): string {
   const normalized = normalizeIgUsername(username);

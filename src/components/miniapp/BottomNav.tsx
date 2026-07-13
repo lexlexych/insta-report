@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { useT } from '@/lib/i18n';
+import { useTenant } from './TmaProvider';
 
 type NavItem = {
   href: string;
@@ -24,6 +25,9 @@ const items: NavItem[] = [
 export function BottomNav() {
   const pathname = usePathname();
   const { t } = useT();
+  const tenant = useTenant();
+
+  if (tenant.status !== 'ready' || tenant.tenant.onboardingStep !== 'done') return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 border-t border-tg-secondary-bg bg-tg-bg px-2 pb-3 pt-2 text-tg-hint">
