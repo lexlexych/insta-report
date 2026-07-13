@@ -4,7 +4,7 @@ import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { signSession } from '@/lib/auth/session';
 import { tenants } from '@/lib/db';
 import { env } from '@/lib/env';
-import { resolveLocale } from '@/lib/i18n';
+import { resolveLocale } from '@/lib/i18n/shared';
 import { InitDataError, validateInitData } from '@/lib/tg/initData';
 
 const authSchema = z.object({ initData: z.string().min(1) });
