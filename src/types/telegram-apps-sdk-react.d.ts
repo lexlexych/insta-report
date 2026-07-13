@@ -20,7 +20,8 @@ declare module '@telegram-apps/sdk-react' {
 
   export const mainButton: {
     mount: Callable;
-    setParams: Callable<void> & ((params: { text?: string; isVisible?: boolean; isEnabled?: boolean }) => void);
+    setParams: Callable<void> &
+      ((params: { text?: string; isVisible?: boolean; isEnabled?: boolean }) => void);
     onClick(handler: () => void): () => void;
   };
 
@@ -34,7 +35,7 @@ declare module '@telegram-apps/sdk-react' {
     state: Signal<Record<string, string | undefined>>;
   };
 
-  export function useLaunchParams(): {
+  type LaunchParams = {
     initDataUnsafe?: {
       user?: {
         languageCode?: string;
@@ -42,4 +43,7 @@ declare module '@telegram-apps/sdk-react' {
       };
     };
   };
+
+  export function useLaunchParams(): LaunchParams;
+  export function useLaunchParams(camelCase: true): LaunchParams & { startParam?: string };
 }

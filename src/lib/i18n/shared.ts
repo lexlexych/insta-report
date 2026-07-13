@@ -4,7 +4,8 @@ type Dictionary = Record<Locale, Record<string, string>>;
 
 export const dictionary: Dictionary = {
   ru: {
-    tgStart: 'Привет! Я помогу отвечать клиентам из Instagram Direct. Откройте панель, чтобы продолжить настройку.',
+    tgStart:
+      'Привет! Я помогу отвечать клиентам из Instagram Direct. Откройте панель, чтобы продолжить настройку.',
     openPanel: 'Открыть панель',
     miniAppOpenInTelegram: 'Откройте приложение через Telegram-бота @{botUsername}',
     miniAppOpenHint: 'Эта панель работает только внутри Telegram Mini App.',
@@ -31,7 +32,8 @@ export const dictionary: Dictionary = {
     onboardingOrgName: 'Название организации',
     onboardingOrgNameError: 'Введите минимум 2 символа.',
     onboardingOrgDescription: 'Расскажите о бизнесе',
-    onboardingOrgDescriptionPlaceholder: 'Например: услуги, цены, адрес, часы работы, тон общения и частые вопросы клиентов.',
+    onboardingOrgDescriptionPlaceholder:
+      'Например: услуги, цены, адрес, часы работы, тон общения и частые вопросы клиентов.',
     onboardingOrgDescriptionError: 'Описание должно быть не короче {min} символов.',
     onboardingGenerate: 'Сгенерировать базу знаний',
     onboardingGeneratingTitle: 'Готовим базу знаний',
@@ -63,9 +65,11 @@ export const dictionary: Dictionary = {
     dashboardLlmLine: 'LLM: {calls} вызовов · {tokens} токенов',
     dashboardRecentTitle: 'Последняя активность',
     dashboardEmptyTitle: 'Пока нет активности',
-    dashboardEmptyHint: 'Подключите Instagram или проверьте ответы в тест-чате, чтобы здесь появились события.',
+    dashboardEmptyHint:
+      'Подключите Instagram или проверьте ответы в тест-чате, чтобы здесь появились события.',
     dashboardEmptyMessageText: 'Без текста',
-    simulatorHint: 'Вы пишете как клиент. Ответы — черновики ассистента; в реальной работе они приходят вам в Telegram на подтверждение.',
+    simulatorHint:
+      'Вы пишете как клиент. Ответы — черновики ассистента; в реальной работе они приходят вам в Telegram на подтверждение.',
     simulatorDismissHint: 'Скрыть подсказку',
     simulatorReset: '⟲ Начать заново',
     simulatorResetConfirm: 'Очистить историю тест-чата?',
@@ -90,12 +94,14 @@ export const dictionary: Dictionary = {
     settingsExpand: 'Развернуть',
     settingsCollapse: 'Свернуть',
     settingsPromptTitle: 'Системный промпт',
-    settingsPromptHint: 'Для продвинутых: меняйте только если понимаете влияние на ответы ассистента.',
+    settingsPromptHint:
+      'Для продвинутых: меняйте только если понимаете влияние на ответы ассистента.',
     settingsLanguageTitle: 'Язык интерфейса',
     settingsDeliveryTitle: 'Доставка в Telegram',
     settingsTopicsEnabled: 'Темы в чате: включены',
     settingsTopicsDisabled: 'Темы в чате: выключены',
-    settingsTopicsHint: 'Чтобы черновики раскладывались по категориям, включите Threaded Mode для бота в @BotFather. Если темы выключены, всё приходит в обычный личный чат.',
+    settingsTopicsHint:
+      'Чтобы черновики раскладывались по категориям, включите Threaded Mode для бота в @BotFather. Если темы выключены, всё приходит в обычный личный чат.',
     settingsIgConnected: '@{username} · подключено',
     settingsIgDisconnected: 'Не подключено или требует настройки',
     settingsDisconnect: 'Отключить',
@@ -113,7 +119,8 @@ export const dictionary: Dictionary = {
     settingsSave: 'Сохранить',
     igIntro: 'Пройдите шаги ниже, чтобы связать Instagram-аккаунт с InstaReply.',
     igBusinessLoginTitle: 'Подключить через Instagram',
-    igBusinessLoginBody: 'Нажмите кнопку, подтвердите доступ в Instagram и вернитесь сюда для проверки статуса.',
+    igBusinessLoginBody:
+      'Нажмите кнопку, подтвердите доступ в Instagram и вернитесь сюда для проверки статуса.',
     igBusinessLoginButton: 'Подключить Instagram',
     igBusinessLoginReconnect: 'Переподключить',
     igBusinessLoginCheck: 'Проверить',
@@ -126,10 +133,12 @@ export const dictionary: Dictionary = {
     igSuccessSubtitle: 'Авторизация прошла успешно.',
     igSuccessConnectedAs: 'Аккаунт @{username} подключён к InstaReply.',
     igSuccessNextTitle: 'Что дальше',
-    igSuccessStepLabels: 'Настройте категории обращений, если ещё не сделали, — по ним сортируются входящие сообщения.',
+    igSuccessStepLabels:
+      'Настройте категории обращений, если ещё не сделали, — по ним сортируются входящие сообщения.',
     igSuccessStepLabelsDone: 'Категории уже настроены.',
     igSuccessStepLabelsButton: 'Настроить категории',
-    igSuccessStepTest: 'Отправьте с другого аккаунта тестовое сообщение в Direct вашего Instagram и проверьте, что в Telegram пришёл черновик ответа.',
+    igSuccessStepTest:
+      'Отправьте с другого аккаунта тестовое сообщение в Direct вашего Instagram и проверьте, что в Telegram пришёл черновик ответа.',
     igSuccessGoHome: 'На главную',
 
     igLoading: 'Загрузка…',
@@ -141,13 +150,17 @@ export const dictionary: Dictionary = {
     igDiagnosticsNotConfigured: 'Сначала подключите Instagram через OAuth.',
     igCheck_token: 'Токен доступа',
     igCheck_event: 'Событие получено',
-    igCheck_token_hint: 'Токен недействителен или отозван — подключите Instagram заново через OAuth',
-    igCheck_event_hint: 'Отправьте сообщение вашему аккаунту c другого профиля Instagram и нажмите Обновить',
+    igCheck_token_hint:
+      'Токен недействителен или отозван — подключите Instagram заново через OAuth',
+    igCheck_event_hint:
+      'Отправьте сообщение вашему аккаунту c другого профиля Instagram и нажмите Обновить',
     igDiagnosticsAllOk: 'Подключение работает! @{username}',
     igDiagnosticsDashboard: 'На дашборд',
     igStatusBadgeOk: 'Instagram подключён: @{username}',
     igStatusBadgeNeedsSetup: 'Instagram требует настройки',
     igStatusBadgeOpen: 'Открыть',
+    igAccountApproved: 'Ваш Instagram-аккаунт @{username} подтверждён — теперь можно подключиться',
+    igAccountApprovedOpen: 'Подключить Instagram',
     businessSphereEvents: 'Организация мероприятий',
     businessSpherePhotographer: 'Фотограф',
     businessSphereTravel: 'Туристическое агентство',
@@ -160,7 +173,8 @@ export const dictionary: Dictionary = {
     labelsMoveDown: 'Переместить ниже',
     labelsEditAction: 'Изменить',
     labelsDeleteAction: 'Удалить',
-    labelsDeleteConfirm: 'Удалить категорию «{name}»? Черновики этой категории останутся без категории.',
+    labelsDeleteConfirm:
+      'Удалить категорию «{name}»? Черновики этой категории останутся без категории.',
     labelsDeleteError: 'Не удалось удалить категорию. Попробуйте ещё раз.',
     labelsReorderError: 'Не удалось сохранить порядок. Попробуйте ещё раз.',
     labelsAddButton: '+ Категория',
@@ -170,9 +184,11 @@ export const dictionary: Dictionary = {
     labelsFieldNamePlaceholder: 'Например: Запись на услугу',
     labelsFieldNameError: 'Введите название (1–{max} символов).',
     labelsFieldDescription: 'Когда применяется',
-    labelsFieldDescriptionPlaceholder: 'Например: Клиент хочет записаться или спрашивает свободное время',
+    labelsFieldDescriptionPlaceholder:
+      'Например: Клиент хочет записаться или спрашивает свободное время',
     labelsFieldInstruction: 'Как отвечать',
-    labelsFieldInstructionPlaceholder: 'Например: Уточни желаемую дату и услугу, предложи два ближайших окна',
+    labelsFieldInstructionPlaceholder:
+      'Например: Уточни желаемую дату и услугу, предложи два ближайших окна',
     labelsFormNameConflict: 'Категория с таким именем уже существует.',
     labelsFormGenericError: 'Не удалось сохранить категорию. Попробуйте ещё раз.',
     labelsFormCancel: 'Отмена',
@@ -180,7 +196,8 @@ export const dictionary: Dictionary = {
     labelsFormSaving: 'Сохраняем…',
   },
   de: {
-    tgStart: 'Hallo! Ich helfe dir, Kundinnen und Kunden in Instagram Direct zu antworten. Öffne das Panel, um die Einrichtung fortzusetzen.',
+    tgStart:
+      'Hallo! Ich helfe dir, Kundinnen und Kunden in Instagram Direct zu antworten. Öffne das Panel, um die Einrichtung fortzusetzen.',
     openPanel: 'Panel öffnen',
     miniAppOpenInTelegram: 'Öffne die App über den Telegram-Bot @{botUsername}',
     miniAppOpenHint: 'Dieses Panel funktioniert nur innerhalb der Telegram Mini App.',
@@ -199,22 +216,26 @@ export const dictionary: Dictionary = {
     miniAppAuthErrorHint: 'Bitte öffne die App aus Telegram und versuche es erneut.',
     retry: 'Wiederholen',
     onboardingWelcomeTitle: 'Willkommen bei InstaReply',
-    onboardingPointFast: 'Wir erstellen eine Wissensbasis für schnelle und präzise Kundenantworten.',
-    onboardingPointKnowledge: 'Der Assistent berücksichtigt Leistungen, Preise, Adresse, Öffnungszeiten und Tonalität.',
+    onboardingPointFast:
+      'Wir erstellen eine Wissensbasis für schnelle und präzise Kundenantworten.',
+    onboardingPointKnowledge:
+      'Der Assistent berücksichtigt Leistungen, Preise, Adresse, Öffnungszeiten und Tonalität.',
     onboardingPointTelegram: 'Antwortentwürfe kommen direkt in Telegram beim Inhaber an.',
     onboardingStart: 'Starten',
     onboardingOrgTitle: 'Erzähl uns vom Unternehmen',
     onboardingOrgName: 'Name der Organisation',
     onboardingOrgNameError: 'Gib mindestens 2 Zeichen ein.',
     onboardingOrgDescription: 'Beschreibe dein Business',
-    onboardingOrgDescriptionPlaceholder: 'Zum Beispiel: Leistungen, Preise, Adresse, Öffnungszeiten, Tonalität und häufige Fragen.',
+    onboardingOrgDescriptionPlaceholder:
+      'Zum Beispiel: Leistungen, Preise, Adresse, Öffnungszeiten, Tonalität und häufige Fragen.',
     onboardingOrgDescriptionError: 'Die Beschreibung muss mindestens {min} Zeichen lang sein.',
     onboardingGenerate: 'Wissensbasis generieren',
     onboardingGeneratingTitle: 'Wissensbasis wird vorbereitet',
     onboardingGenAnalyze: 'Wir analysieren die Beschreibung…',
     onboardingGenStructure: 'Wir strukturieren Leistungen und Antwortregeln…',
     onboardingGenTone: 'Wir stimmen die Tonalität ab…',
-    onboardingGenerateError: 'Die Wissensbasis konnte nicht generiert werden. Bitte versuche es erneut.',
+    onboardingGenerateError:
+      'Die Wissensbasis konnte nicht generiert werden. Bitte versuche es erneut.',
     onboardingGenerateToast: 'Die Generierung wurde unterbrochen — du kannst es erneut versuchen.',
     onboardingReviewTitle: 'Prüfe die Wissensbasis',
     onboardingEdit: 'Bearbeiten',
@@ -239,9 +260,11 @@ export const dictionary: Dictionary = {
     dashboardLlmLine: 'LLM: {calls} Aufrufe · {tokens} Tokens',
     dashboardRecentTitle: 'Letzte Aktivität',
     dashboardEmptyTitle: 'Noch keine Aktivität',
-    dashboardEmptyHint: 'Verbinde Instagram oder teste Antworten im Testchat, damit hier Ereignisse erscheinen.',
+    dashboardEmptyHint:
+      'Verbinde Instagram oder teste Antworten im Testchat, damit hier Ereignisse erscheinen.',
     dashboardEmptyMessageText: 'Kein Text',
-    simulatorHint: 'Du schreibst wie ein Kunde. Antworten sind Assistentenentwürfe; im echten Ablauf kommen sie zur Bestätigung in Telegram an.',
+    simulatorHint:
+      'Du schreibst wie ein Kunde. Antworten sind Assistentenentwürfe; im echten Ablauf kommen sie zur Bestätigung in Telegram an.',
     simulatorDismissHint: 'Hinweis ausblenden',
     simulatorReset: '⟲ Neu starten',
     simulatorResetConfirm: 'Testchat-Verlauf löschen?',
@@ -255,7 +278,8 @@ export const dictionary: Dictionary = {
     simulatorGenericError: 'Fehler, bitte versuche es erneut',
     simulatorRetryLast: 'Letzte Nachricht erneut senden',
     simulatorOnboardingTitle: 'Schließe zuerst das Onboarding ab',
-    simulatorOnboardingHint: 'Der Testchat braucht die Wissensbasis deines Unternehmens, um wie der Assistent zu antworten.',
+    simulatorOnboardingHint:
+      'Der Testchat braucht die Wissensbasis deines Unternehmens, um wie der Assistent zu antworten.',
     simulatorGoOnboarding: 'Onboarding starten',
     simulatorLabelFallback: 'Kategorie',
     settingsLoadError: 'Einstellungen konnten nicht geladen werden.',
@@ -266,12 +290,14 @@ export const dictionary: Dictionary = {
     settingsExpand: 'Aufklappen',
     settingsCollapse: 'Zuklappen',
     settingsPromptTitle: 'System-Prompt',
-    settingsPromptHint: 'Für Fortgeschrittene: Ändere dies nur, wenn du die Auswirkungen auf Antworten verstehst.',
+    settingsPromptHint:
+      'Für Fortgeschrittene: Ändere dies nur, wenn du die Auswirkungen auf Antworten verstehst.',
     settingsLanguageTitle: 'Sprache der Oberfläche',
     settingsDeliveryTitle: 'Zustellung in Telegram',
     settingsTopicsEnabled: 'Chat-Themen: aktiviert',
     settingsTopicsDisabled: 'Chat-Themen: deaktiviert',
-    settingsTopicsHint: 'Aktiviere Threaded Mode für den Bot in @BotFather, damit Entwürfe nach Kategorien verteilt werden. Ohne Themen kommt alles wie bisher in den privaten Chat.',
+    settingsTopicsHint:
+      'Aktiviere Threaded Mode für den Bot in @BotFather, damit Entwürfe nach Kategorien verteilt werden. Ohne Themen kommt alles wie bisher in den privaten Chat.',
     settingsIgConnected: '@{username} · verbunden',
     settingsIgDisconnected: 'Nicht verbunden oder Einrichtung erforderlich',
     settingsDisconnect: 'Trennen',
@@ -281,7 +307,8 @@ export const dictionary: Dictionary = {
     settingsTerms: 'Nutzungsbedingungen',
     settingsDangerTitle: 'Gefahrenzone',
     settingsDeleteHint: 'Gib „{word}“ ein, um alle Daten zu löschen.',
-    settingsDeleteConfirm: 'Account und alle Daten wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    settingsDeleteConfirm:
+      'Account und alle Daten wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
     settingsDelete: 'Account und alle Daten löschen',
     settingsDeletedTitle: 'Daten gelöscht',
     settingsDeletedHint: 'Sende /start an den Bot, um neu zu beginnen.',
@@ -289,23 +316,27 @@ export const dictionary: Dictionary = {
     settingsSave: 'Speichern',
     igIntro: 'Folge den Schritten unten, um dein Instagram-Konto mit InstaReply zu verbinden.',
     igBusinessLoginTitle: 'Über Instagram verbinden',
-    igBusinessLoginBody: 'Tippe auf die Schaltfläche, bestätige den Zugriff in Instagram und kehre zur Statusprüfung zurück.',
+    igBusinessLoginBody:
+      'Tippe auf die Schaltfläche, bestätige den Zugriff in Instagram und kehre zur Statusprüfung zurück.',
     igBusinessLoginButton: 'Instagram verbinden',
     igBusinessLoginReconnect: 'Neu verbinden',
     igBusinessLoginCheck: 'Prüfen',
     igBusinessLoginConnected: '@{username} ist über Instagram verbunden.',
     igBusinessLoginError: 'Instagram Login konnte nicht geöffnet werden. Bitte versuche es erneut.',
-    igOauthResultDenied: 'Du hast die Verbindung in Instagram abgebrochen. Du kannst es erneut versuchen.',
+    igOauthResultDenied:
+      'Du hast die Verbindung in Instagram abgebrochen. Du kannst es erneut versuchen.',
     igOauthResultError: 'Instagram konnte nicht verbunden werden. Bitte versuche es erneut.',
     igManualAdvancedTitle: 'Erweiterte Methode (manuell)',
     igSuccessTitle: 'Instagram ist verbunden!',
     igSuccessSubtitle: 'Die Autorisierung war erfolgreich.',
     igSuccessConnectedAs: 'Das Konto @{username} ist mit InstaReply verbunden.',
     igSuccessNextTitle: 'Nächste Schritte',
-    igSuccessStepLabels: 'Richte die Anfrage-Kategorien ein, falls noch nicht geschehen — eingehende Nachrichten werden danach sortiert.',
+    igSuccessStepLabels:
+      'Richte die Anfrage-Kategorien ein, falls noch nicht geschehen — eingehende Nachrichten werden danach sortiert.',
     igSuccessStepLabelsDone: 'Die Kategorien sind bereits eingerichtet.',
     igSuccessStepLabelsButton: 'Kategorien einrichten',
-    igSuccessStepTest: 'Sende von einem anderen Konto eine Testnachricht per Direct an dein Instagram-Konto und prüfe, ob der Antwortentwurf in Telegram angekommen ist.',
+    igSuccessStepTest:
+      'Sende von einem anderen Konto eine Testnachricht per Direct an dein Instagram-Konto und prüfe, ob der Antwortentwurf in Telegram angekommen ist.',
     igSuccessGoHome: 'Zur Startseite',
 
     igLoading: 'Wird geladen…',
@@ -313,17 +344,23 @@ export const dictionary: Dictionary = {
     igDiagnosticsTitle: 'Verbindungsdiagnose',
     igDiagnosticsRefresh: 'Aktualisieren',
     igDiagnosticsRefreshing: 'Aktualisiert…',
-    igDiagnosticsLoadError: 'Die Diagnose konnte nicht aktualisiert werden. Bitte versuche es erneut.',
+    igDiagnosticsLoadError:
+      'Die Diagnose konnte nicht aktualisiert werden. Bitte versuche es erneut.',
     igDiagnosticsNotConfigured: 'Verbinde Instagram zuerst per OAuth.',
     igCheck_token: 'Zugriffstoken',
     igCheck_event: 'Ereignis empfangen',
-    igCheck_token_hint: 'Das Token ist ungültig oder widerrufen — verbinde Instagram erneut per OAuth.',
-    igCheck_event_hint: 'Sende deinem Konto eine Nachricht von einem anderen Instagram-Profil und klicke Aktualisieren.',
+    igCheck_token_hint:
+      'Das Token ist ungültig oder widerrufen — verbinde Instagram erneut per OAuth.',
+    igCheck_event_hint:
+      'Sende deinem Konto eine Nachricht von einem anderen Instagram-Profil und klicke Aktualisieren.',
     igDiagnosticsAllOk: 'Verbindung funktioniert! @{username}',
     igDiagnosticsDashboard: 'Zum Dashboard',
     igStatusBadgeOk: 'Instagram verbunden: @{username}',
     igStatusBadgeNeedsSetup: 'Instagram muss eingerichtet werden',
     igStatusBadgeOpen: 'Öffnen',
+    igAccountApproved:
+      'Dein Instagram-Konto @{username} wurde bestätigt — du kannst es jetzt verbinden',
+    igAccountApprovedOpen: 'Instagram verbinden',
     businessSphereEvents: 'Eventagentur',
     businessSpherePhotographer: 'Fotograf:in',
     businessSphereTravel: 'Reisebüro',
@@ -338,7 +375,8 @@ export const dictionary: Dictionary = {
     labelsDeleteAction: 'Löschen',
     labelsDeleteConfirm: 'Kategorie „{name}“ löschen? Ihre Entwürfe bleiben ohne Kategorie zurück.',
     labelsDeleteError: 'Kategorie konnte nicht gelöscht werden. Bitte versuche es erneut.',
-    labelsReorderError: 'Die Reihenfolge konnte nicht gespeichert werden. Bitte versuche es erneut.',
+    labelsReorderError:
+      'Die Reihenfolge konnte nicht gespeichert werden. Bitte versuche es erneut.',
     labelsAddButton: '+ Kategorie',
     labelsFormTitleCreate: 'Neue Kategorie',
     labelsFormTitleEdit: 'Kategorie bearbeiten',
@@ -346,9 +384,11 @@ export const dictionary: Dictionary = {
     labelsFieldNamePlaceholder: 'Zum Beispiel: Terminbuchung',
     labelsFieldNameError: 'Gib einen Namen ein (1–{max} Zeichen).',
     labelsFieldDescription: 'Wann wird sie verwendet',
-    labelsFieldDescriptionPlaceholder: 'Zum Beispiel: Der Kunde möchte einen Termin buchen oder fragt nach freien Zeiten',
+    labelsFieldDescriptionPlaceholder:
+      'Zum Beispiel: Der Kunde möchte einen Termin buchen oder fragt nach freien Zeiten',
     labelsFieldInstruction: 'Wie geantwortet werden soll',
-    labelsFieldInstructionPlaceholder: 'Zum Beispiel: Frage nach dem gewünschten Datum und der Leistung, schlage zwei nahe Termine vor',
+    labelsFieldInstructionPlaceholder:
+      'Zum Beispiel: Frage nach dem gewünschten Datum und der Leistung, schlage zwei nahe Termine vor',
     labelsFormNameConflict: 'Eine Kategorie mit diesem Namen existiert bereits.',
     labelsFormGenericError: 'Kategorie konnte nicht gespeichert werden. Bitte versuche es erneut.',
     labelsFormCancel: 'Abbrechen',
@@ -375,4 +415,3 @@ export function t(locale: Locale, key: string, vars?: Record<string, string | nu
     return value === undefined ? match : String(value);
   });
 }
-

@@ -1,10 +1,12 @@
 import { Bot, InlineKeyboard } from 'grammy';
 import type { Context } from 'grammy';
 
-import { tenants } from '@/lib/db';
+import { igAccounts, tenants } from '@/lib/db';
 import { env } from '@/lib/env';
 import { resolveLocale, t } from '@/lib/i18n/shared';
 import { handleRetryCallback, handleSendCallback } from '@/lib/pipeline/send';
+
+import { adminTelegramIds, notifyIgAccountOwner } from './igAccountRequests';
 
 let bot: Bot | undefined;
 
@@ -19,7 +21,9 @@ export async function onStart(ctx: Context): Promise<void> {
 
   await tenants.upsertByTelegramUserId(ctx.from.id, {
     tg_chat_id: ctx.chat.id,
-    ...(ctx.from.has_topics_enabled === undefined ? {} : { tg_topics_enabled: ctx.from.has_topics_enabled }),
+    ...(ctx.from.has_topics_enabled === undefined
+      ? {}
+      : { tg_topics_enabled: ctx.from.has_topics_enabled }),
   });
 
   const locale = resolveLocale(ctx.from.language_code);
@@ -47,9 +51,62 @@ export async function onCallback(ctx: Context): Promise<void> {
     await handleRetryCallback(ctx, id);
     return;
   }
+  if (action === 'igacc_ok' && id) {
+    await handleIgAccountApproval(ctx, id);
+    return;
+  }
 
   console.warn(`[tg] unhandled callback data="${data}" from=${fromId}`);
   await ctx.answerCallbackQuery();
+}
+
+async function handleIgAccountApproval(ctx: Context, id: string): Promise<void> {
+  const adminId = ctx.from?.id;
+  if (!adminId || !adminTelegramIds().includes(adminId)) {
+    await ctx.answerCallbackQuery({ text: 'Недостаточно прав' });
+    return;
+  }
+
+  const account = await igAccounts.approve(id, adminId);
+  const message = (
+    ctx as { callbackQuery?: { message?: { chat?: { id?: number }; message_id?: number } } }
+  ).callbackQuery?.message;
+  const chatId = message?.chat?.id;
+  const messageId = message?.message_id;
+
+  if (!account) {
+    await ctx.answerCallbackQuery({ text: 'Уже подтверждено' });
+    if (chatId !== undefined && messageId !== undefined) {
+      await getBot().api.editMessageText(chatId, messageId, '✅ Заявка уже подтверждена', {
+        reply_markup: new InlineKeyboard(),
+      });
+    }
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+  if (chatId !== undefined && messageId !== undefined) {
+    await getBot().api.editMessageText(
+      chatId,
+      messageId,
+      `✅ Подтверждено: @${account.ig_username}`,
+      {
+        reply_markup: new InlineKeyboard(),
+      },
+    );
+  }
+
+  if (!account.tenant_id) return;
+  const tenant = await tenants.getById(account.tenant_id);
+  if (!tenant) return;
+  try {
+    await notifyIgAccountOwner(account, tenant);
+  } catch (error) {
+    console.error(
+      `[tg] failed to notify tenant=${tenant.id} about approved Instagram account`,
+      error,
+    );
+  }
 }
 
 export function getBot(): Bot {
