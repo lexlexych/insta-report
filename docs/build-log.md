@@ -38,3 +38,4 @@
 | T-036 | awaiting_merge | epic/E10 | PR эпика (в конце) | 0 | 2026-07-13 |
 | T-037 | awaiting_merge | epic/E10 | PR эпика (в конце) | 0 | 2026-07-13 |
 | T-038 | awaiting_merge | epic/E10 | PR эпика (в конце) | 1 | 2026-07-13 |
+| T-039 | awaiting_merge | epic/E10 | PR эпика (в конце) | 0 | 2026-07-13 |

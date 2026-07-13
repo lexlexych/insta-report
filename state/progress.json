@@ -404,13 +404,13 @@
     "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (1 цикл — восстановлена обработка OAuth-редиректа ?ig=denied/error в InstagramConnectPanel). lint+typecheck зелёные. manual-test: docs/manual-tests/T-038.md. Полноэкранный визард (сфера/IG-заявка/подключение/база знаний), POST onboarding/complete (KB+system_prompt из шаблона T-035 + defaultSystemPrompt, seed labels), синхронизация ui_locale, вынос normalizeIgUsername в src/lib/ig/username.ts. PR эпика будет открыт по завершении эпика."
   },
   "T-039": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": null,
     "deps": [
       "T-038"
     ],
-    "notes": "ЭПИК E10: старт 2026-07-13. Демонтаж LLM-генерации онбординга: роут generate, kbGenerationPrompt, org_description."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-039.md. Удалены роут onboarding/generate, kbGenerationPrompt, колонка tenants.org_description (миграция 0012), устаревшие i18n-ключи старого визарда. seedDefaultLabels сохранён через onboarding/complete. PR эпика будет открыт по завершении эпика."
   }
 }
