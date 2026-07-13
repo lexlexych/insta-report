@@ -8,6 +8,12 @@
 - Сабагент `implementer` (Sonnet): пишет весь код по тикету.
 - Сабагент `reviewer` (Sonnet): ревью диффа перед PR.
 
+## Эпик-режим
+- `/startEpic <N>` — все оставшиеся тикеты эпика подряд в одной ветке `epic/E<N>`: реализацию пишет
+  Codex CLI (`codex exec`), ревью — сабагент reviewer, один PR в конце. Полный регламент режима —
+  в `.claude/commands/startEpic.md`; во всём остальном действует workflow.md. Не запускать /ticket
+  для тикетов начатого эпика.
+
 ## Начало каждой сессии
 1. Прочитай `docs/orchestration/workflow.md`, `docs/tickets/OVERRIDES.md`, `state/progress.json`.
 2. Выполни синхронизацию статусов (процедура RESUME из workflow.md) — предыдущие PR могли быть влиты.

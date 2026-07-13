@@ -7,8 +7,12 @@
       "Bash(git branch *)", "Bash(git status)", "Bash(git diff *)", "Bash(git log *)",
       "Bash(git add *)", "Bash(git commit *)", "Bash(git push origin ticket/*)",
       "Bash(git push origin main)",
+      "Bash(git push origin epic/*)",
+      "Bash(git rev-parse *)",
       "Bash(gh pr *)",
-      "Read(**)", "Edit(state/**)", "Edit(docs/build-log.md)", "Edit(docs/manual-tests/**)"
+      "Bash(codex --version)", "Bash(codex exec *)",
+      "Read(**)", "Read(//tmp/**)",
+      "Edit(state/**)", "Edit(docs/build-log.md)", "Edit(docs/manual-tests/**)", "Edit(//tmp/**)"
     ],
     "deny": [
       "Bash(rm -rf *)", "Bash(git push --force*)", "Bash(git reset --hard*)",
