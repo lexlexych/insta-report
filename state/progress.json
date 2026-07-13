@@ -380,16 +380,16 @@
     "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-036.md. Миграция 0011_ig_accounts.sql (таблица ig_accounts + tenants.business_sphere, RLS deny-all), репозиторий igAccounts (normalizeIgUsername, createPending, approve идемпотентен, bindTenant). PR эпика будет открыт по завершении эпика."
   },
   "T-037": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "epic/E10",
     "pr": null,
     "deps": [
       "T-005",
       "T-033",
       "T-036"
     ],
-    "notes": "Эпик 10. Заявки на подключение IG: эндпоинт, уведомление админов, кнопка «Подтвердить», сообщение пользователю."
+    "notes": "ЭПИК E10: старт 2026-07-13. Заявки на подключение IG: эндпоинт, уведомление админов, кнопка «Подтвердить», сообщение пользователю."
   },
   "T-038": {
     "status": "pending",
