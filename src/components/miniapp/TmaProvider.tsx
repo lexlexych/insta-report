@@ -78,12 +78,12 @@ function LaunchParamsLocale({ children }: { children: ReactNode }) {
   const locale = useMemo(
     () =>
       resolveLocale(
-        launchParams.initDataUnsafe?.user?.languageCode ??
-          launchParams.initDataUnsafe?.user?.language_code,
+        launchParams.tgWebAppData?.user?.language_code ??
+          launchParams.tgWebAppData?.user?.languageCode,
       ),
     [
-      launchParams.initDataUnsafe?.user?.languageCode,
-      launchParams.initDataUnsafe?.user?.language_code,
+      launchParams.tgWebAppData?.user?.language_code,
+      launchParams.tgWebAppData?.user?.languageCode,
     ],
   );
 
@@ -149,11 +149,16 @@ function TenantProvider({ children }: { children: ReactNode }) {
           signal: controller.signal,
         });
         if (!response.ok) throw new Error('Mini App auth failed');
-        const payload = (await response.json()) as { tenant?: MiniAppTenant };
+        const payload = (await response.json()) as { tenant?: MiniAppTenant; tgLocale?: Locale };
         if (!payload.tenant) throw new Error('Mini App auth response missing tenant');
-        // До завершения онбординга язык всегда берётся из Telegram: ui_locale в
-        // новой записи по умолчанию de и не должен переопределять язык визарда.
-        if (payload.tenant.uiLocale && payload.tenant.onboardingStep === 'done') setLocale(payload.tenant.uiLocale);
+        // До завершения онбординга язык всегда берётся из Telegram (сервер-авторитетный
+        // tgLocale, не зависит от формы клиентского SDK). После онбординга — из
+        // сохранённого выбора тенанта (ui_locale).
+        if (payload.tenant.onboardingStep === 'done') {
+          if (payload.tenant.uiLocale) setLocale(payload.tenant.uiLocale);
+        } else if (payload.tgLocale) {
+          setLocale(payload.tgLocale);
+        }
         setState({ status: 'ready', tenant: payload.tenant });
       } catch {
         if (!controller.signal.aborted) setState({ status: 'error', tenant: null });
@@ -182,7 +187,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
 
     const isOnboarding = pathname === '/app/onboarding';
     const isDone = tenant.onboardingStep === 'done';
-    const startParam = launchParams.startParam;
+    const startParam = launchParams.tgWebAppStartParam;
 
     if (startParam === 'connect') {
       router.replace('/app/connect-instagram');
@@ -194,7 +199,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
     } else if (isDone && isOnboarding) {
       router.replace('/app');
     }
-  }, [launchParams.startParam, pathname, router, state]);
+  }, [launchParams.tgWebAppStartParam, pathname, router, state]);
 
   const value = useMemo<TenantContextValue>(
     () => ({ ...state, retry }) as TenantContextValue,

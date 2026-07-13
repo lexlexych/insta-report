@@ -412,5 +412,16 @@
       "T-038"
     ],
     "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-039.md. Удалены роут onboarding/generate, kbGenerationPrompt, колонка tenants.org_description (миграция 0012), устаревшие i18n-ключи старого визарда. seedDefaultLabels сохранён через onboarding/complete. PR эпика будет открыт по завершении эпика."
+  },
+  "T-040": {
+    "status": "awaiting_merge",
+    "attempts": 1,
+    "branch": "epic/E10",
+    "pr": "https://github.com/lexlexych/insta-report/pull/50",
+    "deps": [
+      "T-037",
+      "T-038"
+    ],
+    "notes": "BUGFIX (эпик E10, 2026-07-13). Язык мини-аппа не наследовался из Telegram — все новые пользователи получали de. Причина: launch-параметры Telegram SDK читались из несуществующих полей initDataUnsafe/startParam (форма legacy-API window.Telegram.WebApp), замаскировано самодельным стабом типов. Исправлено: стаб приведён к реальному SDK (tgWebAppData/tgWebAppStartParam), клиент читает tgWebAppData.user.language_code, auth-роут возвращает сервер-авторитетный tgLocale=resolveLocale(user.language_code), TenantProvider применяет его до онбординга (после — ui_locale без изменений). Заодно закрыт регресс deep-link startapp=connect (T-037). Review: approved (0 code-блокеров; блокер manual-test закрыт — docs/manual-tests/T-040.md). lint+typecheck зелёные."
   }
 }

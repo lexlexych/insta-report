@@ -36,14 +36,14 @@ declare module '@telegram-apps/sdk-react' {
   };
 
   type LaunchParams = {
-    initDataUnsafe?: {
+    tgWebAppData?: {
       user?: {
-        languageCode?: string;
         language_code?: string;
+        languageCode?: string;
       };
     };
   };
 
   export function useLaunchParams(): LaunchParams;
-  export function useLaunchParams(camelCase: true): LaunchParams & { startParam?: string };
+  export function useLaunchParams(camelCase: true): LaunchParams & { tgWebAppStartParam?: string };
 }
