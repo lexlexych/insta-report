@@ -362,12 +362,12 @@
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
   },
   "T-035": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": null,
     "deps": [],
-    "notes": "ЭПИК E10: старт 2026-07-13. Шаблоны src/lib/kb-templates/{ru,de}/*.md уже в репозитории на обоих языках (созданы при постановке эпика) — тикет добавляет реестр/кодоген/i18n; getKbTemplate(id, locale)."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-035.md. Реализованы реестр BUSINESS_SPHERES, кодоген gen:kb-templates (+--check), getKbTemplate(id, locale), i18n ru/de. PR эпика будет открыт по завершении эпика."
   },
   "T-036": {
     "status": "pending",
