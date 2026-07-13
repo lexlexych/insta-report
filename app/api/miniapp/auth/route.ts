@@ -4,6 +4,7 @@ import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { signSession } from '@/lib/auth/session';
 import { tenants } from '@/lib/db';
 import { env } from '@/lib/env';
+import { resolveLocale } from '@/lib/i18n';
 import { InitDataError, validateInitData } from '@/lib/tg/initData';
 
 const authSchema = z.object({ initData: z.string().min(1) });
@@ -33,6 +34,7 @@ export const POST = apiHandler(async (req: Request) => {
           uiLocale: tenant.ui_locale,
           tgTopicsEnabled: tenant.tg_topics_enabled,
         },
+        tgLocale: resolveLocale(user.language_code),
       },
       {
         headers: {
