@@ -362,12 +362,12 @@
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
   },
   "T-035": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "epic/E10",
     "pr": null,
     "deps": [],
-    "notes": "Эпик 10 (Онбординг 2.0). Шаблоны src/lib/kb-templates/{ru,de}/*.md уже в репозитории на обоих языках (созданы при постановке эпика) — тикет добавляет реестр/кодоген/i18n; getKbTemplate(id, locale)."
+    "notes": "ЭПИК E10: старт 2026-07-13. Шаблоны src/lib/kb-templates/{ru,de}/*.md уже в репозитории на обоих языках (созданы при постановке эпика) — тикет добавляет реестр/кодоген/i18n; getKbTemplate(id, locale)."
   },
   "T-036": {
     "status": "pending",
