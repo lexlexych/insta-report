@@ -392,16 +392,16 @@
     "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-037.md. POST onboarding/ig-account (createPending + notifyIgAccountAdmins), кнопка «Подтвердить» в боте (только админы, идемпотентно через igAccounts.approve), уведомление владельца со startapp=connect, обработка start_param=connect в TmaProvider. PR эпика будет открыт по завершении эпика."
   },
   "T-038": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "epic/E10",
     "pr": null,
     "deps": [
       "T-033",
       "T-035",
       "T-037"
     ],
-    "notes": "Эпик 10. Полноэкранный визард онбординга 2.0 (5 экранов) + POST onboarding/complete."
+    "notes": "ЭПИК E10: старт 2026-07-13. Полноэкранный визард онбординга 2.0 (5 экранов) + POST onboarding/complete."
   },
   "T-039": {
     "status": "pending",
