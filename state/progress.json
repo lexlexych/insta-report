@@ -447,7 +447,7 @@
     "notes": ""
   },
   "T-043": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "epic/E11",
     "pr": null,
@@ -455,7 +455,7 @@
       "T-036",
       "T-037"
     ],
-    "notes": "ЭПИК E11: старт 2026-07-14"
+    "notes": "ЭПИК E11: завершён в эпик-ветке 2026-07-14. Review: approved (1 цикл — /ig_add теперь отклоняет команду с лишними аргументами вместо молчаливого отброса хвоста). lint+typecheck зелёные. manual-test: docs/manual-tests/T-043.md. Команда /ig_add (только админы, идемпотентна: createApproved без тенанта / approve pending + уведомление владельца / «уже подтверждён»), connect-статус в GET ig/status (none|awaiting_admin|ready|active|error, старые поля сохранены), login-url 403 not_approved до одобрения, дашборд показывает ожидание/кнопку по статусу. PR эпика будет открыт по завершении эпика."
   },
   "T-044": {
     "status": "pending",
