@@ -39,8 +39,9 @@ export async function onIgAdd(ctx: Context): Promise<void> {
   if (!adminId || !adminTelegramIds().includes(adminId)) return;
 
   const text = (ctx as { message?: { text?: string } }).message?.text;
-  const username = igAccounts.normalizeIgUsername(text?.trim().split(/\s+/, 2)[1] ?? '');
-  if (!username) {
+  const commandParts = text?.trim().split(/\s+/) ?? [];
+  const username = igAccounts.normalizeIgUsername(commandParts[1] ?? '');
+  if (commandParts.length !== 2 || !username) {
     await ctx.reply('Некорректный username');
     return;
   }
