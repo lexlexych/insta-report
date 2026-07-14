@@ -40,3 +40,4 @@
 | T-038 | awaiting_merge | epic/E10 | PR эпика (в конце) | 1 | 2026-07-13 |
 | T-039 | awaiting_merge | epic/E10 | PR эпика (в конце) | 0 | 2026-07-13 |
 | E10 (итог) | awaiting_merge | epic/E10 | [#50](https://github.com/lexlexych/insta-report/pull/50) | T-035..T-039 | 2026-07-13 |
+| T-041 | awaiting_merge | epic/E11 | PR эпика (в конце) | 0 | 2026-07-14 |
