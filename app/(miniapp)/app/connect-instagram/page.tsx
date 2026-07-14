@@ -1,15 +1,23 @@
 'use client';
 
-import { backButton } from '@telegram-apps/sdk-react';
+import { backButton, retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { InstagramConnectPanel } from '@/components/miniapp/InstagramConnectPanel';
 import { useT } from '@/lib/i18n';
+
+declare global { interface Window { Telegram?: { WebApp?: { openLink?: (url: string) => void } } } }
 
 type ConnectStatus = 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error';
 type StatusResponse = { connect?: ConnectStatus };
-type Screen = 'loading' | 'waiting' | 'invite' | 'oauth' | 'success' | 'error';
+type Screen = 'loading' | 'waiting' | 'invite' | 'success' | 'error';
+
+function isMobileTelegram(): boolean {
+  try {
+    const params = retrieveLaunchParams() as { tgWebAppPlatform?: unknown };
+    return ['ios', 'android', 'android_x'].includes(String(params.tgWebAppPlatform));
+  } catch { return false; }
+}
 
 function ResultBadge({ error }: { error: boolean }) {
   return (
@@ -26,7 +34,28 @@ export default function ConnectInstagramPage() {
   const searchParams = useSearchParams();
   const [screen, setScreen] = useState<Screen>('loading');
   const [errorReason, setErrorReason] = useState<'denied' | 'error' | null>(null);
+  const [connecting, setConnecting] = useState(false);
+  const [connectFailed, setConnectFailed] = useState(false);
   const from = searchParams.get('from');
+
+  // «Далее» сразу открывает логин Instagram — отдельного OAuth-экрана в визарде нет.
+  const startOauth = useCallback(async () => {
+    setConnecting(true);
+    setConnectFailed(false);
+    try {
+      const embedded = isMobileTelegram();
+      const response = await fetch(`/api/miniapp/ig/login-url${embedded ? '?embedded=1' : ''}`);
+      if (response.status === 403) {
+        const payload = await response.json() as { code?: string };
+        if (payload.code === 'not_approved') { setScreen('waiting'); return; }
+      }
+      if (!response.ok) throw new Error('login_url_failed');
+      const { url } = await response.json() as { url: string };
+      if (embedded) window.location.assign(url);
+      else if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
+      else window.open(url, '_blank', 'noopener,noreferrer');
+    } catch { setConnectFailed(true); } finally { setConnecting(false); }
+  }, []);
 
   const leaveWizard = useCallback(() => {
     if (from === 'onboarding') router.replace('/app/onboarding');
@@ -68,10 +97,23 @@ export default function ConnectInstagramPage() {
     return () => controller.abort();
   }, [searchParams, showError]);
 
+  // Возврат в мини-апп после логина в браузере: перепроверяем статус по фокусу.
+  useEffect(() => {
+    if (screen !== 'invite') return;
+    const refresh = () => {
+      void fetch('/api/miniapp/ig/status')
+        .then(async (response) => response.ok ? await response.json() as StatusResponse : null)
+        .then((payload) => { if (payload?.connect === 'active') setScreen('success'); })
+        .catch(() => undefined);
+    };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
+  }, [screen]);
+
   useEffect(() => {
     const handleBack = () => {
-      if (screen === 'oauth') setScreen('invite');
-      else if (screen === 'error') setScreen('oauth');
+      if (screen === 'error') setScreen('invite');
       else leaveWizard();
     };
     if (!backButton.mount.isAvailable()) return;
@@ -92,11 +134,9 @@ export default function ConnectInstagramPage() {
   }
 
   if (screen === 'invite') {
-    return <main className="mx-auto max-w-xl space-y-5 px-5 py-8"><h1 className="text-2xl font-bold">{t('igWizardInviteTitle')}</h1><img alt={t('igWizardInviteImageAlt')} className="w-full rounded-2xl border" src="/images/ig-tester-invite.png" /><div className="space-y-3 text-sm text-tg-hint"><p>{t('igWizardInviteSteps')}</p><p>{t('igWizardInviteReturn')}</p><p>{t('igWizardInviteAlreadyAccepted')}</p></div><button className="w-full rounded-xl border px-4 py-3 font-medium" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button><button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => setScreen('oauth')}>{t('onboardingNext')}</button></main>;
+    return <main className="mx-auto max-w-xl space-y-5 px-5 py-8"><h1 className="text-2xl font-bold">{t('igWizardInviteTitle')}</h1><div className="space-y-3 text-sm text-tg-hint"><p>{t('igWizardInviteSteps')}</p><img alt={t('igWizardInviteImageAlt')} className="w-full rounded-2xl border" src="/images/ig-tester-invite.png" /><p>{t('igWizardInviteReturn')}</p><p>{t('igWizardInviteAlreadyAccepted')}</p></div><button className="w-full rounded-xl border px-4 py-3 font-medium" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button>{connectFailed ? <p className="text-sm text-red-600">{t('igWizardErrorGeneric')}</p> : null}<button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} type="button" onClick={() => void startOauth()}>{connecting ? t('igLoading') : t('onboardingNext')}</button></main>;
   }
 
-  if (screen === 'oauth') return <main className="mx-auto max-w-xl space-y-4 px-5 py-8"><h1 className="text-2xl font-bold">{t('igWizardOauthTitle')}</h1><InstagramConnectPanel onActive={() => setScreen('success')} onAwaitingAdmin={() => setScreen('waiting')} onError={() => showError()} /></main>;
-
   const isError = screen === 'error';
-  return <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 px-5 py-8 text-center"><ResultBadge error={isError} /><div><h1 className="text-2xl font-bold">{t(isError ? 'igWizardErrorTitle' : 'igWizardSuccessTitle')}</h1>{isError ? <p className="mt-2 text-sm text-tg-hint">{t(errorReason === 'denied' ? 'igWizardErrorDenied' : 'igWizardErrorGeneric')}</p> : null}</div>{isError ? <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => { setErrorReason(null); setScreen('oauth'); }}>{t('igWizardTryAgain')}</button> : <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => router.replace('/app')}>{t('igWizardToDashboard')}</button>}</main>;
+  return <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 px-5 py-8 text-center"><ResultBadge error={isError} /><div><h1 className="text-2xl font-bold">{t(isError ? 'igWizardErrorTitle' : 'igWizardSuccessTitle')}</h1>{isError ? <p className="mt-2 text-sm text-tg-hint">{t(errorReason === 'denied' ? 'igWizardErrorDenied' : 'igWizardErrorGeneric')}</p> : null}</div>{isError ? <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => { setErrorReason(null); setScreen('invite'); void startOauth(); }}>{t('igWizardTryAgain')}</button> : <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => router.replace('/app')}>{t('igWizardToDashboard')}</button>}</main>;
 }
