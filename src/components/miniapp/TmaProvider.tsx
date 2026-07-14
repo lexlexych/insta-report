@@ -48,6 +48,10 @@ export type MiniAppTenant = {
   tgTopicsEnabled?: boolean;
 };
 
+function normalizeOnboardingStep(step: string | null): string | null {
+  return step === 'ig_wait' || step === 'ig_connect' ? 'knowledge' : step;
+}
+
 const BOT_USERNAME = 'InstaReplyBot';
 const TenantContext = createContext<TenantContextValue | null>(null);
 
@@ -151,6 +155,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
         if (!response.ok) throw new Error('Mini App auth failed');
         const payload = (await response.json()) as { tenant?: MiniAppTenant; tgLocale?: Locale };
         if (!payload.tenant) throw new Error('Mini App auth response missing tenant');
+        payload.tenant.onboardingStep = normalizeOnboardingStep(payload.tenant.onboardingStep);
         // До завершения онбординга язык всегда берётся из Telegram (сервер-авторитетный
         // tgLocale, не зависит от формы клиентского SDK). После онбординга — из
         // сохранённого выбора тенанта (ui_locale).

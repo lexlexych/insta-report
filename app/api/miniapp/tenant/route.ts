@@ -9,7 +9,7 @@ import { escapeHTML } from '@/lib/tg/html';
 
 const patchSchema = z
   .object({
-    onboardingStep: z.enum(['sphere', 'business', 'ig_wait', 'ig_connect', 'knowledge', 'finish', 'done']).optional(),
+    onboardingStep: z.enum(['sphere', 'business', 'knowledge', 'finish', 'done']).optional(),
     uiLocale: z.enum(['ru', 'de']).optional(),
     businessSphere: z.string().refine(isBusinessSphereId).optional(),
     orgName: z.string().trim().min(2).optional(),
