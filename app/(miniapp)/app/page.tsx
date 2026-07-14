@@ -10,7 +10,7 @@ type Direction = 'in' | 'out' | 'manual';
 type Dashboard = {
   period: { days: Period; from: string; to: string };
   metrics: { dialogs: number; drafts: number; sent: number; manual: number; llmCalls: number; tokens: number };
-  connection: { status: 'active' | 'needs_setup' | 'error'; username: string | null };
+  connection: { status: 'active' | 'needs_setup' | 'error'; connect: 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error'; username: string | null };
   recent: { direction: Direction; text: string; createdAt: string }[];
 };
 
@@ -30,9 +30,10 @@ function relativeTime(value: string): string {
   return `${Math.round(hours / 24)}d`;
 }
 
-function statusClasses(status: Dashboard['connection']['status']): string {
-  if (status === 'active') return 'border-emerald-200 bg-emerald-50 text-emerald-900';
-  if (status === 'error') return 'border-red-200 bg-red-50 text-red-900';
+function statusClasses(connect: Dashboard['connection']['connect'] | undefined): string {
+  if (connect === 'active') return 'border-emerald-200 bg-emerald-50 text-emerald-900';
+  if (connect === 'error') return 'border-red-200 bg-red-50 text-red-900';
+  if (connect === 'none') return 'border-slate-200 bg-slate-50 text-slate-900';
   return 'border-amber-200 bg-amber-50 text-amber-900';
 }
 
@@ -73,15 +74,18 @@ export default function MiniAppPage() {
 
   const connectionTitle = useMemo(() => {
     if (!dashboard) return t('dashboardConnectionLoading');
-    if (dashboard.connection.status === 'active') return t('dashboardConnectionOk', { username: dashboard.connection.username ?? 'instagram' });
-    if (dashboard.connection.status === 'error') return t('dashboardConnectionError');
-    return t('dashboardConnectionNeedsSetup');
+    if (dashboard.connection.connect === 'awaiting_admin') return t('dashboardConnectionAwaitingAdmin');
+    if (dashboard.connection.connect === 'ready') return t('dashboardConnectionReady');
+    if (dashboard.connection.connect === 'none') return t('dashboardConnectionNotConnected');
+    if (dashboard.connection.connect === 'active') return t('dashboardConnectionOk', { username: dashboard.connection.username ?? 'instagram' });
+    return t('dashboardConnectionError');
   }, [dashboard, t]);
 
   const metrics = dashboard?.metrics;
   const hasActivity = Boolean(dashboard?.recent.length);
-  const emptyCtaHref = dashboard?.connection.status === 'active' ? '/app/simulator' : '/app/connect-instagram';
-  const emptyCtaText = dashboard?.connection.status === 'active' ? t('onboardingTrySimulator') : t('onboardingConnectInstagram');
+  const connect = dashboard?.connection.connect;
+  const emptyCtaHref = connect === 'active' ? '/app/simulator' : connect === 'ready' ? '/app/connect-instagram' : null;
+  const emptyCtaText = connect === 'active' ? t('onboardingTrySimulator') : t('onboardingConnectInstagram');
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-4 p-4">
@@ -90,10 +94,12 @@ export default function MiniAppPage() {
         <h1 className="text-2xl font-semibold">{t('pageDashboardTitle')}</h1>
       </header>
 
-      <Link className={`rounded-2xl border p-4 shadow-sm ${statusClasses(dashboard?.connection.status ?? 'needs_setup')}`} href="/app/connect-instagram">
+      <section className={`rounded-2xl border p-4 shadow-sm ${statusClasses(connect)} `}>
         <span className="block text-sm font-medium">{t('dashboardConnectionTitle')}</span>
-        <span className="mt-1 block text-lg font-semibold">{connectionTitle}</span>
-      </Link>
+        <span className="mt-1 block text-lg font-semibold">{connect === 'awaiting_admin' ? '⏳ ' : ''}{connectionTitle}</span>
+        {connect === 'ready' ? <Link className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href="/app/connect-instagram">{t('onboardingConnectInstagram')}</Link> : null}
+        {connect === 'active' || connect === 'error' ? <Link className="mt-3 inline-block text-sm underline" href="/app/connect-instagram">{t('igStatusBadgeOpen')}</Link> : null}
+      </section>
 
       <div className="grid grid-cols-2 gap-2 rounded-2xl bg-tg-secondary-bg p-1">
         {[7, 30].map((days) => (
@@ -138,7 +144,7 @@ export default function MiniAppPage() {
             <div className="text-4xl" aria-hidden>💬</div>
             <p className="mt-2 font-medium">{t('dashboardEmptyTitle')}</p>
             <p className="mt-1 text-sm text-tg-hint">{t('dashboardEmptyHint')}</p>
-            <Link className="mt-4 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href={emptyCtaHref}>{emptyCtaText}</Link>
+            {emptyCtaHref ? <Link className="mt-4 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href={emptyCtaHref}>{emptyCtaText}</Link> : null}
           </div>
         )}
       </section>

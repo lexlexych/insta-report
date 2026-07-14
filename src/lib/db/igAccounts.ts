@@ -35,6 +35,22 @@ export async function createPending(username: string, tenantId: string | null): 
   return data as IgAccount;
 }
 
+export async function createApproved(username: string, adminTgId: number): Promise<IgAccount> {
+  const { data, error } = await getDb()
+    .from('ig_accounts')
+    .insert({
+      ig_username: normalizeOrThrow(username),
+      tenant_id: null,
+      status: 'approved',
+      approved_at: new Date().toISOString(),
+      approved_by_tg_id: adminTgId,
+    })
+    .select()
+    .single();
+  if (error) throwDb('igAccounts.createApproved', error);
+  return data as IgAccount;
+}
+
 export async function approve(id: string, adminTgId: number): Promise<IgAccount | null> {
   const { data, error } = await getDb()
     .from('ig_accounts')

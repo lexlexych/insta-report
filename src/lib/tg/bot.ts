@@ -2,6 +2,7 @@ import { Bot, InlineKeyboard } from 'grammy';
 import type { Context } from 'grammy';
 
 import { igAccounts, tenants } from '@/lib/db';
+import type { Database } from '@/lib/db';
 import { env } from '@/lib/env';
 import { resolveLocale, t } from '@/lib/i18n/shared';
 import { handleRetryCallback, handleSendCallback } from '@/lib/pipeline/send';
@@ -9,6 +10,7 @@ import { handleRetryCallback, handleSendCallback } from '@/lib/pipeline/send';
 import { adminTelegramIds, notifyIgAccountOwner } from './igAccountRequests';
 
 let bot: Bot | undefined;
+type IgAccount = Database['public']['Tables']['ig_accounts']['Row'];
 
 function panelUrl(): string {
   return new URL('/app', env.APP_BASE_URL).toString();
@@ -30,6 +32,38 @@ export async function onStart(ctx: Context): Promise<void> {
   const keyboard = new InlineKeyboard().webApp(t(locale, 'openPanel'), panelUrl());
 
   await ctx.reply(t(locale, 'tgStart'), { reply_markup: keyboard });
+}
+
+export async function onIgAdd(ctx: Context): Promise<void> {
+  const adminId = ctx.from?.id;
+  if (!adminId || !adminTelegramIds().includes(adminId)) return;
+
+  const text = (ctx as { message?: { text?: string } }).message?.text;
+  const username = igAccounts.normalizeIgUsername(text?.trim().split(/\s+/, 2)[1] ?? '');
+  if (!username) {
+    await ctx.reply('Некорректный username');
+    return;
+  }
+
+  const existing = await igAccounts.findByUsername(username);
+  if (!existing) {
+    await igAccounts.createApproved(username, adminId);
+    await ctx.reply(`✅ Подтверждено: @${username}`);
+    return;
+  }
+
+  if (existing.status === 'approved') {
+    await ctx.reply('Уже подтверждено');
+    return;
+  }
+
+  const account = await igAccounts.approve(existing.id, adminId);
+  if (!account) {
+    await ctx.reply('Уже подтверждено');
+    return;
+  }
+  await ctx.reply(`✅ Подтверждено: @${account.ig_username}`);
+  await notifyApprovedAccountOwner(account);
 }
 
 export async function onCallback(ctx: Context): Promise<void> {
@@ -96,6 +130,10 @@ async function handleIgAccountApproval(ctx: Context, id: string): Promise<void> 
     );
   }
 
+  await notifyApprovedAccountOwner(account);
+}
+
+async function notifyApprovedAccountOwner(account: IgAccount): Promise<void> {
   if (!account.tenant_id) return;
   const tenant = await tenants.getById(account.tenant_id);
   if (!tenant) return;
@@ -113,6 +151,7 @@ export function getBot(): Bot {
   if (!bot) {
     bot = new Bot(env.TELEGRAM_BOT_TOKEN);
     bot.command('start', onStart);
+    bot.command('ig_add', onIgAdd);
     bot.on('callback_query:data', onCallback);
   }
 

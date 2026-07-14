@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
-import { drafts, igConnections, messageLog, usageStats } from '@/lib/db';
+import { drafts, igAccounts, igConnections, messageLog, usageStats } from '@/lib/db';
 import { summarizeConnectionStatus } from '@/lib/ig/status';
 
 const querySchema = z.object({ days: z.enum(['7', '30']).default('7') });
@@ -29,10 +29,11 @@ export const GET = apiHandler(async (req: Request) => {
   const fromDay = toDay(from);
   const toDayValue = toDay(new Date());
 
-  const [usageRows, draftCounts, connection, recentRows] = await Promise.all([
+  const [usageRows, draftCounts, connection, account, recentRows] = await Promise.all([
     usageStats.getRange(tenant.id, fromDay, toDayValue),
     drafts.countByStatusSince(tenant.id, from.toISOString()),
     igConnections.getForTenant(tenant.id),
+    igAccounts.getByTenant(tenant.id),
     messageLog.recent(tenant.id, 10),
   ]);
 
@@ -57,7 +58,7 @@ export const GET = apiHandler(async (req: Request) => {
       tokens: usage.tokens,
       statuses: draftCounts,
     },
-    connection: summarizeConnectionStatus(connection),
+    connection: summarizeConnectionStatus(connection, account),
     recent: recentRows.map((row) => ({
       direction: row.direction,
       text: row.text && row.text.length > 80 ? `${row.text.slice(0, 79)}…` : (row.text ?? ''),

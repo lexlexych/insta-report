@@ -1,6 +1,6 @@
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
-import { igConnections } from '@/lib/db';
+import { igAccounts, igConnections } from '@/lib/db';
 import { getAccount, IgAuthError } from '@/lib/ig/client';
 
 const TOKEN_ERROR_HINT = 'Токен недействителен или отозван — подключите Instagram заново через OAuth';
@@ -17,10 +17,23 @@ type Check = {
 
 export const GET = apiHandler(async (req: Request) => {
   const tenant = await requireTenant(req);
-  let connection = await igConnections.getForTenant(tenant.id);
+  const [account, initialConnection] = await Promise.all([
+    igAccounts.getByTenant(tenant.id),
+    igConnections.getForTenant(tenant.id),
+  ]);
+  const connect = !account
+    ? 'none'
+    : account.status === 'pending'
+      ? 'awaiting_admin'
+      : initialConnection?.status === 'active'
+        ? 'active'
+        : initialConnection?.status === 'error'
+          ? 'error'
+          : 'ready';
+  let connection = initialConnection;
 
   if (!connection) {
-    return jsonResponse({ state: 'not_configured' });
+    return jsonResponse({ state: 'not_configured', connect });
   }
 
   let tokenOk = false;
@@ -57,6 +70,9 @@ export const GET = apiHandler(async (req: Request) => {
 
   return jsonResponse({
     state: connection.status,
+    connect: account?.status === 'approved'
+      ? connection.status === 'active' ? 'active' : connection.status === 'error' ? 'error' : 'ready'
+      : connect,
     tokenOk,
     ...(tokenError ? { tokenError } : {}),
     igUsername,
