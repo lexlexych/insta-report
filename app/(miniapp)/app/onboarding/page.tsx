@@ -60,7 +60,7 @@ export default function Page() {
   };
   const connectInstagram = () => {
     leaveOnboarding();
-    router.replace('/app/connect-instagram');
+    router.replace('/app/connect-instagram?from=onboarding');
   };
   return <main className="flex h-[100dvh] flex-col overflow-hidden bg-tg-bg text-tg-text"><section className={`mx-auto flex w-full max-w-xl flex-1 min-h-0 flex-col px-5 py-8 ${knowledgeLayout ? 'gap-5 overflow-hidden' : isFinish ? 'space-y-5 overflow-y-auto pb-28' : 'space-y-5 overflow-y-auto'}`}>
     {step === 'sphere' && <><h1 className="text-2xl font-bold">{t('onboardingSphereTitle')}</h1><p className="text-tg-hint">{t('onboardingSphereHint')}</p>{BUSINESS_SPHERES.map((item) => <button key={item.id} type="button" onClick={() => setSphere(item.id)} className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left ${sphere === item.id ? 'border-tg-button bg-tg-secondary-bg' : ''}`}><span className="text-2xl">{item.icon}</span>{t(item.nameKey)}</button>)}</>}

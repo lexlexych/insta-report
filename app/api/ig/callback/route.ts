@@ -61,7 +61,7 @@ export async function GET(req: Request): Promise<Response> {
       token_refreshed_at: new Date().toISOString(),
       status: 'active',
     });
-    if (state.embedded) return miniappRedirect('/app/connect-instagram/success');
+    if (state.embedded) return miniappRedirect('/app/connect-instagram?ig=success');
     return htmlPage('Instagram подключён', `Instagram @${account.username} подключён.`);
   } catch (error) {
     console.error(`[ig/callback] Meta OAuth failed tenant=${tenantId}: ${sanitizedMetaMessage(error)}`);

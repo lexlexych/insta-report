@@ -84,7 +84,7 @@ export default function MiniAppPage() {
   const metrics = dashboard?.metrics;
   const hasActivity = Boolean(dashboard?.recent.length);
   const connect = dashboard?.connection.connect;
-  const emptyCtaHref = connect === 'active' ? '/app/simulator' : connect === 'ready' ? '/app/connect-instagram' : null;
+  const emptyCtaHref = connect === 'active' ? '/app/simulator' : connect === 'ready' ? '/app/connect-instagram?from=dashboard' : null;
   const emptyCtaText = connect === 'active' ? t('onboardingTrySimulator') : t('onboardingConnectInstagram');
 
   return (
@@ -97,8 +97,8 @@ export default function MiniAppPage() {
       <section className={`rounded-2xl border p-4 shadow-sm ${statusClasses(connect)} `}>
         <span className="block text-sm font-medium">{t('dashboardConnectionTitle')}</span>
         <span className="mt-1 block text-lg font-semibold">{connect === 'awaiting_admin' ? '⏳ ' : ''}{connectionTitle}</span>
-        {connect === 'ready' ? <Link className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href="/app/connect-instagram">{t('onboardingConnectInstagram')}</Link> : null}
-        {connect === 'active' || connect === 'error' ? <Link className="mt-3 inline-block text-sm underline" href="/app/connect-instagram">{t('igStatusBadgeOpen')}</Link> : null}
+        {connect === 'ready' ? <Link className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href="/app/connect-instagram?from=dashboard">{t('onboardingConnectInstagram')}</Link> : null}
+        {connect === 'active' || connect === 'error' ? <Link className="mt-3 inline-block text-sm underline" href="/app/connect-instagram?from=dashboard">{t('igStatusBadgeOpen')}</Link> : null}
       </section>
 
       <div className="grid grid-cols-2 gap-2 rounded-2xl bg-tg-secondary-bg p-1">
@@ -119,8 +119,8 @@ export default function MiniAppPage() {
       <section className="grid grid-cols-2 gap-3">
         <MetricCard href="/app/simulator" label={t('dashboardMetricDialogs')} value={metrics?.dialogs ?? 0} />
         <MetricCard href="/app/labels" label={t('dashboardMetricDrafts')} value={metrics?.drafts ?? 0} />
-        <MetricCard href="/app/connect-instagram" label={t('dashboardMetricSent')} value={metrics?.sent ?? 0} />
-        <MetricCard href="/app/connect-instagram" label={t('dashboardMetricManual')} value={metrics?.manual ?? 0} />
+        <MetricCard href="/app/connect-instagram?from=dashboard" label={t('dashboardMetricSent')} value={metrics?.sent ?? 0} />
+        <MetricCard href="/app/connect-instagram?from=dashboard" label={t('dashboardMetricManual')} value={metrics?.manual ?? 0} />
       </section>
 
       <p className="rounded-2xl bg-tg-secondary-bg p-3 text-center text-sm text-tg-hint">

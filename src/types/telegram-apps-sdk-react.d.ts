@@ -25,6 +25,14 @@ declare module '@telegram-apps/sdk-react' {
     onClick(handler: () => void): () => void;
   };
 
+  export const backButton: {
+    mount: Callable;
+    show: Callable;
+    hide: Callable;
+    onClick: Callable<() => void> & ((handler: () => void) => () => void);
+    unmount(): void;
+  };
+
   export const viewport: {
     mount: Callable<Promise<void>>;
     expand: Callable;

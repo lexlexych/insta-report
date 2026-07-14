@@ -43,10 +43,16 @@ body {
   stroke-dashoffset: 54;
   animation: ig-draw 0.4s ease-out 0.75s forwards;
 }
+.ig-error-mark {
+  stroke-dasharray: 31;
+  stroke-dashoffset: 31;
+  animation: ig-draw 0.45s ease-out 0.65s forwards;
+}
 @media (prefers-reduced-motion: reduce) {
   .ig-success-badge,
   .ig-success-circle,
-  .ig-success-check {
+  .ig-success-check,
+  .ig-error-mark {
     animation: none;
     stroke-dashoffset: 0;
   }
