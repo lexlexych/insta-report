@@ -65,6 +65,7 @@ export const POST = apiHandler(async (req: Request) => {
     ts: Date.now(),
     text: ctx.pendingText,
     hasAttachments: false,
+    attachmentTypes: [],
   };
   const draft = await generateDraft(tenant, classified.label, ctx, event);
 

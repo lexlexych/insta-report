@@ -140,11 +140,11 @@ export default function Page() {
       <section className="rounded-3xl border border-red-200 bg-red-50 p-4 text-red-900">
         <h2 className="text-lg font-semibold">{t('settingsDangerTitle')}</h2>
         <p className="mt-2 text-sm">{t('settingsDeleteHint', { word: deleteWord })}</p>
-        <input className="mt-3 w-full rounded-xl border border-red-200 p-3" value={deleteText} onChange={(event) => setDeleteText(event.target.value)} />
+        <input className="mt-3 w-full rounded-xl border border-red-200 bg-transparent p-3" value={deleteText} onChange={(event) => setDeleteText(event.target.value)} />
         <button className="mt-3 rounded-xl bg-red-600 px-4 py-2 text-white disabled:opacity-50" disabled={deleteText !== deleteWord || busy === 'delete' || tenantState.status !== 'ready'} onClick={() => void deleteTenant()}>{t('settingsDelete')}</button>
       </section>
 
-      {editing ? <div className="fixed inset-0 z-20 flex flex-col bg-tg-bg p-5"><h2 className="text-xl font-semibold">{editing === 'knowledge' ? t('settingsKnowledgeTitle') : t('settingsPromptTitle')}</h2><textarea className="mt-4 min-h-0 flex-1 rounded-2xl border p-3" maxLength={20000} value={draft} onChange={(event) => setDraft(event.target.value)} /><p className="mt-2 text-right text-sm text-tg-hint">{draft.length}/20000</p><div className="mt-3 grid grid-cols-2 gap-2"><button className="rounded-xl bg-tg-secondary-bg p-3" onClick={() => setEditing(null)}>{t('settingsCancel')}</button><button className="rounded-xl bg-tg-button p-3 text-tg-button-text" disabled={busy === 'save' || draft.trim().length === 0} onClick={() => void saveEditor()}>{t('settingsSave')}</button></div></div> : null}
+      {editing ? <div className="fixed inset-0 z-20 flex flex-col bg-tg-bg p-5"><h2 className="text-xl font-semibold">{editing === 'knowledge' ? t('settingsKnowledgeTitle') : t('settingsPromptTitle')}</h2><textarea className="mt-4 min-h-0 flex-1 rounded-2xl border bg-transparent p-3" maxLength={20000} value={draft} onChange={(event) => setDraft(event.target.value)} /><p className="mt-2 text-right text-sm text-tg-hint">{draft.length}/20000</p><div className="mt-3 grid grid-cols-2 gap-2"><button className="rounded-xl bg-tg-secondary-bg p-3" onClick={() => setEditing(null)}>{t('settingsCancel')}</button><button className="rounded-xl bg-tg-button p-3 text-tg-button-text" disabled={busy === 'save' || draft.trim().length === 0} onClick={() => void saveEditor()}>{t('settingsSave')}</button></div></div> : null}
     </main>
   );
 }

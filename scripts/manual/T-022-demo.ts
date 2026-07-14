@@ -47,6 +47,7 @@ const echo: IgEvent = {
   contactId: 'client-1',
   text: 'Ответ владельца',
   hasAttachments: false,
+  attachmentTypes: [],
   mid: 'manual-mid',
   ts: Date.parse('2026-07-05T10:01:00Z'),
 };

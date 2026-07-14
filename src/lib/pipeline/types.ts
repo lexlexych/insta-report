@@ -9,6 +9,8 @@ export interface IgEvent {
   contactId: string;
   text: string;
   hasAttachments: boolean;
+  /** Типы вложений входящего message.attachments (без учёта отсутствующего type). */
+  attachmentTypes: string[];
   mid: string;
   ts: number;
 }

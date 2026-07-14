@@ -3,6 +3,9 @@ import { handleEcho } from './handleEcho';
 import { handleIncoming } from './handleIncoming';
 import type { IgEvent } from './types';
 
+// Типы вложений Meta, обозначающие репост чужого контента (share — репост поста/картинки, ig_reel — репост reels).
+const REPOST_ATTACHMENT_TYPES = new Set(['share', 'ig_reel']);
+
 /** Внедряемые зависимости — для демо/тестов; в проде используются реальные. */
 export interface HandleIgEventDeps {
   tryInsert: (tenantId: string, mid: string) => Promise<boolean>;
@@ -29,6 +32,8 @@ export async function handleIgEvent(
   const onIncoming = deps?.handleIncoming ?? handleIncoming;
   if (ev.kind === 'echo') return onEcho(tenantId, ev); // T-022
   if (!ev.text && !ev.hasAttachments) return; // пустое входящее без вложений → игнор
+  // Репост чужого поста/reels без подписи — не создаём черновик, отвечать нечего.
+  if (!ev.text.trim() && ev.hasAttachments && ev.attachmentTypes.length > 0 && ev.attachmentTypes.every((type) => REPOST_ATTACHMENT_TYPES.has(type))) return;
   return onIncoming(tenantId, ev); // T-017…T-020
 }
 

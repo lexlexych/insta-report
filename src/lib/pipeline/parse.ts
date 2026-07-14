@@ -61,12 +61,21 @@ export function parseIgEvent(body: unknown): IgEvent | null {
   const contactId = isEcho ? m.recipient.id : m.sender.id;
   const text = m.message.text ?? '';
   const hasAttachments = Array.isArray(m.message.attachments) && m.message.attachments.length > 0;
+  // Держим attachmentTypes той же длины, что attachments: элементу без строкового type подставляем
+  // 'unknown', чтобы смешанные вложения (например share + вложение без type) не были ошибочно
+  // распознаны как "все — репост" в handleIgEvent.
+  const attachmentTypes = (m.message.attachments ?? []).map((attachment) =>
+    attachment && typeof attachment === 'object' && 'type' in attachment && typeof (attachment as { type?: unknown }).type === 'string'
+      ? (attachment as { type: string }).type
+      : 'unknown',
+  );
   return {
     kind: isEcho ? 'echo' : 'incoming',
     accountId,
     contactId,
     text,
     hasAttachments,
+    attachmentTypes,
     mid: m.message.mid,
     ts: m.timestamp,
   };

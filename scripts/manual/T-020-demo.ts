@@ -32,6 +32,7 @@ const ev = {
   contactId: 'ig-client',
   text: '<script>alert(1)</script>',
   hasAttachments: false,
+  attachmentTypes: [],
   mid: 'mid-1',
   ts: 123,
 };

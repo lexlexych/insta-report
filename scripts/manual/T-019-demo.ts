@@ -43,6 +43,7 @@ const ev = {
   contactId: 'ig-client',
   text: 'Можно записаться завтра?',
   hasAttachments: false,
+  attachmentTypes: [] as string[],
   mid: 'mid-1',
   ts: 1,
 };

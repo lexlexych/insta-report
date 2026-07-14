@@ -70,6 +70,7 @@ const ev: IgEvent = {
   contactId,
   text: 'fallback from webhook',
   hasAttachments: false,
+  attachmentTypes: [],
   mid: 'mid-1',
   ts: 5_000,
 };
