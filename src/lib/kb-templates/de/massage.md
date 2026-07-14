@@ -1,6 +1,6 @@
 # Über den Salon
 
-- „Harmonie“ — Massagesalon in Köln, eröffnet 2019.
+- „{{BUSINESS_NAME}}“ — Massagesalon in Köln, eröffnet 2019.
 - 4 Therapeut:innen mit medizinischer Ausbildung und Zertifikaten.
 - Behandlung nur nach Terminvereinbarung.
 

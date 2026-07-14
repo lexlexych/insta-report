@@ -155,7 +155,7 @@ export default function Page() {
 
   if (needsOnboarding) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-5 bg-tg-bg px-5 py-8 text-tg-text">
+      <main className="mx-auto flex min-h-full max-w-xl flex-col justify-center gap-5 bg-tg-bg px-5 py-8 text-tg-text">
         <p className="text-sm font-medium uppercase tracking-wide text-tg-link">InstaReply</p>
         <h1 className="text-3xl font-semibold">{t('simulatorOnboardingTitle')}</h1>
         <p className="text-tg-hint">{t('simulatorOnboardingHint')}</p>
@@ -167,7 +167,7 @@ export default function Page() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col bg-tg-bg px-4 py-5 text-tg-text">
+    <main className="mx-auto flex min-h-full max-w-xl flex-col bg-tg-bg px-4 py-5 text-tg-text">
       <header className="sticky top-0 z-10 -mx-4 bg-tg-bg/95 px-4 pb-3 pt-1 backdrop-blur">
         <div className="flex items-center justify-between gap-3">
           <div>

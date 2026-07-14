@@ -75,13 +75,6 @@ export const dictionary: Dictionary = {
     settingsPromptHint:
       'Для продвинутых: меняйте только если понимаете влияние на ответы ассистента.',
     settingsLanguageTitle: 'Язык интерфейса',
-    settingsDeliveryTitle: 'Доставка в Telegram',
-    settingsTopicsEnabled: 'Темы в чате: включены',
-    settingsTopicsDisabled: 'Темы в чате: выключены',
-    settingsTopicsHint:
-      'Чтобы черновики раскладывались по категориям, включите Threaded Mode для бота в @BotFather. Если темы выключены, всё приходит в обычный личный чат.',
-    settingsIgConnected: '@{username} · подключено',
-    settingsIgDisconnected: 'Не подключено или требует настройки',
     settingsDisconnect: 'Отключить',
     settingsDisconnectConfirm: 'Отключить Instagram и удалить сохранённые секреты?',
     settingsLegalTitle: 'Правовая информация',
@@ -260,13 +253,6 @@ export const dictionary: Dictionary = {
     settingsPromptHint:
       'Für Fortgeschrittene: Ändere dies nur, wenn du die Auswirkungen auf Antworten verstehst.',
     settingsLanguageTitle: 'Sprache der Oberfläche',
-    settingsDeliveryTitle: 'Zustellung in Telegram',
-    settingsTopicsEnabled: 'Chat-Themen: aktiviert',
-    settingsTopicsDisabled: 'Chat-Themen: deaktiviert',
-    settingsTopicsHint:
-      'Aktiviere Threaded Mode für den Bot in @BotFather, damit Entwürfe nach Kategorien verteilt werden. Ohne Themen kommt alles wie bisher in den privaten Chat.',
-    settingsIgConnected: '@{username} · verbunden',
-    settingsIgDisconnected: 'Nicht verbunden oder Einrichtung erforderlich',
     settingsDisconnect: 'Trennen',
     settingsDisconnectConfirm: 'Instagram trennen und gespeicherte Secrets löschen?',
     settingsLegalTitle: 'Rechtliche Informationen',

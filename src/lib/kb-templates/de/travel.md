@@ -1,6 +1,6 @@
 # Über uns
 
-- „Kompass Travel“ — Reisebüro in Hamburg, seit 2015.
+- „{{BUSINESS_NAME}}“ — Reisebüro in Hamburg, seit 2015.
 - Wir vermitteln Pauschalreisen, Flüge, Hotels und Versicherungen und unterstützen bei Visa.
 - Wir arbeiten nur mit offiziellen Reiseveranstaltern: Vertrag, Belege und alle Unterlagen inklusive.
 - Sprachen: Deutsch, Englisch, Russisch.

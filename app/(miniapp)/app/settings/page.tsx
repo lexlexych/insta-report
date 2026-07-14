@@ -6,7 +6,6 @@ import { useTenant } from '@/components/miniapp/TmaProvider';
 import { useT, type Locale } from '@/lib/i18n';
 
 type KnowledgePayload = { knowledgeBase: string | null; systemPrompt: string | null };
-type IgPayload = { status: string; igUsername: string | null } | { state: string };
 
 const DELETE_WORD: Record<Locale, string> = { ru: 'УДАЛИТЬ', de: 'LÖSCHEN' };
 
@@ -22,7 +21,6 @@ export default function Page() {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<'knowledge' | 'prompt' | null>(null);
   const [draft, setDraft] = useState('');
-  const [ig, setIg] = useState<IgPayload | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [deleteText, setDeleteText] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
@@ -32,15 +30,11 @@ export default function Page() {
     const controller = new AbortController();
     async function load() {
       try {
-        const [knowledgeResponse, igResponse] = await Promise.all([
-          fetch('/api/miniapp/knowledge', { signal: controller.signal }),
-          fetch('/api/miniapp/ig/connect', { signal: controller.signal }),
-        ]);
-        if (!knowledgeResponse.ok || !igResponse.ok) throw new Error('settings load failed');
+        const knowledgeResponse = await fetch('/api/miniapp/knowledge', { signal: controller.signal });
+        if (!knowledgeResponse.ok) throw new Error('settings load failed');
         const knowledgePayload = (await knowledgeResponse.json()) as KnowledgePayload;
         setKnowledge(knowledgePayload.knowledgeBase ?? '');
         setPrompt(knowledgePayload.systemPrompt ?? '');
-        setIg((await igResponse.json()) as IgPayload);
       } catch {
         if (!controller.signal.aborted) setError(t('settingsLoadError'));
       }
@@ -54,7 +48,7 @@ export default function Page() {
 
   if (deleted) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-4 p-5 text-center">
+      <main className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center gap-4 p-5 text-center">
         <h1 className="text-2xl font-semibold">{t('settingsDeletedTitle')}</h1>
         <p className="text-tg-hint">{t('settingsDeletedHint')}</p>
       </main>
@@ -96,18 +90,6 @@ export default function Page() {
     setLocale(nextLocale);
   }
 
-  async function disconnect() {
-    if (!window.confirm(t('settingsDisconnectConfirm'))) return;
-    setBusy('disconnect');
-    const response = await fetch('/api/miniapp/ig/disconnect', { method: 'POST' });
-    setBusy(null);
-    if (!response.ok) {
-      setError(t('settingsSaveError'));
-      return;
-    }
-    setIg({ status: 'pending', igUsername: null });
-  }
-
   async function deleteTenant() {
     if (deleteText !== deleteWord) return;
     if (!window.confirm(t('settingsDeleteConfirm'))) return;
@@ -120,8 +102,6 @@ export default function Page() {
     }
     setDeleted(true);
   }
-
-  const igStatus = ig && 'status' in ig && ig.status === 'active' ? t('settingsIgConnected', { username: ig.igUsername ?? 'Instagram' }) : t('settingsIgDisconnected');
 
   return (
     <main className="mx-auto flex max-w-xl flex-col gap-4 p-5">
@@ -147,18 +127,6 @@ export default function Page() {
         <div className="mt-3 grid grid-cols-2 gap-2">
           {(['ru', 'de'] as const).map((item) => <button key={item} className={`rounded-xl px-4 py-3 ${locale === item ? 'bg-tg-button text-tg-button-text' : 'bg-tg-bg'}`} disabled={busy === 'locale'} onClick={() => void saveLocale(item)}>{item === 'ru' ? 'Русский' : 'Deutsch'}</button>)}
         </div>
-      </section>
-
-      <section className="rounded-3xl bg-tg-secondary-bg p-4">
-        <h2 className="text-lg font-semibold">{t('settingsDeliveryTitle')}</h2>
-        <p className="mt-2 text-sm font-medium">{t(tenantState.status === 'ready' && tenantState.tenant.tgTopicsEnabled ? 'settingsTopicsEnabled' : 'settingsTopicsDisabled')}</p>
-        <p className="mt-1 text-sm text-tg-hint">{t('settingsTopicsHint')}</p>
-      </section>
-
-      <section className="rounded-3xl bg-tg-secondary-bg p-4">
-        <h2 className="text-lg font-semibold">Instagram</h2>
-        <p className="mt-2 text-sm text-tg-hint">{igStatus}</p>
-        <button className="mt-3 rounded-xl bg-tg-bg px-4 py-2" disabled={busy === 'disconnect'} onClick={() => void disconnect()}>{t('settingsDisconnect')}</button>
       </section>
 
       <section className="rounded-3xl bg-tg-secondary-bg p-4">

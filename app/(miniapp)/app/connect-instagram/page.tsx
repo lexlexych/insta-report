@@ -130,7 +130,7 @@ export default function ConnectInstagramPage() {
   if (screen === 'loading') return <main className="mx-auto max-w-xl px-5 py-8 text-tg-hint">{t('igLoading')}</main>;
 
   if (screen === 'waiting') {
-    return <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-4 px-5 py-8 text-center"><span aria-hidden className="text-5xl">⏳</span><h1 className="text-2xl font-bold">{t('igWizardWaitingTitle')}</h1><p className="max-w-sm text-sm text-tg-hint">{t('igWizardWaitingBody')}</p></main>;
+    return <main className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center gap-4 px-5 py-8 text-center"><span aria-hidden className="text-5xl">⏳</span><h1 className="text-2xl font-bold">{t('igWizardWaitingTitle')}</h1><p className="max-w-sm text-sm text-tg-hint">{t('igWizardWaitingBody')}</p></main>;
   }
 
   if (screen === 'invite') {
@@ -138,5 +138,5 @@ export default function ConnectInstagramPage() {
   }
 
   const isError = screen === 'error';
-  return <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 px-5 py-8 text-center"><ResultBadge error={isError} /><div><h1 className="text-2xl font-bold">{t(isError ? 'igWizardErrorTitle' : 'igWizardSuccessTitle')}</h1>{isError ? <p className="mt-2 text-sm text-tg-hint">{t(errorReason === 'denied' ? 'igWizardErrorDenied' : 'igWizardErrorGeneric')}</p> : null}</div>{isError ? <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => { setErrorReason(null); setScreen('invite'); void startOauth(); }}>{t('igWizardTryAgain')}</button> : <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => router.replace('/app')}>{t('igWizardToDashboard')}</button>}</main>;
+  return <main className="mx-auto flex min-h-full max-w-xl flex-col items-center justify-center gap-6 px-5 py-8 text-center"><ResultBadge error={isError} /><div><h1 className="text-2xl font-bold">{t(isError ? 'igWizardErrorTitle' : 'igWizardSuccessTitle')}</h1>{isError ? <p className="mt-2 text-sm text-tg-hint">{t(errorReason === 'denied' ? 'igWizardErrorDenied' : 'igWizardErrorGeneric')}</p> : null}</div>{isError ? <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => { setErrorReason(null); setScreen('invite'); void startOauth(); }}>{t('igWizardTryAgain')}</button> : <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={() => router.replace('/app')}>{t('igWizardToDashboard')}</button>}</main>;
 }

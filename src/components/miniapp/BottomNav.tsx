@@ -40,7 +40,7 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t border-tg-secondary-bg bg-tg-bg px-2 pb-3 pt-2 text-tg-hint">
+    <nav className="shrink-0 border-t border-tg-secondary-bg bg-tg-bg px-2 pb-3 pt-2 text-tg-hint">
       <ul className="mx-auto grid max-w-xl grid-cols-4 gap-1">
         {bottomNavItems.map((item) => {
           const active = pathname === item.href;

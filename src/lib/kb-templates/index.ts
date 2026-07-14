@@ -11,8 +11,10 @@ export const BUSINESS_SPHERES = [
 
 export type BusinessSphereId = (typeof BUSINESS_SPHERES)[number]['id'];
 
-export function getKbTemplate(id: BusinessSphereId, locale: Locale): string {
-  return KB_TEMPLATES[locale][id];
+export function getKbTemplate(id: BusinessSphereId, locale: Locale, businessName?: string): string {
+  const template = KB_TEMPLATES[locale][id];
+  const trimmedName = businessName?.trim();
+  return trimmedName ? template.replaceAll('{{BUSINESS_NAME}}', trimmedName) : template;
 }
 
 export function isBusinessSphereId(value: string): value is BusinessSphereId {

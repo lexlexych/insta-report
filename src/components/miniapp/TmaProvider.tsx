@@ -108,7 +108,7 @@ function TelegramOnlyFallback() {
 
 function AuthErrorScreen({ onRetry }: { onRetry: () => void }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-tg-bg p-6 text-center text-tg-text">
+    <main className="flex min-h-full flex-col items-center justify-center gap-4 bg-tg-bg p-6 text-center text-tg-text">
       <h1 className="text-xl font-semibold">{t('de', 'miniAppAuthErrorTitle')}</h1>
       <p className="max-w-sm text-sm text-tg-hint">{t('de', 'miniAppAuthErrorHint')}</p>
       <button
@@ -198,6 +198,9 @@ function TenantProvider({ children }: { children: ReactNode }) {
       router.replace('/app/connect-instagram');
       return;
     }
+
+    // Открыто web_app-кнопкой прямо на этом экране — не уводить на онбординг.
+    if (pathname === '/app/connect-instagram') return;
 
     if (!isDone && !isOnboarding) {
       router.replace('/app/onboarding');

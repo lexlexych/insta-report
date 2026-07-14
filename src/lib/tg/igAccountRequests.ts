@@ -46,14 +46,14 @@ export async function notifyIgAccountAdmins(account: IgAccount, tenant: Tenant):
 }
 
 export async function notifyIgAccountOwner(account: IgAccount, tenant: Tenant): Promise<void> {
-  if (!tenant.tg_chat_id || !env.TELEGRAM_BOT_USERNAME) return;
+  if (!tenant.tg_chat_id) return;
 
   const locale = resolveLocale(tenant.ui_locale);
   const text = escapeHTML(t(locale, 'igAccountApproved', { username: account.ig_username }));
-  const url = `https://t.me/${env.TELEGRAM_BOT_USERNAME}?startapp=connect`;
+  const url = `${env.APP_BASE_URL}/app/connect-instagram`;
   await sendMessageHTML(
     tenant.tg_chat_id,
     text,
-    new InlineKeyboard().url(t(locale, 'igAccountApprovedOpen'), url),
+    new InlineKeyboard().webApp(t(locale, 'igAccountApprovedOpen'), url),
   );
 }

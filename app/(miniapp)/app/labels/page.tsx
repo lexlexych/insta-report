@@ -268,7 +268,7 @@ export default function Page() {
 
   if (loadError) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+      <main className="flex min-h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-tg-hint">{t('labelsLoadError')}</p>
         <button className="rounded-xl bg-tg-button px-5 py-3 font-medium text-tg-button-text" type="button" onClick={() => void load()}>
           {t('retry')}
@@ -278,7 +278,7 @@ export default function Page() {
   }
 
   if (!labelsList) {
-    return <main className="flex min-h-screen items-center justify-center text-tg-hint">{t('igLoading')}</main>;
+    return <main className="flex min-h-full items-center justify-center text-tg-hint">{t('igLoading')}</main>;
   }
 
   return (

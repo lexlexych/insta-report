@@ -1,6 +1,6 @@
 # Über mich
 
-- Anna Müller — Fotografin in München: Familien-, Hochzeits- und Porträtshootings.
+- {{BUSINESS_NAME}} — Fotografin in München: Familien-, Hochzeits- und Porträtshootings.
 - 8 Jahre Erfahrung, über 400 Shootings; Stil — helle, natürliche Bildbearbeitung.
 - Keine festen Öffnungszeiten: Shootings nach Terminvereinbarung, die Zeit stimmen wir individuell ab (wochentags, abends und am Wochenende möglich).
 

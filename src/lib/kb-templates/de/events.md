@@ -1,6 +1,6 @@
 # Über uns
 
-- Eventagentur „Konfetti“ — Organisation von Veranstaltungen in Berlin und im Umkreis von 100 km.
+- Eventagentur „{{BUSINESS_NAME}}“ — Organisation von Veranstaltungen in Berlin und im Umkreis von 100 km.
 - Seit 2018 am Markt, über 250 durchgeführte Veranstaltungen.
 - Team: zwei Eventmanager, ein Dekorateur und geprüfte Partner (Moderatoren, Catering, Musiker, Foto und Video).
 - Sprachen: Deutsch, Englisch, Russisch.

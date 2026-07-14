@@ -42,6 +42,7 @@ export default function MiniAppPage() {
   const [period, setPeriod] = useState<Period>(7);
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [error, setError] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   const load = useCallback(async () => {
     setError(false);
@@ -57,6 +58,20 @@ export default function MiniAppPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const disconnectInstagram = useCallback(async () => {
+    if (!window.confirm(t('settingsDisconnectConfirm'))) return;
+    setDisconnecting(true);
+    try {
+      const response = await fetch('/api/miniapp/ig/disconnect', { method: 'POST' });
+      if (!response.ok) throw new Error('disconnect_failed');
+      await load();
+    } catch {
+      setError(true);
+    } finally {
+      setDisconnecting(false);
+    }
+  }, [load, t]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -98,7 +113,16 @@ export default function MiniAppPage() {
         <span className="block text-sm font-medium">{t('dashboardConnectionTitle')}</span>
         <span className="mt-1 block text-lg font-semibold">{connect === 'awaiting_admin' ? '⏳ ' : ''}{connectionTitle}</span>
         {connect === 'ready' ? <Link className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" href="/app/connect-instagram?from=dashboard">{t('onboardingConnectInstagram')}</Link> : null}
-        {connect === 'active' || connect === 'error' ? <Link className="mt-3 inline-block text-sm underline" href="/app/connect-instagram?from=dashboard">{t('igStatusBadgeOpen')}</Link> : null}
+        {connect === 'active' || connect === 'error' ? (
+          <button
+            type="button"
+            className="mt-3 inline-block rounded-xl bg-tg-bg/70 border px-4 py-2 text-sm font-medium disabled:opacity-40"
+            disabled={disconnecting}
+            onClick={() => void disconnectInstagram()}
+          >
+            {t('settingsDisconnect')}
+          </button>
+        ) : null}
       </section>
 
       <div className="grid grid-cols-2 gap-2 rounded-2xl bg-tg-secondary-bg p-1">
