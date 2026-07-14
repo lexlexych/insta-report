@@ -423,5 +423,50 @@
       "T-038"
     ],
     "notes": "BUGFIX (эпик E10, 2026-07-13). Язык мини-аппа не наследовался из Telegram — все новые пользователи получали de. Причина: launch-параметры Telegram SDK читались из несуществующих полей initDataUnsafe/startParam (форма legacy-API window.Telegram.WebApp), замаскировано самодельным стабом типов. Исправлено: стаб приведён к реальному SDK (tgWebAppData/tgWebAppStartParam), клиент читает tgWebAppData.user.language_code, auth-роут возвращает сервер-авторитетный tgLocale=resolveLocale(user.language_code), TenantProvider применяет его до онбординга (после — ui_locale без изменений). Заодно закрыт регресс deep-link startapp=connect (T-037). Review: approved (0 code-блокеров; блокер manual-test закрыт — docs/manual-tests/T-040.md). lint+typecheck зелёные. Влит в main (merge PR #50, hotfixes PR #51/#52)."
+  },
+  "T-041": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-038",
+      "T-039"
+    ],
+    "notes": ""
+  },
+  "T-042": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-041",
+      "T-043"
+    ],
+    "notes": ""
+  },
+  "T-043": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-036",
+      "T-037"
+    ],
+    "notes": ""
+  },
+  "T-044": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-033",
+      "T-042",
+      "T-043"
+    ],
+    "notes": ""
   }
 }
