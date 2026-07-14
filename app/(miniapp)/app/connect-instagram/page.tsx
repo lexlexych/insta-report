@@ -4,6 +4,7 @@ import { backButton, retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
+import { IG_MANAGE_ACCESS_URL } from '@/lib/ig/manageAccessUrl';
 import { useT } from '@/lib/i18n';
 
 declare global { interface Window { Telegram?: { WebApp?: { openLink?: (url: string) => void } } } }
@@ -11,11 +12,6 @@ declare global { interface Window { Telegram?: { WebApp?: { openLink?: (url: str
 type ConnectStatus = 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error';
 type StatusResponse = { connect?: ConnectStatus };
 type Screen = 'loading' | 'waiting' | 'invite' | 'success' | 'error';
-type InviteStep = 1 | 2;
-
-const INVITE_STEP_STORAGE_KEY = 'igWizardInviteStep';
-// Недокументированный, но широко используемый параметр Instagram, форсирующий повторный ввод логина/пароля; если IG его проигнорирует, страница просто откроется как обычно.
-const IG_FORCE_LOGIN_URL = 'https://www.instagram.com/accounts/login/?force_authentication=1&next=%2Faccounts%2Fmanage_access%2F';
 
 function isMobileTelegram(): boolean {
   try {
@@ -24,25 +20,8 @@ function isMobileTelegram(): boolean {
   } catch { return false; }
 }
 
-function loadInviteStep(): InviteStep {
-  if (typeof window === 'undefined') return 1;
-  try { return window.localStorage.getItem(INVITE_STEP_STORAGE_KEY) === '2' ? 2 : 1; } catch { return 1; }
-}
-
-function InviteStepper({ step, t }: { step: InviteStep; t: (key: string) => string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex flex-col items-center gap-1">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-tg-button text-sm font-semibold text-tg-button-text">{step > 1 ? '✓' : '1'}</span>
-        <span className="text-xs text-tg-hint">{t('igWizardStep1Label')}</span>
-      </div>
-      <div className={`h-0.5 flex-1 ${step > 1 ? 'bg-tg-button' : 'bg-tg-secondary-bg'}`} />
-      <div className="flex flex-col items-center gap-1">
-        <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${step === 2 ? 'bg-tg-button text-tg-button-text' : 'bg-tg-secondary-bg'}`}>2</span>
-        <span className="text-xs text-tg-hint">{t('igWizardStep2Label')}</span>
-      </div>
-    </div>
-  );
+function StepBadge({ step }: { step: 1 | 2 }) {
+  return <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-tg-button text-sm font-semibold text-tg-button-text">{step}</span>;
 }
 
 function ResultBadge({ error }: { error: boolean }) {
@@ -55,25 +34,14 @@ function ResultBadge({ error }: { error: boolean }) {
 }
 
 export default function ConnectInstagramPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [screen, setScreen] = useState<Screen>('loading');
   const [errorReason, setErrorReason] = useState<'denied' | 'error' | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [connectFailed, setConnectFailed] = useState(false);
-  const [inviteStep, setInviteStep] = useState<InviteStep>(loadInviteStep);
   const from = searchParams.get('from');
-
-  const advanceToStep2 = useCallback(() => {
-    setInviteStep(2);
-    try { window.localStorage.setItem(INVITE_STEP_STORAGE_KEY, '2'); } catch { /* webview may forbid storage access */ }
-  }, []);
-
-  const goToInviteStep1 = useCallback(() => {
-    setInviteStep(1);
-    try { window.localStorage.setItem(INVITE_STEP_STORAGE_KEY, '1'); } catch { /* webview may forbid storage access */ }
-  }, []);
 
   // «Далее» сразу открывает логин Instagram — отдельного OAuth-экрана в визарде нет.
   const startOauth = useCallback(async () => {
@@ -105,15 +73,14 @@ export default function ConnectInstagramPage() {
   }, []);
 
   const openInstagramSettings = useCallback(() => {
-    advanceToStep2();
-    // Только openLink, никогда window.location.assign: top-level навигация выгружает мини-апп из
-    // webview, и Telegram-стрелке «назад» становится некому доставить back_button_pressed — она
-    // «умирает» (уже наступали на это). openLink открывает Instagram отдельным браузерным контекстом
-    // (на мобильных — встроенный браузер Telegram поверх мини-аппа), мини-апп остаётся смонтированным,
-    // и стрелка «назад» продолжает управлять нашим приложением.
-    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_FORCE_LOGIN_URL);
-    else window.open(IG_FORCE_LOGIN_URL, '_blank', 'noopener,noreferrer');
-  }, [advanceToStep2]);
+    // Мобильный Telegram даёт мобильный UA, поэтому instagram.com сам отдаёт мобильную вёрстку.
+    // На остальных платформах (desktop/web) UA десктопный, а openLink не умеет задавать размер
+    // внешнего окна — ведём через наш шлюз /ig-gate, который открывает Instagram sized-попапом
+    // (десктопная вёрстка instagram.com отзывчивая и переключается на мобильную при ширине ~375-430px).
+    const url = isMobileTelegram() ? IG_MANAGE_ACCESS_URL : `${window.location.origin}/ig-gate?hl=${locale}`;
+    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
+    else window.open(url, '_blank', 'noopener,noreferrer');
+  }, [locale]);
 
   useEffect(() => {
     const oauthResult = searchParams.get('ig');
@@ -153,17 +120,10 @@ export default function ConnectInstagramPage() {
     return () => { window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh); };
   }, [screen]);
 
-  // Экран визарда 'invite' пройден (успех/ошибка) — сохранённый шаг больше не нужен.
-  useEffect(() => {
-    if (screen !== 'success' && screen !== 'error') return;
-    try { window.localStorage.removeItem(INVITE_STEP_STORAGE_KEY); } catch { /* webview may forbid storage access */ }
-  }, [screen]);
-
   useEffect(() => {
     const handleBack = () => {
-      if (screen === 'error') { setScreen('invite'); return; }
-      if (screen === 'invite' && inviteStep === 2) { goToInviteStep1(); return; }
-      leaveWizard();
+      if (screen === 'error') setScreen('invite');
+      else leaveWizard();
     };
     if (!backButton.mount.isAvailable()) return;
     backButton.mount();
@@ -174,7 +134,7 @@ export default function ConnectInstagramPage() {
       if (backButton.hide.isAvailable()) backButton.hide();
       backButton.unmount();
     };
-  }, [goToInviteStep1, inviteStep, leaveWizard, screen]);
+  }, [leaveWizard, screen]);
 
   if (screen === 'loading') return <main className="mx-auto max-w-xl px-5 py-8 text-tg-hint">{t('igLoading')}</main>;
 
@@ -184,20 +144,19 @@ export default function ConnectInstagramPage() {
 
   if (screen === 'invite') {
     return <main className="mx-auto max-w-xl space-y-5 px-5 py-8">
-      <InviteStepper step={inviteStep} t={t} />
-      {inviteStep === 1
-        ? <>
-          <h1 className="text-2xl font-bold">{t('igWizardInviteTitle')}</h1>
-          <div className="space-y-3 text-sm text-tg-hint"><p>{t('igWizardInviteSteps')}</p><img alt={t('igWizardInviteImageAlt')} className="w-full rounded-2xl border" src="/images/ig-tester-invite.png" /></div>
-          <button className="w-full rounded-xl border px-4 py-3 font-medium" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button>
-          <button className="w-full text-center text-sm text-tg-link underline" type="button" onClick={advanceToStep2}>{t('igWizardInviteAlreadyDone')}</button>
-        </>
-        : <>
-          <h1 className="text-2xl font-bold">{t('igWizardConnectTitle')}</h1>
-          <div className="space-y-3 text-sm text-tg-hint"><p>{t('igWizardInviteReturn')}</p><p>{t('igWizardInviteAlreadyAccepted')}</p></div>
-          {connectFailed ? <p className="text-sm text-red-600">{t('igWizardErrorGeneric')}</p> : null}
-          <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} type="button" onClick={() => void startOauth()}>{connecting ? t('igLoading') : t('onboardingNext')}</button>
-        </>}
+      <section className="space-y-3 rounded-2xl bg-tg-secondary-bg p-4">
+        <div className="flex items-center gap-3"><StepBadge step={1} /><h1 className="text-xl font-bold">{t('igWizardInviteTitle')}</h1></div>
+        <p className="text-sm text-tg-hint">{t('igWizardInviteSteps')}</p>
+        <img alt={t('igWizardInviteImageAlt')} className="w-full rounded-2xl border" src="/images/ig-tester-invite.png" />
+        <button className="w-full rounded-xl border px-4 py-3 font-medium" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button>
+      </section>
+      <section className="space-y-3 rounded-2xl bg-tg-secondary-bg p-4">
+        <div className="flex items-center gap-3"><StepBadge step={2} /><h1 className="text-xl font-bold">{t('igWizardConnectTitle')}</h1></div>
+        <p className="text-sm text-tg-hint">{t('igWizardInviteReturn')}</p>
+        <p className="text-sm text-tg-hint">{t('igWizardInviteAlreadyAccepted')}</p>
+        {connectFailed ? <p className="text-sm text-red-600">{t('igWizardErrorGeneric')}</p> : null}
+        <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} type="button" onClick={() => void startOauth()}>{connecting ? t('igLoading') : t('onboardingNext')}</button>
+      </section>
     </main>;
   }
 
