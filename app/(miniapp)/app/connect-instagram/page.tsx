@@ -24,13 +24,6 @@ function isMobileTelegram(): boolean {
   } catch { return false; }
 }
 
-function isWebTelegram(): boolean {
-  try {
-    const params = retrieveLaunchParams() as { tgWebAppPlatform?: unknown };
-    return String(params.tgWebAppPlatform).startsWith('web');
-  } catch { return false; }
-}
-
 function loadInviteStep(): InviteStep {
   if (typeof window === 'undefined') return 1;
   try { return window.localStorage.getItem(INVITE_STEP_STORAGE_KEY) === '2' ? 2 : 1; } catch { return 1; }
@@ -113,14 +106,13 @@ export default function ConnectInstagramPage() {
 
   const openInstagramSettings = useCallback(() => {
     advanceToStep2();
-    if (isWebTelegram()) {
-      // В web-версии Telegram мини-апп живёт в iframe, а instagram.com запрещает встраивание (X-Frame-Options) — открываем во внешнем окне.
-      if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_FORCE_LOGIN_URL);
-      else window.open(IG_FORCE_LOGIN_URL, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    // На остальных платформах (ios/android/tdesktop/macos и т.д.) мини-апп — тот же webview, поэтому переход остаётся внутри Telegram.
-    window.location.assign(IG_FORCE_LOGIN_URL);
+    // Только openLink, никогда window.location.assign: top-level навигация выгружает мини-апп из
+    // webview, и Telegram-стрелке «назад» становится некому доставить back_button_pressed — она
+    // «умирает» (уже наступали на это). openLink открывает Instagram отдельным браузерным контекстом
+    // (на мобильных — встроенный браузер Telegram поверх мини-аппа), мини-апп остаётся смонтированным,
+    // и стрелка «назад» продолжает управлять нашим приложением.
+    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_FORCE_LOGIN_URL);
+    else window.open(IG_FORCE_LOGIN_URL, '_blank', 'noopener,noreferrer');
   }, [advanceToStep2]);
 
   useEffect(() => {
