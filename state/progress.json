@@ -436,15 +436,15 @@
     "notes": "ЭПИК E11: завершён в эпик-ветке 2026-07-14. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-041.md. Маршрут sphere→business→knowledge→finish (IG-шаги демонтированы), кнопка «Назад», полноэкранное поле КБ без прокрутки страницы, legacy-шаги ig_wait/ig_connect маппятся на knowledge. PR эпика будет открыт по завершении эпика."
   },
   "T-042": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "epic/E11",
     "pr": null,
     "deps": [
       "T-041",
       "T-043"
     ],
-    "notes": ""
+    "notes": "ЭПИК E11: старт 2026-07-14"
   },
   "T-043": {
     "status": "awaiting_merge",
