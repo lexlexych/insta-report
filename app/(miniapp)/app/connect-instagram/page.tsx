@@ -62,7 +62,6 @@ export default function ConnectInstagramPage() {
         if (!payload?.connect) throw new Error('status_failed');
         if (payload.connect === 'none' || payload.connect === 'awaiting_admin') setScreen('waiting');
         else if (payload.connect === 'active') setScreen('success');
-        else if (payload.connect === 'error') showError();
         else setScreen('invite');
       })
       .catch(() => { if (!controller.signal.aborted) showError(); });

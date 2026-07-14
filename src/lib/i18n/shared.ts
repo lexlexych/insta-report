@@ -122,18 +122,6 @@ export const dictionary: Dictionary = {
     igOauthResultDenied: 'Вы отменили подключение в Instagram. Можно попробовать ещё раз.',
     igOauthResultError: 'Не получилось подключить Instagram. Попробуйте ещё раз.',
     igManualAdvancedTitle: 'Продвинутый способ (вручную)',
-    igSuccessTitle: 'Instagram подключён!',
-    igSuccessSubtitle: 'Авторизация прошла успешно.',
-    igSuccessConnectedAs: 'Аккаунт @{username} подключён к InstaReply.',
-    igSuccessNextTitle: 'Что дальше',
-    igSuccessStepLabels:
-      'Настройте категории обращений, если ещё не сделали, — по ним сортируются входящие сообщения.',
-    igSuccessStepLabelsDone: 'Категории уже настроены.',
-    igSuccessStepLabelsButton: 'Настроить категории',
-    igSuccessStepTest:
-      'Отправьте с другого аккаунта тестовое сообщение в Direct вашего Instagram и проверьте, что в Telegram пришёл черновик ответа.',
-    igSuccessGoHome: 'На главную',
-
     igLoading: 'Загрузка…',
     igLoadError: 'Не удалось загрузить статус подключения.',
     igDiagnosticsTitle: 'Диагностика подключения',
@@ -334,18 +322,6 @@ export const dictionary: Dictionary = {
       'Du hast die Verbindung in Instagram abgebrochen. Du kannst es erneut versuchen.',
     igOauthResultError: 'Instagram konnte nicht verbunden werden. Bitte versuche es erneut.',
     igManualAdvancedTitle: 'Erweiterte Methode (manuell)',
-    igSuccessTitle: 'Instagram ist verbunden!',
-    igSuccessSubtitle: 'Die Autorisierung war erfolgreich.',
-    igSuccessConnectedAs: 'Das Konto @{username} ist mit InstaReply verbunden.',
-    igSuccessNextTitle: 'Nächste Schritte',
-    igSuccessStepLabels:
-      'Richte die Anfrage-Kategorien ein, falls noch nicht geschehen — eingehende Nachrichten werden danach sortiert.',
-    igSuccessStepLabelsDone: 'Die Kategorien sind bereits eingerichtet.',
-    igSuccessStepLabelsButton: 'Kategorien einrichten',
-    igSuccessStepTest:
-      'Sende von einem anderen Konto eine Testnachricht per Direct an dein Instagram-Konto und prüfe, ob der Antwortentwurf in Telegram angekommen ist.',
-    igSuccessGoHome: 'Zur Startseite',
-
     igLoading: 'Wird geladen…',
     igLoadError: 'Der Verbindungsstatus konnte nicht geladen werden.',
     igDiagnosticsTitle: 'Verbindungsdiagnose',
