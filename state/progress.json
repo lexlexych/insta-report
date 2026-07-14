@@ -447,15 +447,15 @@
     "notes": ""
   },
   "T-043": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "epic/E11",
     "pr": null,
     "deps": [
       "T-036",
       "T-037"
     ],
-    "notes": ""
+    "notes": "ЭПИК E11: старт 2026-07-14"
   },
   "T-044": {
     "status": "pending",
