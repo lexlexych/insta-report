@@ -43,3 +43,4 @@
 | T-041 | awaiting_merge | epic/E11 | PR эпика (в конце) | 0 | 2026-07-14 |
 | T-043 | awaiting_merge | epic/E11 | PR эпика (в конце) | 1 | 2026-07-14 |
 | T-042 | awaiting_merge | epic/E11 | PR эпика (в конце) | 0 | 2026-07-14 |
+| T-044 | awaiting_merge | epic/E11 | PR эпика (в конце) | 1 | 2026-07-14 |
