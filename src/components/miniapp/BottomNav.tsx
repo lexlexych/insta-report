@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useT } from '@/lib/i18n';
 import { useTenant } from './TmaProvider';
 
-type NavItem = {
+export type BottomNavItem = {
   href: string;
   labelKey: string;
   icon: ReactNode;
@@ -15,7 +15,7 @@ type NavItem = {
 
 const iconClass = 'h-5 w-5';
 
-const items: NavItem[] = [
+export const bottomNavItems: BottomNavItem[] = [
   { href: '/app', labelKey: 'navDashboard', icon: <DashboardIcon /> },
   { href: '/app/simulator', labelKey: 'navSimulator', icon: <ChatIcon /> },
   { href: '/app/labels', labelKey: 'navLabels', icon: <LabelsIcon /> },
@@ -27,12 +27,22 @@ export function BottomNav() {
   const { t } = useT();
   const tenant = useTenant();
 
-  if (tenant.status !== 'ready' || tenant.tenant.onboardingStep !== 'done') return null;
+  if (tenant.status !== 'ready' || !['finish', 'done'].includes(tenant.tenant.onboardingStep ?? '')) return null;
+
+  function completeOnboarding() {
+    if (tenant.status !== 'ready' || tenant.tenant.onboardingStep !== 'finish') return;
+
+    void fetch('/api/miniapp/tenant', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ onboardingStep: 'done' }),
+    }).then(() => tenant.retry()).catch(() => undefined);
+  }
 
   return (
     <nav className="fixed inset-x-0 bottom-0 border-t border-tg-secondary-bg bg-tg-bg px-2 pb-3 pt-2 text-tg-hint">
       <ul className="mx-auto grid max-w-xl grid-cols-4 gap-1">
-        {items.map((item) => {
+        {bottomNavItems.map((item) => {
           const active = pathname === item.href;
 
           return (
@@ -40,6 +50,7 @@ export function BottomNav() {
               <Link
                 className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-medium ${active ? 'text-tg-link' : 'text-tg-hint'}`}
                 href={item.href}
+                onClick={completeOnboarding}
               >
                 {item.icon}
                 <span>{t(item.labelKey)}</span>
