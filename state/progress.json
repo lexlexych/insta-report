@@ -362,25 +362,25 @@
     "notes": "Review: approved (0 циклов доработки). lint+typecheck зелёные. Удалены own_app UI/API/per-tenant webhook, handshake/app_secret/verify_token/history_thread_id колонки и типы. manual-test: docs/manual-tests/T-034.md."
   },
   "T-035": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [],
-    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-035.md. Реализованы реестр BUSINESS_SPHERES, кодоген gen:kb-templates (+--check), getKbTemplate(id, locale), i18n ru/de. PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-035.md. Реализованы реестр BUSINESS_SPHERES, кодоген gen:kb-templates (+--check), getKbTemplate(id, locale), i18n ru/de. Влит в main (merge PR #50, hotfixes PR #51/#52; подтверждено git branch -r --merged origin/main)."
   },
   "T-036": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-034"
     ],
-    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-036.md. Миграция 0011_ig_accounts.sql (таблица ig_accounts + tenants.business_sphere, RLS deny-all), репозиторий igAccounts (normalizeIgUsername, createPending, approve идемпотентен, bindTenant). PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-036.md. Миграция 0011_ig_accounts.sql (таблица ig_accounts + tenants.business_sphere, RLS deny-all), репозиторий igAccounts (normalizeIgUsername, createPending, approve идемпотентен, bindTenant). Влит в main (merge PR #50, hotfixes PR #51/#52; подтверждено git branch -r --merged origin/main)."
   },
   "T-037": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
@@ -389,10 +389,10 @@
       "T-033",
       "T-036"
     ],
-    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-037.md. POST onboarding/ig-account (createPending + notifyIgAccountAdmins), кнопка «Подтвердить» в боте (только админы, идемпотентно через igAccounts.approve), уведомление владельца со startapp=connect, обработка start_param=connect в TmaProvider. PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-037.md. POST onboarding/ig-account (createPending + notifyIgAccountAdmins), кнопка «Подтвердить» в боте (только админы, идемпотентно через igAccounts.approve), уведомление владельца со startapp=connect, обработка start_param=connect в TmaProvider. Влит в main (merge PR #50, hotfixes PR #51/#52; подтверждено git branch -r --merged origin/main)."
   },
   "T-038": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
@@ -401,20 +401,20 @@
       "T-035",
       "T-037"
     ],
-    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (1 цикл — восстановлена обработка OAuth-редиректа ?ig=denied/error в InstagramConnectPanel). lint+typecheck зелёные. manual-test: docs/manual-tests/T-038.md. Полноэкранный визард (сфера/IG-заявка/подключение/база знаний), POST onboarding/complete (KB+system_prompt из шаблона T-035 + defaultSystemPrompt, seed labels), синхронизация ui_locale, вынос normalizeIgUsername в src/lib/ig/username.ts. PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (1 цикл — восстановлена обработка OAuth-редиректа ?ig=denied/error в InstagramConnectPanel). lint+typecheck зелёные. manual-test: docs/manual-tests/T-038.md. Полноэкранный визард (сфера/IG-заявка/подключение/база знаний), POST onboarding/complete (KB+system_prompt из шаблона T-035 + defaultSystemPrompt, seed labels), синхронизация ui_locale, вынос normalizeIgUsername в src/lib/ig/username.ts. Влит в main (merge PR #50, hotfixes PR #51/#52; подтверждено git branch -r --merged origin/main)."
   },
   "T-039": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
     "deps": [
       "T-038"
     ],
-    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-039.md. Удалены роут onboarding/generate, kbGenerationPrompt, колонка tenants.org_description (миграция 0012), устаревшие i18n-ключи старого визарда. seedDefaultLabels сохранён через onboarding/complete. PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E10: завершён в эпик-ветке 2026-07-13. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-039.md. Удалены роут onboarding/generate, kbGenerationPrompt, колонка tenants.org_description (миграция 0012), устаревшие i18n-ключи старого визарда. seedDefaultLabels сохранён через onboarding/complete. Влит в main (merge PR #50, hotfixes PR #51/#52; подтверждено git branch -r --merged origin/main)."
   },
   "T-040": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "epic/E10",
     "pr": "https://github.com/lexlexych/insta-report/pull/50",
@@ -422,6 +422,6 @@
       "T-037",
       "T-038"
     ],
-    "notes": "BUGFIX (эпик E10, 2026-07-13). Язык мини-аппа не наследовался из Telegram — все новые пользователи получали de. Причина: launch-параметры Telegram SDK читались из несуществующих полей initDataUnsafe/startParam (форма legacy-API window.Telegram.WebApp), замаскировано самодельным стабом типов. Исправлено: стаб приведён к реальному SDK (tgWebAppData/tgWebAppStartParam), клиент читает tgWebAppData.user.language_code, auth-роут возвращает сервер-авторитетный tgLocale=resolveLocale(user.language_code), TenantProvider применяет его до онбординга (после — ui_locale без изменений). Заодно закрыт регресс deep-link startapp=connect (T-037). Review: approved (0 code-блокеров; блокер manual-test закрыт — docs/manual-tests/T-040.md). lint+typecheck зелёные."
+    "notes": "BUGFIX (эпик E10, 2026-07-13). Язык мини-аппа не наследовался из Telegram — все новые пользователи получали de. Причина: launch-параметры Telegram SDK читались из несуществующих полей initDataUnsafe/startParam (форма legacy-API window.Telegram.WebApp), замаскировано самодельным стабом типов. Исправлено: стаб приведён к реальному SDK (tgWebAppData/tgWebAppStartParam), клиент читает tgWebAppData.user.language_code, auth-роут возвращает сервер-авторитетный tgLocale=resolveLocale(user.language_code), TenantProvider применяет его до онбординга (после — ui_locale без изменений). Заодно закрыт регресс deep-link startapp=connect (T-037). Review: approved (0 code-блокеров; блокер manual-test закрыт — docs/manual-tests/T-040.md). lint+typecheck зелёные. Влит в main (merge PR #50, hotfixes PR #51/#52)."
   }
 }
