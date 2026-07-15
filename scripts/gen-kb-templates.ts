@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const locales = ['ru', 'de'] as const;
-const sphereIds = ['events', 'photographer', 'travel', 'massage'] as const;
+const sphereIds = ['photographer', 'travel', 'massage', 'beauty', 'restaurant', 'fashion', 'other'] as const;
 const outputPath = resolve('src/lib/kb-templates/templates.gen.ts');
 const check = process.argv.includes('--check');
 
