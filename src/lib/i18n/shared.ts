@@ -143,7 +143,7 @@ export const dictionary: Dictionary = {
     onboardingWaitBody: 'Заявка на подключение Instagram подана. Подключение подтвердит администратор — это займёт немного времени. А пока перейдите к настройке описания вашего бизнеса.',
     onboardingConnectTitle: 'Подключите Instagram',
     onboardingKnowledgeTitle: 'Опишите ваш бизнес',
-    onboardingKnowledgeHint: 'Мы подготовили шаблон для вашей сферы — замените примерные данные (адрес, часы, цены) на свои.',
+    onboardingKnowledgeHint: 'Мы подготовили шаблон для вашей сферы — замените примерные данные (адрес, часы, цены) на свои. Вы можете в любой момент отркдактировать данные в меню настроек',
     onboardingFinishTitle: 'Готово! Что дальше?',
     onboardingFinishIncomingIntro: 'Подключите Instagram-аккаунт, нажав на кнопку внизу страницы. Когда клиент напишет в Instagram Direct, в этот Telegram-чат придёт карточка с черновиком ответа. Отправить его можно одним нажатием.',
     onboardingFinishDashboard: 'Статистика диалогов и статус подключения Instagram.',
