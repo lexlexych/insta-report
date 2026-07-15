@@ -146,12 +146,14 @@ export default function ConnectInstagramPage() {
         <div className="flex items-center gap-3"><StepBadge step={1} /><h1 className="text-xl font-bold">{t('igWizardInviteTitle')}</h1></div>
         <p className="text-sm text-tg-hint">{t('igWizardInviteSteps')}</p>
         <img alt={t('igWizardInviteImageAlt')} className="w-full rounded-2xl border" src="/images/ig-tester-invite.png" />
-        <button className="w-full rounded-xl border px-4 py-3 font-medium" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button>
+        <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text" type="button" onClick={openInstagramSettings}>{t('igWizardInviteOpenSettings')}</button>
       </section>
       <section className="space-y-3 rounded-2xl bg-tg-secondary-bg p-4">
         <div className="flex items-center gap-3"><StepBadge step={2} /><h1 className="text-xl font-bold">{t('igWizardConnectTitle')}</h1></div>
         <p className="text-sm text-tg-hint">{t('igWizardInviteReturn')}</p>
         <p className="text-sm text-tg-hint">{t('igWizardInviteAlreadyAccepted')}</p>
+        <p className="text-sm text-tg-hint">{t('igWizardOauthNote')}</p>
+        <img alt={t('igWizardOauthImageAlt')} className="w-full rounded-2xl border" src="/images/ig-oauth.png" />
         {connectFailed ? <p className="text-sm text-red-600">{t('igWizardErrorGeneric')}</p> : null}
         <button className="w-full rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} type="button" onClick={() => void startOauth()}>{connecting ? t('igLoading') : t('onboardingNext')}</button>
       </section>
