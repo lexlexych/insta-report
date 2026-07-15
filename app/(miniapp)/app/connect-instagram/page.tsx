@@ -12,8 +12,8 @@ type ConnectStatus = 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error';
 type StatusResponse = { connect?: ConnectStatus };
 type Screen = 'loading' | 'waiting' | 'invite' | 'success' | 'error';
 
-// Недокументированный, но широко используемый параметр Instagram, форсирующий повторный ввод логина/пароля; если IG его проигнорирует, страница просто откроется как обычно.
-const IG_FORCE_LOGIN_URL = 'https://www.instagram.com/accounts/login/?force_authentication=1&next=%2Faccounts%2Fmanage_access%2F';
+// Прямой URL страницы «Приглашения для тестировщиков»; проход через /accounts/login/?force_authentication=1 не использовать — на мобильных его перехватывает app-link приложения Instagram.
+const IG_MANAGE_ACCESS_URL = 'https://www.instagram.com/accounts/manage_access/';
 
 function isMobileTelegram(): boolean {
   try {
@@ -76,8 +76,8 @@ export default function ConnectInstagramPage() {
   }, []);
 
   const openInstagramSettings = useCallback(() => {
-    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_FORCE_LOGIN_URL);
-    else window.open(IG_FORCE_LOGIN_URL, '_blank', 'noopener,noreferrer');
+    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_MANAGE_ACCESS_URL);
+    else window.open(IG_MANAGE_ACCESS_URL, '_blank', 'noopener,noreferrer');
   }, []);
 
   useEffect(() => {
