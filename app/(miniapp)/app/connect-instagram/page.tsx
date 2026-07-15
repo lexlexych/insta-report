@@ -4,7 +4,6 @@ import { backButton, retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { IG_MANAGE_ACCESS_URL } from '@/lib/ig/manageAccessUrl';
 import { useT } from '@/lib/i18n';
 
 declare global { interface Window { Telegram?: { WebApp?: { openLink?: (url: string) => void } } } }
@@ -12,6 +11,9 @@ declare global { interface Window { Telegram?: { WebApp?: { openLink?: (url: str
 type ConnectStatus = 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error';
 type StatusResponse = { connect?: ConnectStatus };
 type Screen = 'loading' | 'waiting' | 'invite' | 'success' | 'error';
+
+// Недокументированный, но широко используемый параметр Instagram, форсирующий повторный ввод логина/пароля; если IG его проигнорирует, страница просто откроется как обычно.
+const IG_FORCE_LOGIN_URL = 'https://www.instagram.com/accounts/login/?force_authentication=1&next=%2Faccounts%2Fmanage_access%2F';
 
 function isMobileTelegram(): boolean {
   try {
@@ -34,7 +36,7 @@ function ResultBadge({ error }: { error: boolean }) {
 }
 
 export default function ConnectInstagramPage() {
-  const { t, locale } = useT();
+  const { t } = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [screen, setScreen] = useState<Screen>('loading');
@@ -56,7 +58,8 @@ export default function ConnectInstagramPage() {
       }
       if (!response.ok) throw new Error('login_url_failed');
       const { url } = await response.json() as { url: string };
-      if (embedded) window.location.assign(url);
+      // На странице Instagram наш обработчик стрелки недоступен, поэтому показываем нативный крестик.
+      if (embedded) { if (backButton.hide.isAvailable()) backButton.hide(); window.location.assign(url); }
       else if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
       else window.open(url, '_blank', 'noopener,noreferrer');
     } catch { setConnectFailed(true); } finally { setConnecting(false); }
@@ -73,14 +76,9 @@ export default function ConnectInstagramPage() {
   }, []);
 
   const openInstagramSettings = useCallback(() => {
-    // Мобильный Telegram даёт мобильный UA, поэтому instagram.com сам отдаёт мобильную вёрстку.
-    // На остальных платформах (desktop/web) UA десктопный, а openLink не умеет задавать размер
-    // внешнего окна — ведём через наш шлюз /ig-gate, который открывает Instagram sized-попапом
-    // (десктопная вёрстка instagram.com отзывчивая и переключается на мобильную при ширине ~375-430px).
-    const url = isMobileTelegram() ? IG_MANAGE_ACCESS_URL : `${window.location.origin}/ig-gate?hl=${locale}`;
-    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
-    else window.open(url, '_blank', 'noopener,noreferrer');
-  }, [locale]);
+    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(IG_FORCE_LOGIN_URL);
+    else window.open(IG_FORCE_LOGIN_URL, '_blank', 'noopener,noreferrer');
+  }, []);
 
   useEffect(() => {
     const oauthResult = searchParams.get('ig');
