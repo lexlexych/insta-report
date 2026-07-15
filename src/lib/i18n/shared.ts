@@ -145,7 +145,7 @@ export const dictionary: Dictionary = {
     onboardingKnowledgeTitle: 'Опишите ваш бизнес',
     onboardingKnowledgeHint: 'Мы подготовили шаблон для вашей сферы — замените примерные данные (адрес, часы, цены) на свои.',
     onboardingFinishTitle: 'Готово! Что дальше?',
-    onboardingFinishIncomingIntro: 'Когда клиент напишет в Instagram Direct, в этот Telegram-чат придёт карточка с черновиком ответа. Отправить его можно одним нажатием.',
+    onboardingFinishIncomingIntro: 'Подключите Instagram-аккаунт, нажав на кнопку внизу страницы. Когда клиент напишет в Instagram Direct, в этот Telegram-чат придёт карточка с черновиком ответа. Отправить его можно одним нажатием.',
     onboardingFinishDashboard: 'Статистика диалогов и статус подключения Instagram.',
     onboardingFinishSimulator: 'Проверьте базу знаний: напишите боту как клиент и посмотрите черновики ответов.',
     onboardingFinishLabels: 'Категории обращений и правила ответа для каждой.',
