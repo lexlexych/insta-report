@@ -16,6 +16,10 @@ function panelUrl(): string {
   return new URL('/app', env.APP_BASE_URL).toString();
 }
 
+function onboardingImageUrl(): string {
+  return new URL('/images/onboarding.jpg', env.APP_BASE_URL).toString();
+}
+
 export async function onStart(ctx: Context): Promise<void> {
   if (!ctx.from || !ctx.chat) {
     return;
@@ -31,7 +35,7 @@ export async function onStart(ctx: Context): Promise<void> {
   const locale = resolveLocale(ctx.from.language_code);
   const keyboard = new InlineKeyboard().webApp(t(locale, 'openPanel'), panelUrl());
 
-  await ctx.reply(t(locale, 'tgStart'), { reply_markup: keyboard });
+  await ctx.replyWithPhoto(onboardingImageUrl(), { reply_markup: keyboard });
 }
 
 export async function onIgAdd(ctx: Context): Promise<void> {

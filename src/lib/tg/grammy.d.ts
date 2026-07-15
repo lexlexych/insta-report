@@ -8,6 +8,10 @@ declare module 'grammy' {
       message?: { chat?: { id?: number }; message_id?: number };
     };
     reply(text: string, options?: { reply_markup?: InlineKeyboard }): Promise<unknown>;
+    replyWithPhoto(
+      photo: string,
+      options?: { reply_markup?: InlineKeyboard; caption?: string },
+    ): Promise<unknown>;
     answerCallbackQuery(options?: { text?: string }): Promise<unknown>;
   };
 
