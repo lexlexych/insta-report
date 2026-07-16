@@ -562,13 +562,13 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Документация deploy/README, актуализация research §9 и сквозной manual-test выполнены в санкционированной ветке zernio. Review: approved (0 циклов). lint+typecheck зелёные. Ожидается ручной merge человеком; в репозитории нет результатов внешнего пилота, поэтому вопросы OAuth/message.sent/Inbox addon/Creator/латентности/лимита профилей помечены как «не проверено в пилоте»."
   },
   "T-053": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "zernio",
     "pr": null,
     "deps": [
       "T-051"
     ],
-    "notes": "UI-only follow-up: скрыть старый Meta-коннект, оставить Zernio и убрать ввод Instagram из второго шага онбординга. Бэкенд старого подключения не менять."
+    "notes": "UI-only follow-up: скрыть старый Meta-коннект, оставить Zernio и убрать ввод Instagram из второго шага онбординга. Бэкенд старого подключения не менять. Реализация начата в общей ветке zernio с явного разрешения человека, хотя T-051 ожидает общего merge."
   }
 }
