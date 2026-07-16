@@ -8,10 +8,18 @@ import {
   processedEvents,
   tenants,
   usageStats,
+  zernioAccounts,
 } from '@/lib/db';
+import { isZernioEnabled } from '@/lib/env';
 import { getConversation, sendMessage } from '@/lib/ig/client';
+import { splitMessage } from '@/lib/ig/split';
 import { answerCallback, editMessageHTML } from '@/lib/tg/api';
 import { formatBerlinTime, renderDraftCard } from '@/lib/tg/draftCard';
+import {
+  getConversationMessages as getZernioConversationMessages,
+  sendMessage as sendZernioMessage,
+  ZernioApiError,
+} from '@/lib/zernio/client';
 
 import type { DraftCardVariant } from '@/lib/tg/draftCard';
 import type { Database } from '@/lib/db/types.gen';
@@ -26,8 +34,12 @@ type SendDeps = {
   setErrorToPending: typeof drafts.setErrorToPending;
   getTenant: typeof tenants.getById;
   getConnection: typeof igConnections.getForTenant;
+  isZernioEnabled: typeof isZernioEnabled;
+  getZernioAccount: typeof zernioAccounts.getForTenant;
   getConversation: typeof getConversation;
   sendMessage: typeof sendMessage;
+  getZernioConversationMessages: typeof getZernioConversationMessages;
+  sendZernioMessage: typeof sendZernioMessage;
   addMessageLog: typeof messageLog.add;
   incrementUsage: typeof usageStats.increment;
   markProcessedEvent: typeof processedEvents.tryInsert;
@@ -43,8 +55,12 @@ const DEFAULT_DEPS: SendDeps = {
   setErrorToPending: drafts.setErrorToPending,
   getTenant: tenants.getById,
   getConnection: igConnections.getForTenant,
+  isZernioEnabled,
+  getZernioAccount: zernioAccounts.getForTenant,
   getConversation,
   sendMessage,
+  getZernioConversationMessages,
+  sendZernioMessage,
   addMessageLog: messageLog.add,
   incrementUsage: usageStats.increment,
   markProcessedEvent: processedEvents.tryInsert,
@@ -118,6 +134,115 @@ async function markError(draft: Draft, deps: SendDeps, message: string): Promise
   await editDraftCard(draft, deps, `❌ Ошибка отправки: ${message}`, retryKeyboard(draft.id));
 }
 
+async function finalizeSuccessfulSend(draft: Draft, deps: SendDeps): Promise<void> {
+  await deps.setDraftStatus(draft.id, 'sent', { error: null });
+  await deps.addMessageLog(draft.tenant_id, draft.conversation_key, 'out', draft.draft_text ?? '');
+  await deps.incrementUsage(draft.tenant_id, { draftsSent: 1 });
+  await finalizeSentDraft(draft, deps);
+}
+
+function isPlatformLimitation(error: unknown): boolean {
+  return (
+    error instanceof ZernioApiError &&
+    error.status === 400 &&
+    error.code === 'PLATFORM_LIMITATION'
+  );
+}
+
+async function sendZernioPart(
+  draft: Draft,
+  accountId: string,
+  text: string,
+  deps: SendDeps,
+): Promise<string> {
+  const conversationId = draft.zernio_conversation_id!;
+  try {
+    return (await deps.sendZernioMessage(conversationId, accountId, text)).messageId;
+  } catch (error) {
+    if (!isPlatformLimitation(error)) throw error;
+    return (
+      await deps.sendZernioMessage(conversationId, accountId, text, {
+        messageTag: 'HUMAN_AGENT',
+      })
+    ).messageId;
+  }
+}
+
+async function attemptZernioSend(draft: Draft, deps: SendDeps): Promise<void> {
+  if (!deps.isZernioEnabled()) {
+    await markError(draft, deps, 'zernio_disabled');
+    return;
+  }
+
+  let account;
+  try {
+    account = await deps.getZernioAccount(draft.tenant_id);
+  } catch (error) {
+    await markError(draft, deps, shortError(error));
+    return;
+  }
+
+  if (!account || account.status !== 'active' || !account.zernio_account_id) {
+    const message =
+      account?.status === 'disconnected'
+        ? 'Подключение Zernio отключено. Переподключите Instagram.'
+        : 'Zernio подключение неактивно или не настроено';
+    await markError(draft, deps, message);
+    return;
+  }
+  if (!draft.zernio_conversation_id) {
+    await markError(draft, deps, 'в черновике нет Zernio-переписки');
+    return;
+  }
+  if (!draft.draft_text) {
+    await markError(draft, deps, 'в черновике нет текста');
+    return;
+  }
+
+  try {
+    try {
+      const messages = await deps.getZernioConversationMessages(
+        draft.zernio_conversation_id,
+        account.zernio_account_id,
+        { limit: 20, sortOrder: 'desc' },
+      );
+      const hasManualReply = messages.some(
+        (message) =>
+          message.direction === 'outgoing' &&
+          draft.trigger_ts !== null &&
+          Date.parse(message.createdAt) > draft.trigger_ts,
+      );
+      if (hasManualReply) {
+        await deps.setDraftStatus(draft.id, 'skipped_manual', { error: null });
+        await editDraftCard(draft, deps, '⚠️ Отменено: вы уже ответили вручную');
+        return;
+      }
+    } catch (error) {
+      // Анти-двойник намеренно best-effort: недоступный Inbox не должен блокировать ответ.
+      console.warn(`[pipeline] Zernio anti-double-check failed draft=${draft.id}`, error);
+    }
+
+    const parts = splitMessage(draft.draft_text, 1000);
+    let sentParts = 0;
+    try {
+      for (const part of parts) {
+        const messageId = await sendZernioPart(draft, account.zernio_account_id, part, deps);
+        if (!messageId.trim()) throw new Error('Zernio returned an empty message ID');
+        sentParts += 1;
+        await deps.markProcessedEvent(draft.tenant_id, messageId);
+      }
+    } catch (error) {
+      const prefix = sentParts > 0 ? `отправлено частично (${sentParts} из ${parts.length}): ` : '';
+      await markError(draft, deps, `${prefix}${shortError(error)}`);
+      return;
+    }
+
+    await finalizeSuccessfulSend(draft, deps);
+  } catch (error) {
+    await markError(draft, deps, shortError(error));
+  }
+}
+
 export async function attemptSend(
   draftId: string,
   callbackQueryId: string,
@@ -139,14 +264,17 @@ export async function attemptSend(
     return;
   }
 
-  const [tenant, conn] = await Promise.all([
-    d.getTenant(draft.tenant_id),
-    d.getConnection(draft.tenant_id),
-  ]);
+  const tenant = await d.getTenant(draft.tenant_id);
   if (!tenant) {
     await markError(draft, d, 'тенант не найден');
     return;
   }
+  if (draft.provider === 'zernio') {
+    await attemptZernioSend(draft, d);
+    return;
+  }
+
+  const conn = await d.getConnection(draft.tenant_id);
   if (!conn?.accessToken || !conn.ig_account_id || conn.status !== 'active') {
     await markError(draft, d, 'Instagram подключение неактивно или не настроено');
     return;
@@ -179,10 +307,7 @@ export async function attemptSend(
     await Promise.all(
       mids.filter((mid) => mid.trim()).map((mid) => d.markProcessedEvent(tenant.id, mid)),
     );
-    await d.setDraftStatus(draft.id, 'sent', { error: null });
-    await d.addMessageLog(tenant.id, draft.conversation_key, 'out', draftText);
-    await d.incrementUsage(tenant.id, { draftsSent: 1 });
-    await finalizeSentDraft(draft, d);
+    await finalizeSuccessfulSend(draft, d);
   } catch (error) {
     await markError(draft, d, shortError(error));
   }

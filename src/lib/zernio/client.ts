@@ -2,6 +2,7 @@ import { env, isZernioEnabled } from '../env';
 import type { ZernioAccount, ZernioInboxMessage, ZernioWebhookSetting } from './types';
 
 type ZernioErrorPayload = {
+  code?: string;
   error?: string | { message?: string };
   message?: string;
   requiresAddon?: boolean;
@@ -23,6 +24,7 @@ export class ZernioApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly code?: string,
   ) {
     super(message);
     this.name = 'ZernioApiError';
@@ -30,22 +32,22 @@ export class ZernioApiError extends Error {
 }
 
 export class ZernioAuthError extends ZernioApiError {
-  constructor(message: string) {
-    super(401, message);
+  constructor(message: string, code?: string) {
+    super(401, message, code);
     this.name = 'ZernioAuthError';
   }
 }
 
 export class ZernioAddonError extends ZernioApiError {
-  constructor(status: number, message: string) {
-    super(status, message);
+  constructor(status: number, message: string, code?: string) {
+    super(status, message, code);
     this.name = 'ZernioAddonError';
   }
 }
 
 export class ZernioRateLimitError extends ZernioApiError {
-  constructor(message: string) {
-    super(429, message);
+  constructor(message: string, code?: string) {
+    super(429, message, code);
     this.name = 'ZernioRateLimitError';
   }
 }
@@ -76,12 +78,12 @@ async function throwZernioError(response: Response): Promise<never> {
   }
 
   const message = errorMessage(payload, response.status);
-  if (response.status === 401) throw new ZernioAuthError(message);
-  if (response.status === 429) throw new ZernioRateLimitError(message);
+  if (response.status === 401) throw new ZernioAuthError(message, payload.code);
+  if (response.status === 429) throw new ZernioRateLimitError(message, payload.code);
   if (response.status === 403 || payload.requiresAddon) {
-    throw new ZernioAddonError(response.status, message);
+    throw new ZernioAddonError(response.status, message, payload.code);
   }
-  throw new ZernioApiError(response.status, message);
+  throw new ZernioApiError(response.status, message, payload.code);
 }
 
 async function zernioFetch<T>(path: string, init?: RequestInit): Promise<T> {
