@@ -56,9 +56,22 @@ export const envSchema = z.object({
   IG_WEBHOOK_VERIFY_TOKEN: z.string().trim().min(1),
   /** Username Telegram-бота без @ для ссылки возврата из OAuth */
   TELEGRAM_BOT_USERNAME: z.string().trim().optional().default(''),
+  /** API-ключ Zernio для интеграции с Instagram через Zernio */
+  ZERNIO_API_KEY: z.string().min(1).optional(),
+  /** Секрет для проверки подписей webhook-ов Zernio */
+  ZERNIO_WEBHOOK_SECRET: z.string().min(1).optional(),
+  /** Базовый URL API Zernio */
+  ZERNIO_API_BASE: z.string().url().optional().default('https://zernio.com/api'),
   /** Суточный лимит запросов к симулятору тест-чата на tenant */
   SIMULATOR_DAILY_LIMIT: z.coerce.number().int().positive().default(30),
-});
+}).refine(
+  (value) => Boolean(value.ZERNIO_API_KEY) === Boolean(value.ZERNIO_WEBHOOK_SECRET),
+  {
+    message:
+      'ZERNIO_API_KEY и ZERNIO_WEBHOOK_SECRET должны быть заданы вместе или оба отсутствовать',
+    path: ['ZERNIO_API_KEY'],
+  },
+);
 
 export type Env = z.infer<typeof envSchema>;
 
@@ -73,6 +86,12 @@ export function getEnv(): Env {
     cachedEnv = envSchema.parse(process.env);
   }
   return cachedEnv;
+}
+
+/** Возвращает true, когда интеграция Zernio полностью настроена. */
+export function isZernioEnabled(): boolean {
+  const configured = getEnv();
+  return Boolean(configured.ZERNIO_API_KEY && configured.ZERNIO_WEBHOOK_SECRET);
 }
 
 /**
