@@ -538,15 +538,15 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализовано в общей санкционированной ветке эпика zernio. Review: approved (0 циклов). lint+typecheck зелёные; demo: scripts/manual/T-050-demo.ts; manual-test: docs/manual-tests/T-050.md. Для Zernio кнопка «Отправить» использует Inbox API, регистрирует ID собственного исходящего сообщения, гасит ручной ответ anti-double-check и повторяет PLATFORM_LIMITATION с HUMAN_AGENT. PR эпика будет открыт по завершении эпика."
   },
   "T-051": {
-    "status": "done",
-    "attempts": 1,
-    "branch": "zernio",
-    "pr": null,
+    "status": "awaiting_merge",
+    "attempts": 2,
+    "branch": "codex/fix-ios-oauth-browser",
+    "pr": "https://github.com/lexlexych/insta-report/pull/54",
     "deps": [
       "T-027",
       "T-047"
     ],
-    "notes": "ЭПИК E12 (Instagram через Zernio). Реализована независимая область подключения Zernio на дашборде: локальный статус API, embedded/desktop OAuth, обновление после возврата, отключение и i18n ru/de. Review: approved (1 цикл — добавлен спиннер на кнопке запроса). lint+typecheck зелёные (2 предсуществующих предупреждения <img>). manual-test: docs/manual-tests/T-051.md. PR эпика будет открыт по завершении эпика."
+    "notes": "ЭПИК E12 (Instagram через Zernio). Реализована независимая область подключения Zernio на дашборде: локальный статус API, embedded/desktop OAuth, обновление после возврата, отключение и i18n ru/de. Follow-up iPhone: прямой Instagram Universal Link заменён на same-origin browser bridge /zernio-oauth; iOS callback работает как standalone browser flow, добавлена кнопка повторного открытия из пользовательского клика. Повторно открыт до ручной проверки на реальном iPhone и merge PR #54. Review: approved (0 блокеров). lint+typecheck зелёные. manual-test: docs/manual-tests/T-051.md."
   },
   "T-052": {
     "status": "done",
