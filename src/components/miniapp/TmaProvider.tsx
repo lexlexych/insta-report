@@ -199,6 +199,11 @@ function TenantProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (startParam === 'zernio') {
+      router.replace('/app');
+      return;
+    }
+
     // Открыто web_app-кнопкой прямо на этом экране — не уводить на онбординг.
     if (pathname === '/app/connect-instagram') return;
 
