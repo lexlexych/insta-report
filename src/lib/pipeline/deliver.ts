@@ -1,18 +1,21 @@
 import { PendingExistsError } from '@/lib/db/errors';
 import { conversationKey } from '@/lib/pipeline/key';
 import { draftKeyboard, formatBerlinTime, renderDraftCard } from '@/lib/tg/draftCard';
-import { ensureLabelTopic } from '@/lib/tg/topics';
 
-import type { DecryptedIgConnection } from '@/lib/db/igConnections';
 import type { Label, Tenant } from '@/lib/pipeline/classify';
 import type { ConversationContext } from '@/lib/pipeline/context';
-import type { IgEvent } from '@/lib/pipeline/types';
+import type { IgEvent, PipelineConnection } from '@/lib/pipeline/types';
 
 type SentTelegramMessage = { message_id: number };
+type EnsureLabelTopic = (
+  tenant: Tenant,
+  label: Label,
+  logger?: Pick<Console, 'error'>,
+) => Promise<number | null>;
 
 export type DeliverDraftInput = {
   tenant: Tenant;
-  conn: DecryptedIgConnection;
+  conn: PipelineConnection;
   ev: IgEvent;
   ctx: ConversationContext;
   label: Label;
@@ -24,7 +27,7 @@ type DeliverDraftDeps = {
   insertPending: typeof import('@/lib/db/drafts').insertPending;
   sendMessageHTML: typeof import('@/lib/tg/api').sendMessageHTML;
   deleteMessageSafe: typeof import('@/lib/tg/api').deleteMessageSafe;
-  ensureLabelTopic: typeof ensureLabelTopic;
+  ensureLabelTopic: EnsureLabelTopic;
   randomUUID: typeof crypto.randomUUID;
   logger: Pick<Console, 'error'>;
 };
@@ -34,6 +37,7 @@ async function resolveDeps(deps: Partial<DeliverDraftDeps>): Promise<DeliverDraf
     deps.cancelPendingByConversation && deps.insertPending ? null : await import('@/lib/db/drafts');
   const tgApi =
     deps.sendMessageHTML && deps.deleteMessageSafe ? null : await import('@/lib/tg/api');
+  const topics = deps.ensureLabelTopic ? null : await import('@/lib/tg/topics');
 
   return {
     cancelPendingByConversation:
@@ -41,7 +45,7 @@ async function resolveDeps(deps: Partial<DeliverDraftDeps>): Promise<DeliverDraf
     insertPending: deps.insertPending ?? draftRepo?.insertPending,
     sendMessageHTML: deps.sendMessageHTML ?? tgApi?.sendMessageHTML,
     deleteMessageSafe: deps.deleteMessageSafe ?? tgApi?.deleteMessageSafe,
-    ensureLabelTopic: deps.ensureLabelTopic ?? ensureLabelTopic,
+    ensureLabelTopic: deps.ensureLabelTopic ?? topics?.ensureLabelTopic,
     randomUUID: deps.randomUUID ?? crypto.randomUUID,
     logger: deps.logger ?? console,
   } as DeliverDraftDeps;
@@ -111,6 +115,9 @@ export async function deliverDraft(
       tg_chat_id: chatId,
       tg_message_id: messageId,
       trigger_ts: input.ev.ts,
+      provider: input.ev.provider ?? 'meta',
+      zernio_conversation_id:
+        input.ev.provider === 'zernio' ? (input.ev.zernioConversationId ?? null) : null,
     });
   } catch (error) {
     if (!isPendingExistsError(error)) throw error;

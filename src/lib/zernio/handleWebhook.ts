@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { tenants, zernioAccounts } from '@/lib/db';
 import { sendMessageHTML } from '@/lib/tg/api';
 
+import { handleZernioMessage } from './handleMessage';
+
 const OWNER_DISCONNECTED_ALERT = '⚠️ Подключение Instagram через Zernio разорвано, переподключите.';
 
 const zernioAccountSchema = z
@@ -114,11 +116,6 @@ async function handleAccountDisconnected(payload: ZernioWebhookPayload): Promise
 
   await zernioAccounts.setStatus(registered.tenant_id, 'instagram', 'error', reason);
   await notifyOwnerAboutDisconnection(registered.tenant_id);
-}
-
-async function handleZernioMessage(payload: ZernioWebhookPayload): Promise<void> {
-  // TODO(T-049): разобрать message.*, дедуплицировать platformMessageId и передать в pipeline.
-  console.debug(`[zernio/webhook] ${payload.event} deferred to T-049`);
 }
 
 /** Маршрутизирует уже провалидированное событие Zernio. */

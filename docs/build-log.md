@@ -49,3 +49,4 @@
 | T-046 | awaiting_merge | zernio | PR эпика (в конце) | 0 | 2026-07-16 |
 | T-047 | awaiting_merge | zernio | PR эпика (в конце) | 1 | 2026-07-16 |
 | T-048 | awaiting_merge | zernio | PR эпика (в конце) | 1 | 2026-07-16 |
+| T-049 | awaiting_merge | zernio | ручной merge | 0 | 2026-07-16 |

@@ -512,7 +512,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — повторный account.connected стал true no-op и не меняет connected_at). lint+typecheck зелёные. manual-test: docs/manual-tests/T-048.md. Вебхук Zernio: raw HMAC-подпись, быстрый ACK, account.connected/disconnected, setup-скрипт. PR эпика будет открыт по завершении эпика."
   },
   "T-049": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -522,7 +522,7 @@
       "T-046",
       "T-048"
     ],
-    "notes": "ЭПИК E12 (Instagram через Zernio). Реализация начата в общей ветке эпика zernio с явного разрешения человека; T-046/T-048 присутствуют в этой ветке и ожидают общего ручного merge."
+    "notes": "ЭПИК E12 (Instagram через Zernio). Реализовано в общей ветке эпика zernio с явного разрешения человека; T-046/T-048 присутствуют в этой ветке и ожидают общего ручного merge. Review: approved (0 циклов). lint+typecheck зелёные; demo: scripts/manual/T-049-demo.ts; manual-test: docs/manual-tests/T-049.md. Zernio message.received/message.sent используют общий pipeline с кросс-провайдерным дедупом Meta mid, Inbox-контекстом и provider=zernio/zernio_conversation_id в drafts."
   },
   "T-050": {
     "status": "pending",

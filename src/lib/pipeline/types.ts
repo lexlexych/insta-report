@@ -1,4 +1,8 @@
 export type IgEventKind = 'incoming' | 'echo';
+export type MessageProvider = 'meta' | 'zernio';
+
+/** Минимальный контракт активного канала, нужный общей части pipeline. */
+export type PipelineConnection = { status: string };
 
 /** Типизированное событие Instagram-вебхука после парсинга (см. T-016, plan §2.2 поток A). */
 export interface IgEvent {
@@ -13,4 +17,10 @@ export interface IgEvent {
   attachmentTypes: string[];
   mid: string;
   ts: number;
+  /** Не задан для прямого Meta-вебхука; Zernio передаёт явное значение. */
+  provider?: MessageProvider;
+  /** ID переписки Zernio — нужен T-050 для отправки ответа через провайдера. */
+  zernioConversationId?: string;
+  zernioAccountId?: string;
+  contactUsername?: string | null;
 }

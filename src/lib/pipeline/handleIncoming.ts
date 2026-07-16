@@ -1,16 +1,17 @@
 import { igConnections, labels, messageLog, tenants, usageStats } from '@/lib/db';
+import type { DecryptedIgConnection } from '@/lib/db/igConnections';
 import { classify } from '@/lib/pipeline/classify';
 import { buildContext } from '@/lib/pipeline/context';
 import { deliverDraft } from '@/lib/pipeline/deliver';
 import { generateDraft } from '@/lib/pipeline/draft';
 import { conversationKey } from '@/lib/pipeline/key';
 
-import type { IgEvent } from './types';
+import type { IgEvent, PipelineConnection } from './types';
 
-type HandleIncomingDeps = {
+export type HandleIncomingDeps = {
   getTenant: typeof tenants.getById;
-  getConnection: typeof igConnections.getForTenant;
-  buildContext: typeof buildContext;
+  getConnection: (tenantId: string) => Promise<PipelineConnection | null>;
+  buildContext: (connection: PipelineConnection, ev: IgEvent) => ReturnType<typeof buildContext>;
   listLabels: typeof labels.listByTenant;
   classify: typeof classify;
   generateDraft: typeof generateDraft;
@@ -22,8 +23,9 @@ type HandleIncomingDeps = {
 
 const DEFAULT_DEPS: HandleIncomingDeps = {
   getTenant: tenants.getById,
-  getConnection: igConnections.getForTenant,
-  buildContext,
+  getConnection: (tenantId) => igConnections.getForTenant(tenantId),
+  // Значение conn здесь всегда пришло из igConnections.getForTenant; адаптер только расширяет DI.
+  buildContext: (conn, ev) => buildContext(conn as DecryptedIgConnection, ev),
   listLabels: labels.listByTenant,
   classify,
   generateDraft,
