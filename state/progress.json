@@ -490,7 +490,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-046.md (+ scripts/manual/T-046-demo.ts). PR эпика будет открыт по завершении эпика."
   },
   "T-047": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -498,7 +498,7 @@
       "T-045",
       "T-046"
     ],
-    "notes": "ЭПИК E12: старт 2026-07-16."
+    "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — ветка в manual-tests T-046/T-047, embedded-aware 403, jsonResponse). lint+typecheck зелёные. manual-test: docs/manual-tests/T-047.md. Residual NIT на полировку: ветка отказа серверной сверки listAccounts в callback не embedded-aware (голый 403 вместо редиректа). ЭПИК ОСТАНОВЛЕН ЧЕЛОВЕКОМ после T-047: T-048…T-052 остаются pending, PR эпика не открыт. Возобновление — /startEpic 12."
   },
   "T-048": {
     "status": "pending",

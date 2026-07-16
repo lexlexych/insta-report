@@ -47,3 +47,4 @@
 | E11 (итог) | done | epic/E11 | влит вручную без PR (merge 1df61ab) | T-041..T-044 | 2026-07-14 |
 | T-045 | awaiting_merge | zernio | PR эпика (в конце) | 1 | 2026-07-16 |
 | T-046 | awaiting_merge | zernio | PR эпика (в конце) | 0 | 2026-07-16 |
+| T-047 | awaiting_merge | zernio | PR эпика (в конце) | 1 | 2026-07-16 |
