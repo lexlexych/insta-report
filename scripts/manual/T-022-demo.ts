@@ -38,6 +38,8 @@ const baseDraft: Draft = {
   trigger_ts: Date.parse('2026-07-05T10:00:00Z'),
   status: 'pending',
   error: null,
+  provider: 'meta',
+  zernio_conversation_id: null,
   created_at: '2026-07-05T10:00:00Z',
 };
 

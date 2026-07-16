@@ -38,6 +38,13 @@ export class PendingExistsError extends Error {
   }
 }
 
+export class ZernioAccountConflictError extends Error {
+  constructor() {
+    super('Zernio account is already connected to another tenant');
+    this.name = 'ZernioAccountConflictError';
+  }
+}
+
 export function isSupabaseCode(error: SupabaseErrorLike | null | undefined, code: string): boolean {
   return error?.code === code;
 }

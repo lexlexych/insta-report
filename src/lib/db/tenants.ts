@@ -48,6 +48,7 @@ const TENANT_SCOPED_TABLES = [
   'usage_stats',
   'labels',
   'ig_connections',
+  'zernio_accounts',
 ] as const satisfies readonly (keyof Database['public']['Tables'])[];
 
 export async function deleteCascade(id: string): Promise<void> {

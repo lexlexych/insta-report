@@ -6,11 +6,12 @@ type Draft = Database['public']['Tables']['drafts']['Row'];
 type DraftInsert = Database['public']['Tables']['drafts']['Insert'];
 type DraftUpdate = Database['public']['Tables']['drafts']['Update'];
 type DraftStatus = Draft['status'];
+export type DraftProvider = Draft['provider'];
 
 export async function insertPending(data: Omit<DraftInsert, 'status'>): Promise<Draft> {
   const result = await getDb()
     .from('drafts')
-    .insert({ ...data, status: 'pending' })
+    .insert({ ...data, provider: data.provider ?? 'meta', status: 'pending' })
     .select()
     .single();
   if (isSupabaseCode(result.error, '23505')) throw new PendingExistsError();

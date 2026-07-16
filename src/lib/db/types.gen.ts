@@ -195,6 +195,8 @@ export type Database = {
           trigger_ts: number | null;
           status: 'pending' | 'sending' | 'sent' | 'cancelled' | 'skipped_manual' | 'error';
           error: string | null;
+          provider: 'meta' | 'zernio';
+          zernio_conversation_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -212,6 +214,8 @@ export type Database = {
           trigger_ts?: number | null;
           status?: 'pending' | 'sending' | 'sent' | 'cancelled' | 'skipped_manual' | 'error';
           error?: string | null;
+          provider?: 'meta' | 'zernio';
+          zernio_conversation_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -229,6 +233,8 @@ export type Database = {
           trigger_ts?: number | null;
           status?: 'pending' | 'sending' | 'sent' | 'cancelled' | 'skipped_manual' | 'error';
           error?: string | null;
+          provider?: 'meta' | 'zernio';
+          zernio_conversation_id?: string | null;
           created_at?: string;
         };
         Relationships: [
@@ -244,6 +250,53 @@ export type Database = {
             columns: ['label_id'];
             isOneToOne: false;
             referencedRelation: 'labels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      zernio_accounts: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          platform: 'instagram';
+          zernio_profile_id: string;
+          zernio_account_id: string | null;
+          username: string | null;
+          status: 'pending' | 'active' | 'disconnected' | 'error';
+          connected_at: string | null;
+          disconnect_reason: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          platform?: 'instagram';
+          zernio_profile_id: string;
+          zernio_account_id?: string | null;
+          username?: string | null;
+          status?: 'pending' | 'active' | 'disconnected' | 'error';
+          connected_at?: string | null;
+          disconnect_reason?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          platform?: 'instagram';
+          zernio_profile_id?: string;
+          zernio_account_id?: string | null;
+          username?: string | null;
+          status?: 'pending' | 'active' | 'disconnected' | 'error';
+          connected_at?: string | null;
+          disconnect_reason?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'zernio_accounts_tenant_id_fkey';
+            columns: ['tenant_id'];
+            isOneToOne: false;
+            referencedRelation: 'tenants';
             referencedColumns: ['id'];
           },
         ];
