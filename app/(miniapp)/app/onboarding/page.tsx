@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 
 import { useTenant } from '@/components/miniapp/TmaProvider';
 import { bottomNavItems } from '@/components/miniapp/BottomNav';
-import { normalizeIgUsername } from '@/lib/ig/username';
+import { ZernioConnectPanel, type ZernioConnection } from '@/components/miniapp/ZernioConnectPanel';
 import { BUSINESS_SPHERES, getKbTemplate, isBusinessSphereId, type BusinessSphereId } from '@/lib/kb-templates';
 import { useT } from '@/lib/i18n';
 
 type Step = 'sphere' | 'business' | 'knowledge' | 'finish' | 'done';
-type ConnectStatus = 'none' | 'awaiting_admin' | 'ready' | 'active' | 'error';
+type DashboardResponse = { zernio?: ZernioConnection };
 const steps: Step[] = ['sphere', 'business', 'knowledge', 'finish', 'done'];
 const normalizeStep = (value: string | null | undefined): Step => {
   if (value === 'ig_wait' || value === 'ig_connect') return 'knowledge';
@@ -21,30 +21,35 @@ async function patchTenant(data: Record<string, string>) { const response = awai
 export default function Page() {
   const tenant = useTenant(); const router = useRouter(); const { t, locale } = useT();
   const [step, setStep] = useState<Step>('sphere'); const [sphere, setSphere] = useState<BusinessSphereId | null>(null);
-  const [orgName, setOrgName] = useState(''); const [username, setUsername] = useState(''); const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [orgName, setOrgName] = useState('');
   const [knowledge, setKnowledge] = useState(''); const [saving, setSaving] = useState(false); const [error, setError] = useState<string | null>(null);
-  const [connectStatus, setConnectStatus] = useState<ConnectStatus | null>(null);
+  const [zernio, setZernio] = useState<ZernioConnection | null>(null);
   const [kbFocused, setKbFocused] = useState(false);
   useEffect(() => { if (tenant.status !== 'ready') return; const initial = normalizeStep(tenant.tenant.onboardingStep); if (initial === 'done') { router.replace('/app'); return; } setStep(initial); setOrgName(tenant.tenant.orgName ?? ''); if (isBusinessSphereId(tenant.tenant.businessSphere ?? '')) setSphere(tenant.tenant.businessSphere as BusinessSphereId); if (initial === 'knowledge') setKnowledge(tenant.tenant.knowledgeBase ?? getKbTemplate(tenant.tenant.businessSphere as BusinessSphereId, locale, tenant.tenant.orgName ?? '')); if (!tenant.tenant.onboardingStep) void patchTenant({ uiLocale: locale }); }, [locale, router, tenant]);
+  const loadZernio = useCallback(async () => {
+    const response = await fetch('/api/miniapp/dashboard?days=7');
+    if (!response.ok) return;
+    const data = await response.json() as DashboardResponse;
+    setZernio(data.zernio ?? null);
+  }, []);
   useEffect(() => {
     if (step !== 'finish') return;
-    const controller = new AbortController();
-
-    void fetch('/api/miniapp/ig/status', { signal: controller.signal })
-      .then(async (response) => response.ok ? await response.json() as { connect?: ConnectStatus } : null)
-      .then((data) => { if (data?.connect) setConnectStatus(data.connect); })
-      .catch(() => undefined);
-
-    return () => controller.abort();
-  }, [step]);
-  const canContinue = useMemo(() => ({ sphere: Boolean(sphere), business: orgName.trim().length >= 2 && Boolean(normalizeIgUsername(username)), knowledge: knowledge.trim().length > 0 && knowledge.length <= 20_000, finish: true, done: false }[step]), [knowledge, orgName, sphere, step, username]);
-  const go = useCallback(async (next: Step) => { setSaving(true); setError(null); try { await patchTenant({ onboardingStep: next }); setStep(next); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } }, [t]);
+    void loadZernio();
+    const refresh = () => { if (document.visibilityState === 'visible') void loadZernio(); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [loadZernio, step]);
+  const canContinue = useMemo(() => ({ sphere: Boolean(sphere), business: orgName.trim().length >= 2, knowledge: knowledge.trim().length > 0 && knowledge.length <= 20_000, finish: true, done: false }[step]), [knowledge, orgName, sphere, step]);
   const next = useCallback(async () => {
     if (!canContinue || saving) return;
     if (step === 'sphere' && sphere) { await patchTenant({ businessSphere: sphere, onboardingStep: 'business' }); setStep('business'); return; }
-    if (step === 'business') { const normalized = normalizeIgUsername(username); if (!normalized) return; setSaving(true); setError(null); try { await patchTenant({ orgName: orgName.trim() }); const response = await fetch('/api/miniapp/onboarding/ig-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ igUsername: normalized }) }); const data = await response.json() as { status?: 'pending' | 'approved'; code?: string }; if (response.status === 409 && data.code === 'taken') { setUsernameError(t('onboardingUsernameTaken')); return; } if (!response.ok || !data.status) throw new Error('ig_account_failed'); await go('knowledge'); if (!knowledge && sphere) setKnowledge(getKbTemplate(sphere, locale, orgName.trim())); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } return; }
+    if (step === 'business') { setSaving(true); setError(null); try { await patchTenant({ orgName: orgName.trim(), onboardingStep: 'knowledge' }); setStep('knowledge'); if (!knowledge && sphere) setKnowledge(getKbTemplate(sphere, locale, orgName.trim())); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } return; }
     if (step === 'knowledge') { setSaving(true); setError(null); try { const response = await fetch('/api/miniapp/onboarding/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ knowledgeBase: knowledge }) }); if (!response.ok) throw new Error('complete_failed'); setStep('finish'); tenant.retry(); } catch { setError(t('onboardingSaveError')); } finally { setSaving(false); } return; }
-  }, [canContinue, go, knowledge, locale, orgName, saving, sphere, step, t, tenant, username]);
+  }, [canContinue, knowledge, locale, orgName, saving, sphere, step, t, tenant]);
   const back = useCallback(async () => {
     const previous: Partial<Record<Step, Step>> = { business: 'sphere', knowledge: 'business' };
     const nextStep = previous[step];
@@ -57,18 +62,11 @@ export default function Page() {
   const knowledgeLayout = step === 'knowledge';
   const kbEditing = step === 'knowledge' && kbFocused;
   const isFinish = step === 'finish';
-  const leaveOnboarding = () => {
-    void patchTenant({ onboardingStep: 'done' }).then(() => tenant.retry()).catch(() => undefined);
-  };
-  const connectInstagram = () => {
-    leaveOnboarding();
-    router.replace('/app/connect-instagram?from=onboarding');
-  };
   return <main className="flex h-full flex-col overflow-hidden bg-tg-bg text-tg-text"><section className={`mx-auto flex w-full max-w-xl flex-1 min-h-0 flex-col px-5 py-8 ${knowledgeLayout ? 'gap-5 overflow-hidden' : 'space-y-5 overflow-y-auto'}`}>
     {step === 'sphere' && <><h1 className="text-2xl font-bold">{t('onboardingSphereTitle')}</h1><p className="text-tg-hint">{t('onboardingSphereHint')}</p>{BUSINESS_SPHERES.map((item) => <button key={item.id} type="button" onClick={() => setSphere(item.id)} className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left ${sphere === item.id ? 'border-tg-button bg-tg-secondary-bg' : ''}`}><span className="text-2xl">{item.icon}</span>{t(item.nameKey)}</button>)}</>}
-    {step === 'business' && <><h1 className="text-2xl font-bold">{t('onboardingBusinessTitle')}</h1><label className="block space-y-2"><span>{t('onboardingBusinessName')}</span><input className="w-full rounded-xl border bg-transparent p-3" value={orgName} onChange={(e) => setOrgName(e.target.value)} /></label><label className="block space-y-2"><span>{t('onboardingInstagramAccount')}</span><input className="w-full rounded-xl border bg-transparent p-3" placeholder="@username" value={username} onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }} />{username && !normalizeIgUsername(username) ? <span className="text-sm text-red-600">{t('onboardingUsernameInvalid')}</span> : null}{usernameError ? <span className="text-sm text-red-600">{usernameError}</span> : null}</label></>}
+    {step === 'business' && <><h1 className="text-2xl font-bold">{t('onboardingBusinessTitle')}</h1><label className="block space-y-2"><span>{t('onboardingBusinessName')}</span><input className="w-full rounded-xl border bg-transparent p-3" value={orgName} onChange={(e) => setOrgName(e.target.value)} /></label></>}
     {step === 'knowledge' && <>{!kbEditing ? <h1 className="shrink-0 text-2xl font-bold">{t('onboardingKnowledgeTitle')}</h1> : null}{!kbEditing ? <p className="shrink-0 text-tg-hint">{t('onboardingKnowledgeHint')}</p> : null}<textarea className="min-h-0 flex-1 resize-none overflow-y-auto rounded-xl border bg-transparent p-3 font-mono text-sm" value={knowledge} onChange={(e) => setKnowledge(e.target.value)} onFocus={() => setKbFocused(true)} onBlur={() => setKbFocused(false)} />{!kbEditing ? <p className="shrink-0 text-xs text-tg-hint">{knowledge.length}/20000</p> : null}</>}
-    {step === 'finish' && <><h1 className="text-2xl font-bold">{t('onboardingFinishTitle')}</h1><p className="text-tg-hint">{t('onboardingFinishIncomingIntro')}</p><ul className="space-y-3">{bottomNavItems.map((item) => <li className="flex gap-3 rounded-2xl bg-tg-secondary-bg p-4" key={item.href}><span className="shrink-0 text-tg-link">{item.icon}</span><div><h2 className="font-semibold">{t(item.labelKey)}</h2><p className="mt-1 text-sm text-tg-hint">{t(`onboardingFinish${item.labelKey.slice(3)}`)}</p></div></li>)}</ul><div className="rounded-2xl border border-tg-secondary-bg p-4">{connectStatus === 'ready' ? <button type="button" onClick={connectInstagram} className="w-full rounded-xl bg-tg-button p-4 font-medium text-tg-button-text">{t('onboardingConnectInstagram')}</button> : connectStatus === 'active' ? <p className="font-medium text-emerald-700">✓ {t('onboardingInstagramConnected')}</p> : connectStatus ? <p className="font-medium text-tg-hint">⏳ {t('onboardingAwaitingAdmin')}</p> : null}</div></>}
+    {step === 'finish' && <><h1 className="text-2xl font-bold">{t('onboardingFinishTitle')}</h1><p className="text-tg-hint">{t('onboardingFinishIncomingIntro')}</p><ul className="space-y-3">{bottomNavItems.map((item) => <li className="flex gap-3 rounded-2xl bg-tg-secondary-bg p-4" key={item.href}><span className="shrink-0 text-tg-link">{item.icon}</span><div><h2 className="font-semibold">{t(item.labelKey)}</h2><p className="mt-1 text-sm text-tg-hint">{t(`onboardingFinish${item.labelKey.slice(3)}`)}</p></div></li>)}</ul><ZernioConnectPanel connection={zernio} onRefresh={loadZernio} /></>}
     {error ? <p className="text-sm text-red-600">{error}</p> : null}
   </section>{!isFinish ? <footer className="shrink-0 border-t bg-tg-bg p-4"><div className="mx-auto flex w-full max-w-xl gap-3">{hasBack ? <button type="button" onClick={() => void back()} className="rounded-xl bg-tg-secondary-bg px-5 py-4 font-medium">{t('onboardingBack')}</button> : null}<button type="button" disabled={!canContinue || saving} onClick={() => void next()} className="flex-1 rounded-xl bg-tg-button p-4 font-medium text-tg-button-text disabled:opacity-40">{saving ? t('onboardingSaving') : step === 'knowledge' ? t('onboardingComplete') : t('onboardingNext')}</button></div></footer> : null}</main>;
 }

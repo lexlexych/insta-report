@@ -53,3 +53,4 @@
 | T-050 | awaiting_merge | zernio | PR эпика (в конце) | 0 | 2026-07-16 |
 | T-051 | awaiting_merge | zernio | PR эпика (в конце) | 1 | 2026-07-16 |
 | T-052 | awaiting_merge | zernio | ручной merge | 0 | 2026-07-16 |
+| T-053 | awaiting_merge | zernio | ручной merge | 0 | 2026-07-16 |

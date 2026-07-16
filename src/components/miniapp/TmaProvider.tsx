@@ -195,7 +195,7 @@ function TenantProvider({ children }: { children: ReactNode }) {
     const startParam = launchParams.tgWebAppStartParam;
 
     if (startParam === 'connect') {
-      router.replace('/app/connect-instagram');
+      router.replace('/app');
       return;
     }
 
@@ -205,7 +205,10 @@ function TenantProvider({ children }: { children: ReactNode }) {
     }
 
     // Открыто web_app-кнопкой прямо на этом экране — не уводить на онбординг.
-    if (pathname === '/app/connect-instagram') return;
+    if (pathname === '/app/connect-instagram') {
+      router.replace('/app');
+      return;
+    }
 
     if (!isDone && !isOnboarding) {
       router.replace('/app/onboarding');
