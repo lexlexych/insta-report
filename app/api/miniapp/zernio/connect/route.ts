@@ -5,7 +5,36 @@ import { env, isZernioEnabled } from '@/lib/env';
 import { createProfile, getConnectUrl, ZernioApiError } from '@/lib/zernio/client';
 import { sign } from '@/lib/zernio/state';
 
-async function requestBody(req: Request): Promise<{ embedded: boolean }> {
+function unwrapInstagramOAuthUrl(authUrl: string): string {
+  try {
+    const loginUrl = new URL(authUrl);
+    if (
+      loginUrl.protocol !== 'https:' ||
+      loginUrl.hostname !== 'www.instagram.com' ||
+      loginUrl.pathname !== '/accounts/login/' ||
+      loginUrl.searchParams.get('force_authentication') !== '1'
+    ) {
+      return authUrl;
+    }
+
+    const next = loginUrl.searchParams.get('next');
+    if (!next) return authUrl;
+
+    const oauthUrl = new URL(next, loginUrl.origin);
+    if (
+      oauthUrl.origin !== loginUrl.origin ||
+      !['/oauth/authorize', '/oauth/authorize/'].includes(oauthUrl.pathname)
+    ) {
+      return authUrl;
+    }
+
+    return oauthUrl.toString();
+  } catch {
+    return authUrl;
+  }
+}
+
+async function requestBody(req: Request): Promise<{ embedded: boolean; ios: boolean }> {
   let body: unknown;
   try {
     body = await req.json();
@@ -13,16 +42,17 @@ async function requestBody(req: Request): Promise<{ embedded: boolean }> {
     throw new HttpError(400, 'invalid_request');
   }
   if (!body || typeof body !== 'object') throw new HttpError(400, 'invalid_request');
-  const { embedded } = body as { embedded?: unknown };
+  const { embedded, ios } = body as { embedded?: unknown; ios?: unknown };
   if (embedded !== undefined && typeof embedded !== 'boolean') throw new HttpError(400, 'invalid_request');
-  return { embedded: embedded === true };
+  if (ios !== undefined && typeof ios !== 'boolean') throw new HttpError(400, 'invalid_request');
+  return { embedded: embedded === true, ios: ios === true };
 }
 
 export const POST = apiHandler(async (req: Request) => {
   const tenant = await requireTenant(req);
   if (!isZernioEnabled()) return jsonResponse({ ok: false, error: 'disabled' }, 404);
 
-  const { embedded } = await requestBody(req);
+  const { embedded, ios } = await requestBody(req);
   const existing = await zernioAccounts.getForTenant(tenant.id);
   if (existing?.status === 'active') return jsonResponse({ ok: false, error: 'already_connected' }, 409);
 
@@ -34,7 +64,10 @@ export const POST = apiHandler(async (req: Request) => {
     const state = sign({ tenantId: tenant.id, embedded });
     const redirectUrl = `${env.APP_BASE_URL}/api/zernio/callback?state=${encodeURIComponent(state)}`;
     const { authUrl } = await getConnectUrl('instagram', profileId, redirectUrl);
-    return jsonResponse({ ok: true, url: authUrl });
+    // iOS opens Instagram's /accounts/login Universal Link in the native app. For the
+    // known force-authentication wrapper, open the same OAuth target directly so the
+    // embedded Mini App webview stays in Telegram. Other vendor URLs stay opaque.
+    return jsonResponse({ ok: true, url: embedded && ios ? unwrapInstagramOAuthUrl(authUrl) : authUrl });
   } catch (error) {
     if (error instanceof ZernioApiError) {
       console.error(`[zernio/connect] request failed tenant=${tenant.id} status=${error.status} message=${error.message}`);

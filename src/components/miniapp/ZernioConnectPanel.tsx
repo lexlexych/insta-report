@@ -30,6 +30,15 @@ function isMobileTelegram(): boolean {
   }
 }
 
+function isIosTelegram(): boolean {
+  try {
+    const params = retrieveLaunchParams() as { tgWebAppPlatform?: unknown };
+    return params.tgWebAppPlatform === 'ios';
+  } catch {
+    return false;
+  }
+}
+
 function LoadingSpinner() {
   return (
     <svg aria-hidden className="mr-2 inline-block h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -58,10 +67,11 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
     setLocalFeedback(null);
     setConnecting(true);
     try {
+      const embedded = isMobileTelegram();
       const response = await fetch('/api/miniapp/zernio/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ embedded: isMobileTelegram() }),
+        body: JSON.stringify({ embedded, ios: isIosTelegram() }),
       });
       if (response.status === 409 || response.status === 404) {
         await onRefresh();
@@ -75,7 +85,7 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
       const payload = await response.json() as { url?: unknown };
       if (typeof payload.url !== 'string') throw new Error('zernio_connect_url_missing');
 
-      if (isMobileTelegram()) window.location.assign(payload.url);
+      if (embedded) window.location.assign(payload.url);
       else if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(payload.url);
       else window.open(payload.url, '_blank', 'noopener,noreferrer');
     } catch {
