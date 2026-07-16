@@ -470,7 +470,7 @@
     "notes": "ЭПИК E11: завершён в эпик-ветке 2026-07-14. Review: approved (1 цикл — гейт connect=error теперь ведёт на шаг 1, мёртвый роут connect-instagram/success и ключи igSuccess* удалены). lint+typecheck зелёные (1 ожидаемый warning <img> по тикету). manual-test: docs/manual-tests/T-044.md. Визард из 3 шагов (инвайт тестировщика со скриншотом public/images/ig-tester-invite.png — ФАЙЛ ДОБАВЛЯЕТ ЧЕЛОВЕК, OAuth, анимированный результат), Telegram BackButton на шагах визарда, гейт awaiting_admin/none → экран ожидания. Влит в main вручную 2026-07-14 (merge 1df61ab, без PR; подтверждено git branch -r --merged и пустым diff d294c49..origin/main)."
   },
   "T-045": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -480,7 +480,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — пустые ZERNIO_* нормализуются в undefined). lint+typecheck зелёные. manual-test: docs/manual-tests/T-045.md. PR эпика будет открыт по завершении эпика. Ветка эпика — zernio (санкция человека)."
   },
   "T-046": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -490,7 +490,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-046.md (+ scripts/manual/T-046-demo.ts). PR эпика будет открыт по завершении эпика."
   },
   "T-047": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -501,7 +501,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — ветка в manual-tests T-046/T-047, embedded-aware 403, jsonResponse). lint+typecheck зелёные. manual-test: docs/manual-tests/T-047.md. Residual NIT на полировку: ветка отказа серверной сверки listAccounts в callback не embedded-aware (голый 403 вместо редиректа). ЭПИК ОСТАНОВЛЕН ЧЕЛОВЕКОМ после T-047: T-048…T-052 остаются pending, PR эпика не открыт. Возобновление — /startEpic 12."
   },
   "T-048": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -512,7 +512,7 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — повторный account.connected стал true no-op и не меняет connected_at). lint+typecheck зелёные. manual-test: docs/manual-tests/T-048.md. Вебхук Zernio: raw HMAC-подпись, быстрый ACK, account.connected/disconnected, setup-скрипт. PR эпика будет открыт по завершении эпика."
   },
   "T-049": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -525,7 +525,7 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализовано в общей ветке эпика zernio с явного разрешения человека; T-046/T-048 присутствуют в этой ветке и ожидают общего ручного merge. Review: approved (0 циклов). lint+typecheck зелёные; demo: scripts/manual/T-049-demo.ts; manual-test: docs/manual-tests/T-049.md. Zernio message.received/message.sent используют общий pipeline с кросс-провайдерным дедупом Meta mid, Inbox-контекстом и provider=zernio/zernio_conversation_id в drafts."
   },
   "T-050": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -538,7 +538,7 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализовано в общей санкционированной ветке эпика zernio. Review: approved (0 циклов). lint+typecheck зелёные; demo: scripts/manual/T-050-demo.ts; manual-test: docs/manual-tests/T-050.md. Для Zernio кнопка «Отправить» использует Inbox API, регистрирует ID собственного исходящего сообщения, гасит ручной ответ anti-double-check и повторяет PLATFORM_LIMITATION с HUMAN_AGENT. PR эпика будет открыт по завершении эпика."
   },
   "T-051": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -549,7 +549,7 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализована независимая область подключения Zernio на дашборде: локальный статус API, embedded/desktop OAuth, обновление после возврата, отключение и i18n ru/de. Review: approved (1 цикл — добавлен спиннер на кнопке запроса). lint+typecheck зелёные (2 предсуществующих предупреждения <img>). manual-test: docs/manual-tests/T-051.md. PR эпика будет открыт по завершении эпика."
   },
   "T-052": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
@@ -562,7 +562,7 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Документация deploy/README, актуализация research §9 и сквозной manual-test выполнены в санкционированной ветке zernio. Review: approved (0 циклов). lint+typecheck зелёные. Ожидается ручной merge человеком; в репозитории нет результатов внешнего пилота, поэтому вопросы OAuth/message.sent/Inbox addon/Creator/латентности/лимита профилей помечены как «не проверено в пилоте»."
   },
   "T-053": {
-    "status": "awaiting_merge",
+    "status": "done",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
