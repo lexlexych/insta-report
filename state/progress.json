@@ -468,5 +468,97 @@
       "T-043"
     ],
     "notes": "ЭПИК E11: завершён в эпик-ветке 2026-07-14. Review: approved (1 цикл — гейт connect=error теперь ведёт на шаг 1, мёртвый роут connect-instagram/success и ключи igSuccess* удалены). lint+typecheck зелёные (1 ожидаемый warning <img> по тикету). manual-test: docs/manual-tests/T-044.md. Визард из 3 шагов (инвайт тестировщика со скриншотом public/images/ig-tester-invite.png — ФАЙЛ ДОБАВЛЯЕТ ЧЕЛОВЕК, OAuth, анимированный результат), Telegram BackButton на шагах визарда, гейт awaiting_admin/none → экран ожидания. Влит в main вручную 2026-07-14 (merge 1df61ab, без PR; подтверждено git branch -r --merged и пустым diff d294c49..origin/main)."
+  },
+  "T-045": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-001"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio (санкция человека, вместо epic/E12)."
+  },
+  "T-046": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-004"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-047": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-045",
+      "T-046"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-048": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-045",
+      "T-046"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-049": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-016",
+      "T-017",
+      "T-046",
+      "T-048"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-050": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-021",
+      "T-022",
+      "T-045",
+      "T-049"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-051": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-027",
+      "T-047"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+  },
+  "T-052": {
+    "status": "pending",
+    "attempts": 0,
+    "branch": null,
+    "pr": null,
+    "deps": [
+      "T-047",
+      "T-048",
+      "T-050",
+      "T-051"
+    ],
+    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
   }
 }
