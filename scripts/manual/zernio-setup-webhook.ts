@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { env, isZernioEnabled } from '../../src/lib/env';
 import {
   createWebhookSetting,
@@ -14,6 +17,11 @@ const WEBHOOK_EVENTS = [
   'account.disconnected',
 ];
 
+function loadLocalEnv(): void {
+  const envPath = resolve(process.cwd(), '.env.local');
+  if (existsSync(envPath)) process.loadEnvFile(envPath);
+}
+
 function publicSetting(setting: ZernioWebhookSetting): Record<string, unknown> {
   return {
     id: setting._id,
@@ -27,12 +35,14 @@ function publicSetting(setting: ZernioWebhookSetting): Record<string, unknown> {
 }
 
 async function main(): Promise<void> {
+  loadLocalEnv();
   if (!isZernioEnabled()) {
     throw new Error('Zernio is disabled: set ZERNIO_API_KEY and ZERNIO_WEBHOOK_SECRET together.');
   }
 
   const url = new URL('/api/wh/zernio', env.APP_BASE_URL).toString();
   const existing = (await listWebhookSettings()).find((setting) => setting.name === WEBHOOK_NAME);
+  const action = existing ? 'updated' : 'created';
   const setting = existing
     ? await updateWebhookSetting({
         _id: existing._id,
@@ -50,10 +60,29 @@ async function main(): Promise<void> {
       });
 
   // Secret deliberately omitted from output: it is only sent while the setting is created.
-  process.stdout.write(`${JSON.stringify(publicSetting(setting), null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ action, webhook: publicSetting(setting) }, null, 2)}\n`);
 }
 
-main().catch(() => {
-  process.stderr.write('Zernio webhook setup failed. Check the configuration and Zernio dashboard.\n');
+function redactSecrets(message: string): string {
+  let redacted = message;
+  for (const secret of [process.env.ZERNIO_API_KEY, process.env.ZERNIO_WEBHOOK_SECRET]) {
+    if (secret) redacted = redacted.replaceAll(secret, '[REDACTED]');
+  }
+  return redacted;
+}
+
+function publicError(error: unknown): Record<string, unknown> {
+  if (!(error instanceof Error)) return { name: 'UnknownError', message: 'Unknown failure' };
+  const details = error as Error & { status?: unknown; code?: unknown };
+  return {
+    name: error.name,
+    ...(typeof details.status === 'number' && { status: details.status }),
+    ...(typeof details.code === 'string' && { code: details.code }),
+    message: redactSecrets(error.message),
+  };
+}
+
+main().catch((error: unknown) => {
+  process.stderr.write(`${JSON.stringify({ ok: false, error: publicError(error) }, null, 2)}\n`);
   process.exitCode = 1;
 });

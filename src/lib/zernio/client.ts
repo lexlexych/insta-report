@@ -209,17 +209,21 @@ export async function listWebhookSettings(): Promise<ZernioWebhookSetting[]> {
 export async function createWebhookSetting(
   setting: WebhookSettingInput,
 ): Promise<ZernioWebhookSetting> {
-  return zernioFetch<ZernioWebhookSetting>('/v1/webhooks/settings', {
+  const data = await zernioFetch<{ webhook?: ZernioWebhookSetting }>('/v1/webhooks/settings', {
     method: 'POST',
     body: JSON.stringify(setting),
   });
+  if (!data.webhook) throw new ZernioApiError(200, 'Zernio API returned an invalid webhook response');
+  return data.webhook;
 }
 
 export async function updateWebhookSetting(
   setting: WebhookSettingPatch,
 ): Promise<ZernioWebhookSetting> {
-  return zernioFetch<ZernioWebhookSetting>('/v1/webhooks/settings', {
+  const data = await zernioFetch<{ webhook?: ZernioWebhookSetting }>('/v1/webhooks/settings', {
     method: 'PUT',
     body: JSON.stringify(setting),
   });
+  if (!data.webhook) throw new ZernioApiError(200, 'Zernio API returned an invalid webhook response');
+  return data.webhook;
 }
