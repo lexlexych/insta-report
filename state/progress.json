@@ -538,15 +538,15 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализовано в общей санкционированной ветке эпика zernio. Review: approved (0 циклов). lint+typecheck зелёные; demo: scripts/manual/T-050-demo.ts; manual-test: docs/manual-tests/T-050.md. Для Zernio кнопка «Отправить» использует Inbox API, регистрирует ID собственного исходящего сообщения, гасит ручной ответ anti-double-check и повторяет PLATFORM_LIMITATION с HUMAN_AGENT. PR эпика будет открыт по завершении эпика."
   },
   "T-051": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "zernio",
     "pr": null,
     "deps": [
       "T-027",
       "T-047"
     ],
-    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+    "notes": "ЭПИК E12 (Instagram через Zernio). Реализация T-051 начата в общей санкционированной ветке эпика zernio."
   },
   "T-052": {
     "status": "pending",
