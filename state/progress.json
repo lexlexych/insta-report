@@ -480,14 +480,14 @@
     "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — пустые ZERNIO_* нормализуются в undefined). lint+typecheck зелёные. manual-test: docs/manual-tests/T-045.md. PR эпика будет открыт по завершении эпика. Ветка эпика — zernio (санкция человека)."
   },
   "T-046": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
     "deps": [
       "T-004"
     ],
-    "notes": "ЭПИК E12: старт 2026-07-16."
+    "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (0 циклов). lint+typecheck зелёные. manual-test: docs/manual-tests/T-046.md (+ scripts/manual/T-046-demo.ts). PR эпика будет открыт по завершении эпика."
   },
   "T-047": {
     "status": "pending",
