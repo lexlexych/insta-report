@@ -470,14 +470,14 @@
     "notes": "ЭПИК E11: завершён в эпик-ветке 2026-07-14. Review: approved (1 цикл — гейт connect=error теперь ведёт на шаг 1, мёртвый роут connect-instagram/success и ключи igSuccess* удалены). lint+typecheck зелёные (1 ожидаемый warning <img> по тикету). manual-test: docs/manual-tests/T-044.md. Визард из 3 шагов (инвайт тестировщика со скриншотом public/images/ig-tester-invite.png — ФАЙЛ ДОБАВЛЯЕТ ЧЕЛОВЕК, OAuth, анимированный результат), Telegram BackButton на шагах визарда, гейт awaiting_admin/none → экран ожидания. Влит в main вручную 2026-07-14 (merge 1df61ab, без PR; подтверждено git branch -r --merged и пустым diff d294c49..origin/main)."
   },
   "T-045": {
-    "status": "in_progress",
+    "status": "awaiting_merge",
     "attempts": 1,
     "branch": "zernio",
     "pr": null,
     "deps": [
       "T-001"
     ],
-    "notes": "ЭПИК E12: старт 2026-07-16. Ветка эпика — zernio (санкция человека, вместо epic/E12)."
+    "notes": "ЭПИК E12: завершён в эпик-ветке 2026-07-16. Review: approved (1 цикл — пустые ZERNIO_* нормализуются в undefined). lint+typecheck зелёные. manual-test: docs/manual-tests/T-045.md. PR эпика будет открыт по завершении эпика. Ветка эпика — zernio (санкция человека)."
   },
   "T-046": {
     "status": "pending",
