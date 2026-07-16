@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 import { apiHandler, jsonResponse } from '@/lib/api/http';
 import { requireTenant } from '@/lib/auth/requireTenant';
-import { drafts, igAccounts, igConnections, messageLog, usageStats } from '@/lib/db';
+import { drafts, igAccounts, igConnections, messageLog, usageStats, zernioAccounts } from '@/lib/db';
+import { isZernioEnabled } from '@/lib/env';
 import { summarizeConnectionStatus } from '@/lib/ig/status';
 
 const querySchema = z.object({ days: z.enum(['7', '30']).default('7') });
@@ -28,13 +29,15 @@ export const GET = apiHandler(async (req: Request) => {
   const from = periodStart(days);
   const fromDay = toDay(from);
   const toDayValue = toDay(new Date());
+  const zernioEnabled = isZernioEnabled();
 
-  const [usageRows, draftCounts, connection, account, recentRows] = await Promise.all([
+  const [usageRows, draftCounts, connection, account, recentRows, zernioAccount] = await Promise.all([
     usageStats.getRange(tenant.id, fromDay, toDayValue),
     drafts.countByStatusSince(tenant.id, from.toISOString()),
     igConnections.getForTenant(tenant.id),
     igAccounts.getByTenant(tenant.id),
     messageLog.recent(tenant.id, 10),
+    zernioAccounts.getForTenant(tenant.id),
   ]);
 
   const usage = usageRows.reduce(
@@ -59,6 +62,11 @@ export const GET = apiHandler(async (req: Request) => {
       statuses: draftCounts,
     },
     connection: summarizeConnectionStatus(connection, account),
+    zernio: {
+      enabled: zernioEnabled,
+      status: zernioAccount?.status ?? 'none',
+      username: zernioAccount?.username ?? null,
+    },
     recent: recentRows.map((row) => ({
       direction: row.direction,
       text: row.text && row.text.length > 80 ? `${row.text.slice(0, 79)}…` : (row.text ?? ''),
