@@ -1,6 +1,7 @@
 import { zernioAccounts } from '@/lib/db';
 import { ZernioAccountConflictError } from '@/lib/db/errors';
 import { env, isZernioEnabled } from '@/lib/env';
+import { jsonResponse } from '@/lib/api/http';
 import { escapeHTML } from '@/lib/tg/html';
 import { listAccounts, ZernioApiError } from '@/lib/zernio/client';
 import { verify } from '@/lib/zernio/state';
@@ -30,7 +31,7 @@ function failure(state: ReturnType<typeof verify>, message: string, status = 502
 }
 
 export async function GET(req: Request): Promise<Response> {
-  if (!isZernioEnabled()) return new Response(JSON.stringify({ ok: false, error: 'disabled' }), { status: 404 });
+  if (!isZernioEnabled()) return jsonResponse({ ok: false, error: 'disabled' }, 404);
 
   const url = new URL(req.url);
   const state = verify(url.searchParams.get('state'));
@@ -41,7 +42,9 @@ export async function GET(req: Request): Promise<Response> {
   if (!accountId) return failure(state, 'Не получилось подключить Instagram, попробуйте ещё раз.', 400);
 
   const stored = await zernioAccounts.getForTenant(state.tenantId);
-  if (!stored || !profileId || stored.zernio_profile_id !== profileId) return new Response('Forbidden', { status: 403 });
+  if (!stored || !profileId || stored.zernio_profile_id !== profileId) {
+    return state.embedded ? miniappRedirect('/app?zernio=error') : new Response('Forbidden', { status: 403 });
+  }
 
   try {
     const accounts = await listAccounts({ profileId });
