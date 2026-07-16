@@ -549,9 +549,9 @@
     "notes": "ЭПИК E12 (Instagram через Zernio). Реализована независимая область подключения Zernio на дашборде: локальный статус API, embedded/desktop OAuth, обновление после возврата, отключение и i18n ru/de. Review: approved (1 цикл — добавлен спиннер на кнопке запроса). lint+typecheck зелёные (2 предсуществующих предупреждения <img>). manual-test: docs/manual-tests/T-051.md. PR эпика будет открыт по завершении эпика."
   },
   "T-052": {
-    "status": "pending",
-    "attempts": 0,
-    "branch": null,
+    "status": "in_progress",
+    "attempts": 1,
+    "branch": "zernio",
     "pr": null,
     "deps": [
       "T-047",
@@ -559,6 +559,6 @@
       "T-050",
       "T-051"
     ],
-    "notes": "ЭПИК E12 (Instagram через Zernio). Ветка эпика — zernio."
+    "notes": "ЭПИК E12 (Instagram через Zernio). Документация и сквозной ручной прогон начаты в санкционированной ветке эпика zernio."
   }
 }
