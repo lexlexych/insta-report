@@ -57,9 +57,9 @@ export const envSchema = z.object({
   /** Username Telegram-бота без @ для ссылки возврата из OAuth */
   TELEGRAM_BOT_USERNAME: z.string().trim().optional().default(''),
   /** API-ключ Zernio для интеграции с Instagram через Zernio */
-  ZERNIO_API_KEY: z.string().min(1).optional(),
+  ZERNIO_API_KEY: z.string().trim().optional().transform((value) => (value ? value : undefined)),
   /** Секрет для проверки подписей webhook-ов Zernio */
-  ZERNIO_WEBHOOK_SECRET: z.string().min(1).optional(),
+  ZERNIO_WEBHOOK_SECRET: z.string().trim().optional().transform((value) => (value ? value : undefined)),
   /** Базовый URL API Zernio */
   ZERNIO_API_BASE: z.string().url().optional().default('https://zernio.com/api'),
   /** Суточный лимит запросов к симулятору тест-чата на tenant */

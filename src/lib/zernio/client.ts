@@ -161,6 +161,7 @@ export async function deleteAccount(accountId: string): Promise<void> {
 
 export async function getAccountHealth(accountId: string): Promise<{ ok: boolean; raw: unknown }> {
   const raw = await zernioFetch<unknown>(`/v1/accounts/${encodeURIComponent(accountId)}/health`);
+  // TODO(T-052): вывести ok из содержимого raw, когда форма ответа health прояснится в пилоте
   return { ok: true, raw };
 }
 
