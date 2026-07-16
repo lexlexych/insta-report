@@ -39,6 +39,18 @@ function isIosTelegram(): boolean {
   }
 }
 
+function browserBridgeUrl(authUrl: string): string {
+  const bridgeUrl = new URL('/zernio-oauth', window.location.origin);
+  // Fragment не уходит на сервер и не попадает в access-логи вместе с OAuth state.
+  bridgeUrl.hash = encodeURIComponent(authUrl);
+  return bridgeUrl.toString();
+}
+
+function openExternalBrowser(url: string): void {
+  if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(url);
+  else window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 function LoadingSpinner() {
   return (
     <svg aria-hidden className="mr-2 inline-block h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -59,19 +71,24 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
   const { t } = useT();
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [iosBrowserUrl, setIosBrowserUrl] = useState<string | null>(null);
   const [localFeedback, setLocalFeedback] = useState<ZernioFeedback>(null);
   const visibleFeedback = localFeedback ?? feedback;
   const status = visibleFeedback === 'error' ? 'error' : connection?.status;
 
   const connect = useCallback(async () => {
     setLocalFeedback(null);
+    setIosBrowserUrl(null);
     setConnecting(true);
     try {
-      const embedded = isMobileTelegram();
+      const ios = isIosTelegram();
+      // iOS проходит OAuth во внешнем браузерном контексте. Mini App остаётся открытой
+      // под ним и обновляет статус по focus/visibilitychange после возврата пользователя.
+      const embedded = isMobileTelegram() && !ios;
       const response = await fetch('/api/miniapp/zernio/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ embedded, ios: isIosTelegram() }),
+        body: JSON.stringify({ embedded, ios }),
       });
       if (response.status === 409 || response.status === 404) {
         await onRefresh();
@@ -85,7 +102,11 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
       const payload = await response.json() as { url?: unknown };
       if (typeof payload.url !== 'string') throw new Error('zernio_connect_url_missing');
 
-      if (embedded) window.location.assign(payload.url);
+      if (ios) {
+        const url = browserBridgeUrl(payload.url);
+        setIosBrowserUrl(url);
+        openExternalBrowser(url);
+      } else if (embedded) window.location.assign(payload.url);
       else if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(payload.url);
       else window.open(payload.url, '_blank', 'noopener,noreferrer');
     } catch {
@@ -98,6 +119,7 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
   const disconnect = useCallback(async () => {
     if (!window.confirm(t('zernioDisconnectConfirm'))) return;
     setLocalFeedback(null);
+    setIosBrowserUrl(null);
     setDisconnecting(true);
     try {
       const response = await fetch('/api/miniapp/zernio/disconnect', { method: 'POST' });
@@ -141,9 +163,16 @@ export function ZernioConnectPanel({ connection, feedback = null, onRefresh }: P
           {disconnecting ? <><LoadingSpinner />{t('zernioDisconnecting')}</> : t('zernioDisconnectButton')}
         </button>
       ) : (
-        <button type="button" className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} onClick={() => void connect()}>
-          {connecting ? <><LoadingSpinner />{t('zernioConnecting')}</> : t(status === 'none' || status === 'pending' ? 'zernioConnectButton' : 'zernioReconnectButton')}
-        </button>
+        <>
+          <button type="button" className="mt-3 inline-block rounded-xl bg-tg-button px-4 py-3 font-medium text-tg-button-text disabled:opacity-40" disabled={connecting} onClick={() => void connect()}>
+            {connecting ? <><LoadingSpinner />{t('zernioConnecting')}</> : t(status === 'none' || status === 'pending' ? 'zernioConnectButton' : 'zernioReconnectButton')}
+          </button>
+          {iosBrowserUrl ? (
+            <button type="button" className="mt-3 block rounded-xl border bg-tg-bg/70 px-4 py-2 text-sm font-medium" onClick={() => openExternalBrowser(iosBrowserUrl)}>
+              {t('zernioOpenBrowserButton')}
+            </button>
+          ) : null}
+        </>
       )}
     </section>
   );

@@ -64,10 +64,10 @@ export const POST = apiHandler(async (req: Request) => {
     const state = sign({ tenantId: tenant.id, embedded });
     const redirectUrl = `${env.APP_BASE_URL}/api/zernio/callback?state=${encodeURIComponent(state)}`;
     const { authUrl } = await getConnectUrl('instagram', profileId, redirectUrl);
-    // iOS opens Instagram's /accounts/login Universal Link in the native app. For the
-    // known force-authentication wrapper, open the same OAuth target directly so the
-    // embedded Mini App webview stays in Telegram. Other vendor URLs stay opaque.
-    return jsonResponse({ ok: true, url: embedded && ios ? unwrapInstagramOAuthUrl(authUrl) : authUrl });
+    // iOS получает прямую OAuth-цель без известной Universal Link-обёртки. Клиент всё
+    // равно открывает её через same-origin browser bridge, поэтому Instagram URL никогда
+    // не передаётся Telegram/iOS как исходная ссылка пользовательского клика.
+    return jsonResponse({ ok: true, url: ios ? unwrapInstagramOAuthUrl(authUrl) : authUrl });
   } catch (error) {
     if (error instanceof ZernioApiError) {
       console.error(`[zernio/connect] request failed tenant=${tenant.id} status=${error.status} message=${error.message}`);
